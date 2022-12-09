@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "639048545067",
+    "project_id": "checklist-atm",
+    "storage_bucket": "checklist-atm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639048545067:android:7c0cbb70df9dae3cc80b6e",
+        "android_client_info": {
+          "package_name": "com.example.telkom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639048545067-a47bbptj5b44m73ih30oq7mqig2mvrs0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAph-uR6rivKtHRxYgvhxTXthDPvdQf3FI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639048545067-a47bbptj5b44m73ih30oq7mqig2mvrs0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639048545067-hsiiinheoeguirl6tmvlritj4koe1ktu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.telkom"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
