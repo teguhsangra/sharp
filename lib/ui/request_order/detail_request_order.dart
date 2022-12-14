@@ -138,7 +138,7 @@ class RequestOrderDetailState extends State<RequestOrderDetailScreen> {
                             children: [
                               Icon(
                                 Icons.photo_camera,
-                                color: Color(0XFFFA4A0C),
+                                color: Color(0xFFE50404),
                                 size: 28,
                               ),
                               SizedBox(
@@ -162,7 +162,7 @@ class RequestOrderDetailState extends State<RequestOrderDetailScreen> {
                             children: [
                               Icon(
                                 Icons.image,
-                                color: Color(0XFFFA4A0C),
+                                color: Color(0xFFE50404),
                                 size: 28,
                               ),
                               SizedBox(
@@ -297,7 +297,7 @@ class RequestOrderDetailState extends State<RequestOrderDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFA4A0C),
+        backgroundColor: const Color(0xFFE50404),
         title: const Text("Request Order Detail"),
         actions: [
           Container(
@@ -686,7 +686,7 @@ class RequestOrderDetailState extends State<RequestOrderDetailScreen> {
                                                   BorderRadius.circular(12.0),
                                                 ),
                                                 elevation: 0,
-                                                color: Color(0xFFFA4A0C),
+                                                color: Color(0xFFE50404),
                                                 child: const SizedBox(
                                                   width: 100,
                                                   height: 40,
@@ -729,7 +729,7 @@ class RequestOrderDetailState extends State<RequestOrderDetailScreen> {
                                                   BorderRadius.circular(12.0),
                                                 ),
                                                 elevation: 0,
-                                                color: Color(0xFFFA4A0C),
+                                                color: Color(0xFFE50404),
                                                 child: const SizedBox(
                                                   width: 100,
                                                   height: 40,
@@ -782,7 +782,7 @@ class RequestOrderDetailState extends State<RequestOrderDetailScreen> {
                                             ),
                                             child: Icon(
                                               Icons.photo_camera,
-                                              color: Color(0XFFFA4A0C),
+                                              color: Color(0xFFE50404),
                                               size: 28,
                                             ),
                                           ),
@@ -804,7 +804,7 @@ class RequestOrderDetailState extends State<RequestOrderDetailScreen> {
                               height: 50,
                               width: size.width * 0.9,
                               decoration: BoxDecoration(
-                                  color: Color(0xFFFA4A0C),
+                                  color: Color(0xFFE50404),
                                   borderRadius: BorderRadius.circular(20)),
                               child: TextButton(
                                 onPressed: _controller.value.text.isNotEmpty

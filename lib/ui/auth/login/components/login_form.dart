@@ -34,7 +34,7 @@ class LoginState extends State<LoginForm> {
   }
 
   void getTenant() async {
-    var tenantData = await Network().getTenant('get_tenant?code=BIRAWAATM');
+    var tenantData = await Network().getTenant('get_tenant?code=BIRAWASFA');
 
     if (tenantData != null) {
       setState(() {
@@ -216,29 +216,11 @@ class LoginState extends State<LoginForm> {
             },
             isNumber: false,
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            height: 50,
-            width: size.width * 0.8,
-            decoration: BoxDecoration(
-                color: kPrimaryColor, borderRadius: BorderRadius.circular(20)),
-            child: TextButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  login();
-                }
-              },
-              child: const Text(
-                'Login',
-                style: TextStyle(color: Colors.white, fontSize: 25),
-              ),
-            ),
-          ),
           SizedBox(
             height: size.height * 0.03,
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               GestureDetector(
                 onTap: () {
@@ -261,6 +243,29 @@ class LoginState extends State<LoginForm> {
               )
             ],
           ),
+          SizedBox(
+            height: size.height * 0.03,
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            height: 50,
+            width: size.width * 0.8,
+            decoration: BoxDecoration(
+                color: kPrimaryColor, borderRadius: BorderRadius.circular(20)),
+            child: TextButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  login();
+                }
+              },
+              child: const Text(
+                'Login',
+                style: TextStyle(color: Colors.white, fontSize: 25),
+              ),
+            ),
+          ),
+
+
         ],
       ),
     );

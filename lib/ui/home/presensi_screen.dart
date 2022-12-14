@@ -567,7 +567,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                                   ),
                                                                   elevation: 0,
                                                                   color: const Color(
-                                                                      0xFFFA4A0C),
+                                                                      0xFFE50404),
                                                                   child:
                                                                       const SizedBox(
                                                                     width: 200,
@@ -613,7 +613,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                         Icon(
                                                           Icons.location_pin,
                                                           color:
-                                                              Color(0XFFFA4A0C),
+                                                              Color(0xFFE50404),
                                                           size: 25,
                                                         ),
                                                         SizedBox(
@@ -647,7 +647,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                         Icon(
                                                           Icons.watch,
                                                           color:
-                                                              Color(0XFFFA4A0C),
+                                                              Color(0xFFE50404),
                                                           size: 25,
                                                         ),
                                                         SizedBox(
@@ -706,7 +706,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                                 ? Color(
                                                                     0xFFD7D4D3)
                                                                 : Color(
-                                                                    0xFFFA4A0C),
+                                                                    0xFFE50404),
                                                             child:
                                                                 const SizedBox(
                                                               width: 200,
@@ -761,7 +761,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                 elevation: 0,
                                 color: unSignout.length > 0
                                     ? Color(0xFFD7D4D3)
-                                    : Color(0xFFFA4A0C),
+                                    : Color(0xFFE50404),
                                 child: const SizedBox(
                                   width: 130,
                                   height: 60,
@@ -903,7 +903,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                                   ),
                                                                   elevation: 0,
                                                                   color: const Color(
-                                                                      0xFFFA4A0C),
+                                                                      0xFFE50404),
                                                                   child:
                                                                       const SizedBox(
                                                                     width: 200,
@@ -949,7 +949,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                         Icon(
                                                           Icons.location_pin,
                                                           color:
-                                                              Color(0XFFFA4A0C),
+                                                              Color(0xFFE50404),
                                                           size: 25,
                                                         ),
                                                         SizedBox(
@@ -985,7 +985,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                         Icon(
                                                           Icons.watch,
                                                           color:
-                                                              Color(0XFFFA4A0C),
+                                                              Color(0xFFE50404),
                                                           size: 25,
                                                         ),
                                                         SizedBox(
@@ -1044,7 +1044,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                                                 ? Color(
                                                                     0xFFD7D4D3)
                                                                 : Color(
-                                                                    0xFFFA4A0C),
+                                                                    0xFFE50404),
                                                             child:
                                                                 const SizedBox(
                                                               width: 200,
@@ -1098,7 +1098,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                 ),
                                 elevation: 0,
                                 color: unSignout.length > 0
-                                    ? Color(0xFFFA4A0C)
+                                    ? Color(0xFFE50404)
                                     : Color(0xFFD7D4D3),
                                 child: const SizedBox(
                                   width: 130,

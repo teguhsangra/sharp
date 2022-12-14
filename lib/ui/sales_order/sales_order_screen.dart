@@ -3,22 +3,22 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:telkom/components/helper.dart';
-import 'package:telkom/model/request_order.dart';
+import 'package:telkom/model/sales_order.dart';
 import 'package:telkom/network/api.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/request_order/detail_request_order.dart';
-import 'package:telkom/ui/request_order/form_request_order.dart';
+import 'package:telkom/ui/sales_order/form_sales_order.dart';
 
-class RequestOrderScreen extends StatefulWidget {
-  const RequestOrderScreen({super.key});
+class SalesOrderScreen extends StatefulWidget {
+  const SalesOrderScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => RequestOrderState();
+  State<StatefulWidget> createState() => SalesOrderState();
 }
 
-class RequestOrderState extends State<RequestOrderScreen> {
+class SalesOrderState extends State<SalesOrderScreen> {
   bool isLoading = true;
-  List<RequestOrder> requestOrders = [];
+  List<SalesOrder> salesOrder = [];
   String? selectedFilter = 'semua';
 
   @override
@@ -36,36 +36,36 @@ class RequestOrderState extends State<RequestOrderScreen> {
   }
 
   void getRequestOrder() async {
-    var res = await Network().getData('request_orders?this_year=Y');
+    var res = await Network().getData('sales_orders?this_year=Y');
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
 
       setState(() {
-        requestOrders.clear();
+        salesOrder.clear();
         resultData['data'].forEach((detailData) {
-          requestOrders.add(RequestOrder.fromJson(detailData));
+          salesOrder.add(SalesOrder.fromJson(detailData));
         });
       });
     }
   }
 
-  void filterRequestOrder() async{
-    var url = 'request_orders?this_year=Y&select_by=status&select_query=${selectedFilter}';
-    if(selectedFilter == 'semua'){
-      url = 'request_orders?this_year=Y';
-    }
-    var res = await Network().getData(url);
-    if (res.statusCode == 200) {
-      var resultData = jsonDecode(res.body);
-
-      setState(() {
-        requestOrders.clear();
-        resultData['data'].forEach((detailData) {
-          requestOrders.add(RequestOrder.fromJson(detailData));
-        });
-      });
-    }
-  }
+  // void filterRequestOrder() async{
+  //   var url = 'request_orders?this_year=Y&select_by=status&select_query=${selectedFilter}';
+  //   if(selectedFilter == 'semua'){
+  //     url = 'request_orders?this_year=Y';
+  //   }
+  //   var res = await Network().getData(url);
+  //   if (res.statusCode == 200) {
+  //     var resultData = jsonDecode(res.body);
+  //
+  //     setState(() {
+  //       requestOrders.clear();
+  //       resultData['data'].forEach((detailData) {
+  //         requestOrders.add(RequestOrder.fromJson(detailData));
+  //       });
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
           color: Colors.black, //change your color here
         ),
         title: Text(
-          "Request Order",
+          "Sales Order",
           style: TextStyle(color: Colors.black),
         ),
         actions: [
@@ -91,7 +91,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                       builder: (context) => const NotificationScreen()),
                 );
               },
-              icon: Icon(Icons.notifications, color: Color(0XFFFA4A0C)),
+              icon: Icon(Icons.notifications, color: Color(0xFFE50404)),
             ),
           ),
           CircleAvatar(
@@ -139,7 +139,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                       child: ChoiceChip(
                         padding: EdgeInsets.all(10),
                         backgroundColor: Colors.grey,
-                        selectedColor: Color(0xFFFA4A0C),
+                        selectedColor: Color(0xFFE50404),
                         selected: selectedFilter == 'semua'
                             ? true
                             : false,
@@ -149,7 +149,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                           if (selected) {
                             setState(() {
                               selectedFilter = 'semua';
-                              filterRequestOrder();
+                              // filterRequestOrder();
                             });
                           }
 
@@ -161,7 +161,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                       child: ChoiceChip(
                         padding: EdgeInsets.all(10),
                         backgroundColor: Colors.grey,
-                        selectedColor: Color(0xFFFA4A0C),
+                        selectedColor: Color(0xFFE50404),
                         selected: selectedFilter == 'submission'
                             ? true
                             : false,
@@ -170,7 +170,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                           setState(() {
                             if (value) {
                               selectedFilter = 'submission';
-                              filterRequestOrder();
+                              // filterRequestOrder();
                             } else {
                               selectedFilter = '';
                             }
@@ -183,7 +183,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                       child: ChoiceChip(
                         padding: EdgeInsets.all(10),
                         backgroundColor: Colors.grey,
-                        selectedColor: Color(0xFFFA4A0C),
+                        selectedColor: Color(0xFFE50404),
                         selected: selectedFilter == 'approve'
                             ? true
                             : false,
@@ -192,7 +192,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                           setState(() {
                             if (value) {
                               selectedFilter = 'approve';
-                              filterRequestOrder();
+                              // filterRequestOrder();
                             } else {
                               selectedFilter = '';
                             }
@@ -205,7 +205,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                       child: ChoiceChip(
                         padding: EdgeInsets.all(10),
                         backgroundColor: Colors.grey,
-                        selectedColor: Color(0xFFFA4A0C),
+                        selectedColor: Color(0xFFE50404),
                         selected: selectedFilter == 'reject'
                             ? true
                             : false,
@@ -214,7 +214,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                           setState(() {
                             if (value) {
                               selectedFilter = 'reject';
-                              filterRequestOrder();
+                              // filterRequestOrder();
                             } else {
                               selectedFilter = '';
                             }
@@ -229,9 +229,9 @@ class RequestOrderState extends State<RequestOrderScreen> {
             Expanded(
               child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: requestOrders.length,
+                  itemCount: salesOrder.length,
                   itemBuilder: (context, index) {
-                    var item = requestOrders[index];
+                    var item = salesOrder[index];
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -266,7 +266,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                                   Container(
                                     padding: EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                        color: Color(0xFFFA4A0C), shape: BoxShape.circle),
+                                        color: Color(0xFFE50404), shape: BoxShape.circle),
                                     child: Icon(
                                       Icons.calendar_today_outlined,
                                       color: Colors.white,
@@ -312,7 +312,7 @@ class RequestOrderState extends State<RequestOrderScreen> {
                                         fontWeight: FontWeight.bold
                                     ),
                                   ),
-                                  Text(item.room!.name,
+                                  Text(item.product!.name,
                                     softWrap: true,
                                     maxLines: 5,
                                     overflow: TextOverflow.ellipsis,
@@ -324,73 +324,43 @@ class RequestOrderState extends State<RequestOrderScreen> {
                               )
                           ),
                           SizedBox(height: 20,),
-                          item.status == 'reject'
-                              ?
-                          Container(
-                              width: 300,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Reason:',
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                  Text(item.rejectReason.toString(),
-                                    softWrap: true,
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 12
-                                    ),
-                                  )
-                                ],
-                              )
-                          )
-                              :
-                          new Container(),
-                          SizedBox(height: 20,),
-                          Container(
-                            width: 400,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                    BorderRadius.circular(
-                                        30.0),
-                                  ),
-                                  elevation: 0,
-                                  color:
-                                  item.status == 'reject'?
-                                  Color(0xFFFFEBEB)
-                                      : item.status == 'approve' ? Color(0xFF50C594)
-                                      : Color(0XFFFFF5E8)
-                                  ,
-                                  child: SizedBox(
-                                      width: size.width / 4,
-                                      height: 35,
-                                      child: Center(child: Text(item.status,
-                                        style: TextStyle(
-                                            color: item.status == 'reject'?
-                                            Color(0xFFCB4C4D)
-                                                : item.status == 'approve' ? Colors.white
-                                                : Color(0XFFEA9B3F),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14
-                                        ),
-                                      ))
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
+
+                          // Container(
+                          //   width: 400,
+                          //   child: Column(
+                          //     crossAxisAlignment: CrossAxisAlignment.start,
+                          //     children: [
+                          //       Card(
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius:
+                          //           BorderRadius.circular(
+                          //               30.0),
+                          //         ),
+                          //         elevation: 0,
+                          //         color:
+                          //         item.status == 'reject'?
+                          //         Color(0xFFFFEBEB)
+                          //             : item.status == 'approve' ? Color(0xFF50C594)
+                          //             : Color(0XFFFFF5E8)
+                          //         ,
+                          //         child: SizedBox(
+                          //             width: size.width / 4,
+                          //             height: 35,
+                          //             child: Center(child: Text(item.status,
+                          //               style: TextStyle(
+                          //                   color: item.status == 'reject'?
+                          //                   Color(0xFFCB4C4D)
+                          //                       : item.status == 'approve' ? Colors.white
+                          //                       : Color(0XFFEA9B3F),
+                          //                   fontWeight: FontWeight.bold,
+                          //                   fontSize: 14
+                          //               ),
+                          //             ))
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // )
                         ]),
                       ),
                     );
@@ -405,11 +375,11 @@ class RequestOrderState extends State<RequestOrderScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => FormRequestOrderScreen(),
+              builder: (context) => FormSalesOrderScreen(),
             ),
           );
         },
-        backgroundColor: Color(0xFFFA4A0C),
+        backgroundColor: Color(0xFFE50404),
         child: const Icon(
           Icons.add,
           color: Colors.white,

@@ -308,7 +308,7 @@ class CheckLisDetailState extends State<ChecklistResultDetailIsCheckedScreen> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFA4A0C),
+        backgroundColor: const Color(0xFFE50404),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
@@ -413,7 +413,7 @@ class CheckLisDetailState extends State<ChecklistResultDetailIsCheckedScreen> {
                         //   height: 50,
                         //   width: size.width * 0.9,
                         //   decoration: BoxDecoration(
-                        //       color:  Color(0xFFFA4A0C),
+                        //       color:  Color(0xFFE50404),
                         //       borderRadius: BorderRadius.circular(20)),
                         //   child: TextButton(
                         //     onPressed: () {

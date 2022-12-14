@@ -53,7 +53,6 @@ dependencies:
   custom_info_window: ^1.0.1
   full_screen_image_null_safe: ^2.0.0
   map_launcher: ^2.4.0
-  flutter_masked_text2: ^0.9.1
   workmanager: ^0.5.1
   permission_handler: ^10.2.0
   firebase_messaging: ^14.1.3

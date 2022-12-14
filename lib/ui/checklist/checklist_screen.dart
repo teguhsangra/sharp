@@ -212,7 +212,7 @@ class ChecklistState extends State<ChecklistScreen> {
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFFFA4A0C)))
+                                      color: Color(0xFFE50404)))
                           ],
                         ),
                         const SizedBox(height: 15.0),
@@ -230,7 +230,7 @@ class ChecklistState extends State<ChecklistScreen> {
 
                             return ChoiceChip(
                               backgroundColor: Colors.grey,
-                              selectedColor: Color(0xFFFA4A0C),
+                              selectedColor: Color(0xFFE50404),
                               label: Text(
                                 item.name,
                                 style: TextStyle(
@@ -277,7 +277,7 @@ class ChecklistState extends State<ChecklistScreen> {
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
-                                          color: Color(0xFFFA4A0C))),
+                                          color: Color(0xFFE50404))),
                                 )
                             ]),
                         const SizedBox(height: 15.0),
@@ -296,7 +296,7 @@ class ChecklistState extends State<ChecklistScreen> {
                               var item = listRoom[index];
                               return ChoiceChip(
                                 backgroundColor: Colors.grey,
-                                selectedColor: Color(0xFFFA4A0C),
+                                selectedColor: Color(0xFFE50404),
                                 label: Text(
                                   item.name,
                                   style: TextStyle(
@@ -331,7 +331,7 @@ class ChecklistState extends State<ChecklistScreen> {
                             height: 50,
                             width: size.width * 0.9,
                             decoration: BoxDecoration(
-                                color: Color(0xFFFA4A0C),
+                                color: Color(0xFFE50404),
                                 borderRadius: BorderRadius.circular(20)),
                             child: TextButton(
                               onPressed: () {
@@ -490,7 +490,7 @@ class ChecklistState extends State<ChecklistScreen> {
                         height: 50,
                         width: size.width * 0.9,
                         decoration: BoxDecoration(
-                            color: Color(0xFFFA4A0C),
+                            color: Color(0xFFE50404),
                             borderRadius: BorderRadius.circular(20)),
                         child: TextButton(
                           onPressed: () {
@@ -550,7 +550,7 @@ class ChecklistState extends State<ChecklistScreen> {
                       builder: (context) => const NotificationScreen()),
                 );
               },
-              icon: Icon(Icons.notifications, color: Color(0XFFFA4A0C)),
+              icon: Icon(Icons.notifications, color: Color(0xFFE50404)),
             ),
           ),
           CircleAvatar(
@@ -601,14 +601,14 @@ class ChecklistState extends State<ChecklistScreen> {
                         margin: EdgeInsets.all(15),
                         padding: EdgeInsets.all(5),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Color(0XFFFA4A0C)),
+                          border: Border.all(color: Color(0xFFE50404)),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.filter_alt,
-                              color: Color(0XFFFA4A0C),
+                              color: Color(0xFFE50404),
                               size: 20,
                             ),
                             Text(' Filter '),
@@ -645,7 +645,7 @@ class ChecklistState extends State<ChecklistScreen> {
             margin: EdgeInsets.all(15),
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Color(0XFFFA4A0C),
+              color: Color(0xFFE50404),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -657,7 +657,7 @@ class ChecklistState extends State<ChecklistScreen> {
                       color: Colors.white, shape: BoxShape.circle),
                   child: Icon(
                     Icons.map,
-                    color: Color(0XFFFA4A0C),
+                    color: Color(0xFFE50404),
                     size: 25,
                   ),
                 ),
@@ -734,7 +734,7 @@ class ChecklistState extends State<ChecklistScreen> {
                   Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                        color: Color(0xFFFA4A0C), shape: BoxShape.circle),
+                        color: Color(0xFFE50404), shape: BoxShape.circle),
                     child: Icon(
                       Icons.calendar_today_outlined,
                       color: Colors.white,

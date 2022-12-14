@@ -11,43 +11,55 @@ import 'package:telkom/components/helper.dart';
 import 'package:telkom/components/rounded_input_field.dart';
 import 'package:telkom/model/customer.dart';
 import 'package:telkom/model/location.dart';
+import 'package:telkom/model/product.dart';
 import 'package:telkom/model/room.dart';
 import 'package:telkom/network/api.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
-import 'package:telkom/ui/home/home_screen.dart';
 import 'package:telkom/ui/request_order/detail_request_order.dart';
+import 'package:telkom/ui/home/home_screen.dart';
 
-class FormRequestOrderScreen extends StatefulWidget {
-  const FormRequestOrderScreen({super.key});
+class FormSalesOrderScreen extends StatefulWidget {
+  const FormSalesOrderScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => FormRequestOrderState();
+  State<StatefulWidget> createState() => FormSalesOrderState();
 }
 
-class FormRequestOrderState extends State<FormRequestOrderScreen> {
+class FormSalesOrderState extends State<FormSalesOrderScreen> {
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final formBottom = GlobalKey<FormState>();
+  final formCustomer = GlobalKey<FormState>();
+
   var user = {};
   List requestOrders = [];
   late List listCustomer = <Customer>[];
   List customers = <Customer>[];
 
-  late List listRoom = <Room>[];
-  List rooms = <Room>[];
+  late List listLocation = <Location>[];
+  List locations = <Location>[];
 
-  // late List listProduct = <Product>[];
-  // List products = <Room>[];
+  late List listProduct = <Product>[];
+  List products = <Room>[];
 
   bool isQty = false;
   bool isProduct = false;
   bool isEditItem = false;
   bool isListFilter = false;
   bool isSubmitListFilter = false;
+  bool isAddCustomer = true;
   var indexItem;
-  var indexRoom;
+  var indexLocation;
   var file_1;
   var file_2;
+
+  var codeCustomer;
+  var typeCustomer = 'person';
+  var nameCustomer;
+  var emailCustomer;
+  var phoneCustomer = '';
+  var typeIdentityCustomer = 'id_cards';
+  var noIdentity = '';
 
   var code;
   var name;
@@ -64,12 +76,45 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
   String nameProduct = '';
   int qty = 0;
   int price = 0;
+
   var selectedIndexProduct = null;
   var selectedNameProduct = null;
+  var selectedPriceProduct = '0';
+
   var selectedIndexCustomer = null;
   var selectedNameCustomer;
-  var selectedIndexRoom = null;
-  var selectedNameRoom;
+
+  var selectedIndexLocation = null;
+  var selectedNameLocation;
+
+  var selectedIndexAsset = null;
+  var selectedNameAsset;
+
+  var type = [
+    {
+      "name": "Pribadi",
+      "value": "person"
+    },
+    {
+      "name": "Perusahaan",
+      "value": "company"
+    }
+  ];
+
+  var type_identity = [
+    {
+      "name": "ID Card",
+      "value": "id_cards"
+    },
+    {
+      "name": "Driving License",
+      "value": "driving_license"
+    },
+    {
+      "name": "Passport",
+      "value": "passport"
+    }
+  ];
 
   showAlertDialog(BuildContext context) {
     AlertDialog alert = AlertDialog(
@@ -118,11 +163,6 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
       isLoading = true;
     });
     loadUserData();
-    getCode();
-    getCustomer();
-    customers = listCustomer;
-    getRoom();
-    rooms = listRoom;
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         isLoading = false;
@@ -132,12 +172,18 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
 
   loadUserData() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
-
     var userSession = jsonDecode(localStorage.getString('user').toString());
-
     setState(() {
       user = userSession;
     });
+    getCode();
+    getCodeCustomer();
+    getCustomer();
+    customers = listCustomer;
+    getLocation();
+    locations = listLocation;
+    getProduct();
+    products = listProduct;
   }
 
   void getCode() async {
@@ -151,9 +197,20 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
     }
   }
 
+  void getCodeCustomer() async {
+    var res = await Network().getData('customers-get-code');
+
+    if (res.statusCode == 201) {
+      var resultData = jsonDecode(res.body);
+      setState(() {
+        codeCustomer = resultData['data'];
+      });
+    }
+  }
+
   void getCustomer() async {
     var res = await Network()
-        .getData('customers?select_by=type&select_query=company');
+        .getData('customers');
 
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
@@ -167,25 +224,422 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
     }
   }
 
-  void getRoom() async {
-    var res = await Network().getData('rooms');
+  void getLocation() async {
+    var res = await Network().getData('locations');
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
-
       setState(() {
-        listRoom.clear();
+        listLocation.clear();
         resultData['data'].forEach((v) {
-          listRoom.add(Room.fromJson(v));
+          listLocation.add(Location.fromJson(v));
         });
       });
     }
+  }
+
+  void getProduct() async {
+
+    var res = await Network().getData('products?tenant_id=${user['tenant_id']}');
+    var resultData = jsonDecode(res.body);
+    // print(tenant_id);
+    if (res.statusCode == 200 || res.statusCode == 201) {
+
+
+      setState(() {
+        listProduct.clear();
+        resultData['data'].forEach((v) {
+          listProduct.add(Product.fromJson(v));
+        });
+      });
+    }
+  }
+
+  void addCustomer() async{
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.95,
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 50.0,
+                        height: 5.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15.0),
+                    Text('Form Add Customer',
+                        style: TextStyle(
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black)),
+                    SizedBox(height: 15.0),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          Form(
+                            key: formCustomer,
+                            child: Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('Kode *',
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black)),
+                                ),
+                                SizedBox(height: 20.0),
+                                Container(
+                                  height: 50,
+                                  child: TextFormField(
+                                    initialValue: codeCustomer,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      labelText: "",
+                                    ),
+                                    onChanged: (value) {
+                                      // print(value);
+                                      setState(() {
+                                        codeCustomer = value;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return "Kode harus di isi";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 20,),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('Tipe *',
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black)),
+                                ),
+                                SizedBox(height: 20.0),
+                                Padding(
+                                  padding:  EdgeInsets.all(5),
+                                  child: Container(
+                                    width: 400,
+                                    padding: EdgeInsets.only(left: 10, right: 10),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(color:Colors.grey, width: 1),
+                                        borderRadius: BorderRadius.circular(19)
+                                    ),
+                                    child: DropdownButtonFormField(
+
+                                        value: typeCustomer,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            typeCustomer = value.toString();
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          focusedBorder: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                        ),
+                                        items: type
+                                            .map((type) => DropdownMenuItem(
+                                            value: type['value'].toString(),
+                                            child: Text(type['name'].toString())
+                                        ))
+                                            .toList(),
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return "Pilih tipe identitas yang benar";
+                                          } else {
+                                            return null;
+                                          }
+                                        }
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20,),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('Nama *',
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black)),
+                                ),
+                                SizedBox(height: 20.0),
+                                Container(
+                                  height: 50,
+                                  child: TextFormField(
+                                    initialValue: nameCustomer,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      labelText: "",
+                                    ),
+                                    onChanged: (value) {
+                                      // print(value);
+                                      setState(() {
+                                        nameCustomer = value;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return "Nama harus di isi";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 20,),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('Email *',
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black)),
+                                ),
+                                SizedBox(height: 20.0),
+                                Container(
+                                  height: 50,
+                                  child: TextFormField(
+                                    initialValue: emailCustomer,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      labelText: "",
+                                    ),
+                                    onChanged: (value) {
+                                      // print(value);
+                                      setState(() {
+                                        emailCustomer = value;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return "Email harus di isi";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 20,),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('Phone',
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black)),
+                                ),
+                                SizedBox(height: 20.0),
+                                Container(
+                                  height: 50,
+                                  child: TextFormField(
+                                    initialValue: phoneCustomer,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      labelText: "",
+                                    ),
+                                    onChanged: (value) {
+                                      // print(value);
+                                      setState(() {
+                                        phoneCustomer = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                (typeCustomer == 'person' ?
+                                Column(
+                                  children: [
+                                    SizedBox(height: 20,),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text('Type Indentity *',
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black)),
+                                    ),
+                                    SizedBox(height: 20.0),
+                                    Padding(
+                                      padding:  EdgeInsets.all(5),
+                                      child: Container(
+                                        width: 400,
+                                        padding: EdgeInsets.only(left: 10, right: 10),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(color:Colors.grey, width: 1),
+                                            borderRadius: BorderRadius.circular(19)
+                                        ),
+                                        child: DropdownButtonFormField(
+
+                                            value: typeIdentityCustomer,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                typeIdentityCustomer = value.toString();
+                                              });
+                                            },
+                                            decoration: InputDecoration(
+                                              focusedBorder: InputBorder.none,
+                                              enabledBorder: InputBorder.none,
+                                            ),
+                                            items: type_identity
+                                                .map((type) => DropdownMenuItem(
+                                                value: type['value'].toString(),
+                                                child: Text(type['name'].toString())
+                                            ))
+                                                .toList(),
+                                            validator: (value) {
+                                              if (value!.isEmpty) {
+                                                return "Pilih tipe identitas yang benar";
+                                              } else {
+                                                return null;
+                                              }
+                                            }
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 20,),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text('Number Identity',
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black)),
+                                    ),
+                                    SizedBox(height: 20,),
+                                    Container(
+                                      height: 50,
+                                      child: TextFormField(
+                                        initialValue: noIdentity,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          labelText: "",
+                                        ),
+                                        onChanged: (value) {
+                                          // print(value);
+                                          setState(() {
+                                            noIdentity = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ) :
+                                new Container()
+                                ),
+                                SizedBox(height: 20,),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      height: 50,
+                      width: size.width * 0.9,
+                      decoration: BoxDecoration(
+                          color: Color(0xFFE50404),
+                          borderRadius: BorderRadius.circular(20)),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          saveCustomer();
+                        },
+                        child: const Text(
+                          'Simpan',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        }).whenComplete(() {
+
+    });
+  }
+
+  void saveCustomer() async{
+    if(formCustomer.currentState!.validate())
+    {
+      var data =
+      {
+        "tenant_id": user['tenant_id'],
+        "code":codeCustomer,
+        "name":nameCustomer,
+        "type":typeCustomer,
+        "email":emailCustomer,
+        "phone":phoneCustomer,
+        "identity_type":typeIdentityCustomer,
+        "identity_number":noIdentity
+
+      };
+
+      var res = await Network().postUrl('customers', data);
+      var body = json.decode(res.body);
+      if(res.statusCode == 200 || res.statusCode == 201)
+      {
+        getCustomer();
+        setState(() {
+          selectedIndexCustomer = body['data']['id'];
+          selectedNameCustomer = nameCustomer;
+          isAddCustomer = false;
+          codeCustomer = '';
+          typeCustomer = 'person';
+          nameCustomer = '';
+          emailCustomer= '';
+          phoneCustomer = '';
+          typeIdentityCustomer = 'id_cards';
+          noIdentity = '';
+        });
+      }
+
+
+
+    }
+
   }
 
   void addItemOrders() async {
     var availability = true;
     for (var orderDetail in requestOrders) {
       if (orderDetail['isType'] == 'product') {
-        if (orderDetail['product_id'] == selectedIndexProduct) {
+        if (orderDetail['product_id'] == selectedIndexAsset) {
           availability = false;
           break;
         }
@@ -199,10 +653,8 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
     if (availability) {
       setState(() {
         requestOrders.add({
-          'isType': isType.toString(),
-          'product_id': selectedIndexProduct,
-          'product_name': selectedNameProduct,
-          'name': nameProduct,
+          'id': selectedIndexAsset,
+          'name': selectedNameAsset,
           'quantity': qty,
           'price': price
         });
@@ -210,8 +662,8 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
         isProduct = false;
 
         isType = 'notProduct';
-        selectedIndexProduct = null;
-        selectedNameProduct = null;
+        selectedIndexAsset = null;
+        selectedNameAsset = null;
         nameProduct = '';
         qty = 0;
         price = 0;
@@ -316,65 +768,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                         key: formBottom,
                         child: Column(
                           children: [
-                            // Align(
-                            //   alignment: Alignment.centerLeft,
-                            //   child: Text('Tipe barang',
-                            //       style: TextStyle(
-                            //           fontSize: 16.0,
-                            //           fontWeight: FontWeight.w600,
-                            //           color: Colors.black)),
-                            // ),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     Row(
-                            //       children: [
-                            //         Text(
-                            //           "Produk",
-                            //           style: TextStyle(
-                            //               fontSize: 14,
-                            //               fontWeight: FontWeight.w500,
-                            //               color: Colors.black),
-                            //         ),
-                            //         SizedBox(
-                            //           width: 10,
-                            //         ),
-                            //         Radio(
-                            //           value: 'product',
-                            //           groupValue: isType,
-                            //           onChanged: (value) {
-                            //             setState(() {
-                            //               isType = value!;
-                            //             });
-                            //           },
-                            //         )
-                            //       ],
-                            //     ),
-                            //     Row(
-                            //       children: [
-                            //         Text(
-                            //           "Bukan produk",
-                            //           style: TextStyle(
-                            //               fontSize: 14,
-                            //               fontWeight: FontWeight.w500,
-                            //               color: Colors.black),
-                            //         ),
-                            //         SizedBox(
-                            //           width: 10,
-                            //         ),
-                            //         Radio(
-                            //           value: 'notProduct',
-                            //           groupValue: isType,
-                            //           onChanged: (value) {
-                            //             setState(() {
-                            //               isType = value!;
-                            //             });
-                            //           },
-                            //         )
-                            //       ],
-                            //     )
-                            //   ],
-                            // ),
+
                             SizedBox(height: 20.0),
                             (isType == 'product'
                                 ? Row(
@@ -397,7 +791,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                     BorderRadius.circular(12),
                                     color: Colors.white,
                                     border: Border.all(
-                                      color: Color(0xFFFA4A0C),
+                                      color: Color(0xFFE50404),
                                       width: 1,
                                     ),
                                   ),
@@ -415,7 +809,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                         width: 50,
                                       ),
                                       Icon(Icons.arrow_drop_down_circle,
-                                          color: Color(0XFFFA4A0C))
+                                          color: Color(0xFFE50404))
                                     ],
                                   ),
                                 )
@@ -478,7 +872,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                       BorderRadius.circular(40),
                                       color: Colors.white,
                                       border: Border.all(
-                                        color: Color(0xFFFA4A0C),
+                                        color: Color(0xFFE50404),
                                         width: 1,
                                       ),
                                     ),
@@ -512,7 +906,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                       borderRadius: BorderRadius.circular(40),
                                       color: Colors.white,
                                       border: Border.all(
-                                        color: Color(0xFFFA4A0C),
+                                        color: Color(0xFFE50404),
                                         width: 1,
                                       ),
                                     ),
@@ -575,7 +969,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                               height: 50,
                               width: size.width * 0.9,
                               decoration: BoxDecoration(
-                                  color: Color(0xFFFA4A0C),
+                                  color: Color(0xFFE50404),
                                   borderRadius: BorderRadius.circular(20)),
                               child: TextButton(
                                 onPressed: () {
@@ -742,7 +1136,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                         height: 50,
                         width: size.width * 0.9,
                         decoration: BoxDecoration(
-                            color: Color(0xFFFA4A0C),
+                            color: Color(0xFFE50404),
                             borderRadius: BorderRadius.circular(20)),
                         child: TextButton(
                           onPressed: () {
@@ -775,7 +1169,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
     });
   }
 
-  void roomBottomSheet() async {
+  void locationBottomSheet() async {
     Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
         isScrollControlled: true,
@@ -819,17 +1213,17 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                         onChanged: (value) {
                           // print(value);
                           if (value.isEmpty) {
-                            final suggestions = listRoom;
+                            final suggestions = listLocation;
                           } else {
-                            final suggestions = listRoom.where((location) {
-                              final roomName = location.name.toLowerCase();
+                            final suggestions = listLocation.where((location) {
+                              final locationName = location.name.toLowerCase();
                               final input = value.toLowerCase();
 
-                              return roomName.contains(input);
+                              return locationName.contains(input);
                             }).toList();
 
                             setState(() {
-                              rooms = suggestions;
+                              locations = suggestions;
                             });
                           }
                         },
@@ -838,7 +1232,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Room',
+                        Text('Location',
                             style: TextStyle(
                                 fontSize: 17.0,
                                 fontWeight: FontWeight.w700,
@@ -847,12 +1241,11 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                           GestureDetector(
                             onTap: () {
                               setState(() {
-                                selectedIndexRoom = 0;
-                                selectedNameRoom = null;
+                                selectedIndexLocation = 0;
+                                selectedNameLocation = null;
                                 isListFilter = false;
                                 isSubmitListFilter = true;
-                                indexRoom = null;
-                                rooms = listRoom;
+                                locations = listLocation;
                               });
                             },
                             child: Text('Reset',
@@ -866,26 +1259,24 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                     const SizedBox(height: 15.0),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: rooms.length,
+                        itemCount: locations.length,
                         itemBuilder: (context, index) {
-                          var item = rooms[index];
+                          var item = locations[index];
                           return CheckboxListTile(
-                            title: Text(rooms[index].name),
-                            value: selectedIndexRoom == item.id ? true : false,
+                            title: Text(locations[index].name),
+                            value: selectedIndexLocation == item.id ? true : false,
                             onChanged: (value) {
                               setState(() {
                                 if (value == true) {
-                                  selectedIndexRoom = item.id;
-                                  selectedNameRoom = item.name;
+                                  selectedIndexLocation = item.id;
+                                  selectedNameLocation = item.name;
                                   isSubmitListFilter = true;
                                   isListFilter = true;
-                                  indexRoom = index;
                                 } else {
-                                  selectedIndexRoom = null;
-                                  selectedNameRoom = null;
+                                  selectedIndexLocation = null;
+                                  selectedNameLocation = null;
                                   isSubmitListFilter = false;
                                   isListFilter = false;
-                                  indexRoom = null;
                                 }
                               });
                             },
@@ -899,14 +1290,14 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                         height: 50,
                         width: size.width * 0.9,
                         decoration: BoxDecoration(
-                            color: Color(0xFFFA4A0C),
+                            color: Color(0xFFE50404),
                             borderRadius: BorderRadius.circular(20)),
                         child: TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                             setState(() {
                               isSubmitListFilter = false;
-                              rooms = listRoom;
+                              locations = listLocation;
                             });
                             updateRoom();
                           },
@@ -922,13 +1313,155 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
             );
           });
         }).whenComplete(() {
-      // print('test');
-      // if(isSubmitListFilter == false){
-      //   setState((){
-      //     selectedIndexRoom = null;
-      //     selectedNameRoom = null;
-      //   });
-      // }
+
+    });
+  }
+
+  void productBottomSheet() async {
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.8,
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 50.0,
+                        height: 5.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15.0),
+                    Container(
+                      margin: EdgeInsets.all(10),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                            prefixIcon: Icon(Icons.search),
+                            hintText: 'Search',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(color: Colors.grey))),
+                        onChanged: (value) {
+                          // print(value);
+                          if (value.isEmpty) {
+                            final suggestions = listProduct;
+                          } else {
+                            final suggestions = listProduct.where((product) {
+                              final productName = product.name.toLowerCase();
+                              final input = value.toLowerCase();
+
+                              return productName.contains(input);
+                            }).toList();
+
+                            setState(() {
+                              products = suggestions;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Product',
+                            style: TextStyle(
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black)),
+                        if (isListFilter == true)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedIndexProduct = 0;
+                                selectedNameProduct = null;
+                                isListFilter = false;
+                                isSubmitListFilter = true;
+                                products = listProduct;
+                              });
+                            },
+                            child: Text('Reset',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.green)),
+                          )
+                      ],
+                    ),
+                    const SizedBox(height: 15.0),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          var item = products[index];
+                          return CheckboxListTile(
+                            title: Text(products[index].name),
+                            value: selectedIndexProduct == item.id ? true : false,
+                            onChanged: (value) {
+                              setState(() {
+                                if (value == true) {
+                                  selectedIndexProduct = item.id;
+                                  selectedNameProduct = item.name;
+                                  isSubmitListFilter = true;
+                                  isListFilter = true;
+                                } else {
+                                  selectedIndexProduct = null;
+                                  selectedNameProduct = null;
+                                  isSubmitListFilter = false;
+                                  isListFilter = false;
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    if (isSubmitListFilter != false)
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        height: 50,
+                        width: size.width * 0.9,
+                        decoration: BoxDecoration(
+                            color: Color(0xFFE50404),
+                            borderRadius: BorderRadius.circular(20)),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              isSubmitListFilter = false;
+                              products = listProduct;
+                            });
+                            updateRoom();
+                          },
+                          child: const Text(
+                            'Simpan',
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                        ),
+                      )
+                  ],
+                ),
+              ),
+            );
+          });
+        }).whenComplete(() {
+
     });
   }
 
@@ -947,99 +1480,99 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
 
 
 
-    var data = {
-      "tenant_id": user['tenant_id'],
-      "status": 'submission',
-      "code": code,
-      "name": name,
-      "employee_id": user['person']['employee']['id'],
-      "customer_id": selectedIndexCustomer,
-      "room_id": selectedIndexRoom,
-      "total_price": total_price,
-      "remarks": remarks,
-      "evidence_1": evidence_1,
-      "evidence_2": evidence_2,
-      "timezone": listRoom[indexRoom].location.timezone,
-      "request_order_detail": jsonEncode(requestOrders)
-    };
-
-    if (selectedIndexCustomer == null || selectedIndexRoom == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          'Customer atau Ruangan harus di isi',
-          style: TextStyle(fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
-        shape: StadiumBorder(),
-        margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        behavior: SnackBarBehavior.floating,
-        elevation: 0,
-        action: SnackBarAction(
-          textColor: Colors.white,
-          label: 'x',
-          onPressed: () {
-            // Code to execute.
-          },
-        ),
-      ));
-    } else {
-      if (_formKey.currentState!.validate()) {
-        showAlertDialog(context);
-        var res = await Network().postRequestOrder('request_orders', data);
-        var body = json.decode(res.body);
-        if(res.statusCode == 201 || res.statusCode == 200){
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: const Text('Sukses tambahkan pesanan Permintaan'),
-              action: SnackBarAction(
-                textColor: Colors.white,
-                label: 'x',
-                onPressed: () {
-                  // Code to execute.
-                },
-              ),
-              duration: Duration(seconds: 3),
-              shape: StadiumBorder(),
-              margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-              behavior: SnackBarBehavior.floating,
-              elevation: 0,
-            ),
-          );
-          Navigator.of(
-            context,
-          ).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(),
-              ),
-                  (route) => false);
-        }else{
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-              'Gagal submit form request',
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-            shape: StadiumBorder(),
-            margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            behavior: SnackBarBehavior.floating,
-            elevation: 0,
-            action: SnackBarAction(
-              textColor: Colors.white,
-              label: 'x',
-              onPressed: () {
-                // Code to execute.
-              },
-            ),
-          ));
-        }
-
-      }
-    }
+    // var data = {
+    //   "tenant_id": user['tenant_id'],
+    //   "status": 'submission',
+    //   "code": code,
+    //   "name": name,
+    //   "employee_id": user['person']['employee']['id'],
+    //   "customer_id": selectedIndexCustomer,
+    //   "room_id": selectedIndexRoom,
+    //   "total_price": total_price,
+    //   "remarks": remarks,
+    //   "evidence_1": evidence_1,
+    //   "evidence_2": evidence_2,
+    //   "timezone": listRoom[indexRoom].location.timezone,
+    //   "request_order_detail": jsonEncode(requestOrders)
+    // };
+    //
+    // if (selectedIndexCustomer == null || selectedIndexRoom == null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     content: Text(
+    //       'Customer atau Ruangan harus di isi',
+    //       style: TextStyle(fontSize: 18),
+    //       textAlign: TextAlign.center,
+    //     ),
+    //     backgroundColor: Colors.red,
+    //     duration: Duration(seconds: 3),
+    //     shape: StadiumBorder(),
+    //     margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+    //     behavior: SnackBarBehavior.floating,
+    //     elevation: 0,
+    //     action: SnackBarAction(
+    //       textColor: Colors.white,
+    //       label: 'x',
+    //       onPressed: () {
+    //         // Code to execute.
+    //       },
+    //     ),
+    //   ));
+    // } else {
+    //   if (_formKey.currentState!.validate()) {
+    //     showAlertDialog(context);
+    //     var res = await Network().postRequestOrder('request_orders', data);
+    //     var body = json.decode(res.body);
+    //     if(res.statusCode == 201 || res.statusCode == 200){
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         SnackBar(
+    //           backgroundColor: Colors.green,
+    //           content: const Text('Sukses tambahkan pesanan Permintaan'),
+    //           action: SnackBarAction(
+    //             textColor: Colors.white,
+    //             label: 'x',
+    //             onPressed: () {
+    //               // Code to execute.
+    //             },
+    //           ),
+    //           duration: Duration(seconds: 3),
+    //           shape: StadiumBorder(),
+    //           margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+    //           behavior: SnackBarBehavior.floating,
+    //           elevation: 0,
+    //         ),
+    //       );
+    //       Navigator.of(
+    //         context,
+    //       ).pushAndRemoveUntil(
+    //           MaterialPageRoute(
+    //             builder: (context) => HomeScreen(),
+    //           ),
+    //               (route) => false);
+    //     }else{
+    //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //         content: Text(
+    //           'Gagal submit form request',
+    //           style: TextStyle(fontSize: 18),
+    //           textAlign: TextAlign.center,
+    //         ),
+    //         backgroundColor: Colors.red,
+    //         duration: Duration(seconds: 3),
+    //         shape: StadiumBorder(),
+    //         margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+    //         behavior: SnackBarBehavior.floating,
+    //         elevation: 0,
+    //         action: SnackBarAction(
+    //           textColor: Colors.white,
+    //           label: 'x',
+    //           onPressed: () {
+    //             // Code to execute.
+    //           },
+    //         ),
+    //       ));
+    //     }
+    //
+    //   }
+    // }
   }
 
   void countPrice() async {
@@ -1121,7 +1654,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
           color: Colors.black, //change your color here
         ),
         title: Text(
-          "Form Request Order",
+          "Form Sales Order",
           style: TextStyle(color: Colors.black),
         ),
         actions: [
@@ -1247,6 +1780,65 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                 ),
                 Row(
                   children: [
+                    Text('Location',
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black)),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        locationBottomSheet();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Color(0xFFE1120F),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: size.height / 4,
+                              padding: new EdgeInsets.all(10),
+                              child: Text(
+                                selectedNameLocation != null
+                                    ? selectedNameLocation
+                                    : 'Pilih Location',
+                                overflow: TextOverflow.ellipsis,
+                                style: new TextStyle(
+                                  fontSize: 13.0,
+                                  fontFamily: 'Roboto',
+                                  color: new Color(0xFF212121),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Icon(Icons.arrow_drop_down_circle,
+                                color: Color(0xFFE1120F))
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  children: [
                     Text('Customer',
                         style: TextStyle(
                             fontSize: 16.0,
@@ -1266,7 +1858,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                           borderRadius: BorderRadius.circular(12),
                           color: Colors.white,
                           border: Border.all(
-                            color: Color(0xFFFA4A0C),
+                            color: Color(0xFFE1120F),
                             width: 1,
                           ),
                         ),
@@ -1276,7 +1868,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                           children: [
                             Container(
                               width: size.height / 4,
-                              padding: new EdgeInsets.only(right: 13.0),
+                              padding: new EdgeInsets.all(10),
                               child: Text(
                                 selectedNameCustomer != null
                                     ? selectedNameCustomer
@@ -1294,7 +1886,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                               width: 20,
                             ),
                             Icon(Icons.arrow_drop_down_circle,
-                                color: Color(0XFFFA4A0C))
+                                color: Color(0xFFE1120F))
                           ],
                         ),
                       ),
@@ -1304,9 +1896,43 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                 SizedBox(
                   height: 30,
                 ),
+                isAddCustomer  ?
+                GestureDetector(
+                  onTap: () {
+                    addCustomer();
+                  },
+                  child: Container(
+                    width: 200,
+                    height: 50,
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFE1120F),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Text(
+                            'Tambah Customer',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        Icon(Icons.add, color: Colors.white)
+                      ],
+                    ),
+                  ),
+                )
+                    : new Container(),
+
+                SizedBox(
+                  height: 30,
+                ),
                 Row(
                   children: [
-                    Text('Ruangan',
+                    Text('Product',
                         style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w600,
@@ -1316,7 +1942,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        roomBottomSheet();
+                        productBottomSheet();
                       },
                       child: Container(
                         padding: EdgeInsets.all(5),
@@ -1325,7 +1951,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                           borderRadius: BorderRadius.circular(12),
                           color: Colors.white,
                           border: Border.all(
-                            color: Color(0xFFFA4A0C),
+                            color: Color(0xFFE1120F),
                             width: 1,
                           ),
                         ),
@@ -1335,16 +1961,15 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                           children: [
                             Container(
                               width: size.height / 4,
-                              padding: new EdgeInsets.only(right: 13.0),
+                              padding: new EdgeInsets.all(10),
                               child: Text(
-                                selectedNameRoom == null
-                                    ? 'Pilih Room'
-                                    : selectedNameRoom,
-                                softWrap: true,
-                                maxLines: 1,
+                                selectedNameProduct != null
+                                    ? selectedNameProduct
+                                    : 'Pilih Product',
                                 overflow: TextOverflow.ellipsis,
                                 style: new TextStyle(
                                   fontSize: 13.0,
+                                  fontFamily: 'Roboto',
                                   color: new Color(0xFF212121),
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -1354,16 +1979,15 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                               width: 20,
                             ),
                             Icon(Icons.arrow_drop_down_circle,
-                                color: Color(0XFFFA4A0C))
+                                color: Color(0xFFE1120F))
                           ],
                         ),
                       ),
                     )
                   ],
                 ),
-                SizedBox(
-                  height: 30,
-                ),
+                SizedBox(height: 20,),
+
                 Text('Catatan',
                     style: TextStyle(
                         fontSize: 16.0,
@@ -1372,6 +1996,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                 SizedBox(
                   height: 20,
                 ),
+
                 SizedBox(
                   height: 100,
                   child: TextField(
@@ -1474,7 +2099,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                                     Icons
                                                         .photo_camera,
                                                     color: Color(
-                                                        0XFFFA4A0C),
+                                                        0xFFE50404),
                                                     size: 28,
                                                   ),
                                                   SizedBox(
@@ -1514,7 +2139,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                 ),
                                 child: Icon(
                                   Icons.photo_camera,
-                                  color: Color(0XFFFA4A0C),
+                                  color: Color(0xFFE50404),
                                   size: 28,
                                 ),
                               ),
@@ -1617,7 +2242,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                                         Icons
                                                             .photo_camera,
                                                         color: Color(
-                                                            0XFFFA4A0C),
+                                                            0xFFE50404),
                                                         size: 28,
                                                       ),
                                                       SizedBox(
@@ -1648,7 +2273,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                   BorderRadius.circular(12.0),
                                 ),
                                 elevation: 0,
-                                color: Color(0xFFFA4A0C),
+                                color: Color(0xFFE50404),
                                 child: const SizedBox(
                                   width: 100,
                                   height: 40,
@@ -1693,7 +2318,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                   BorderRadius.circular(12.0),
                                 ),
                                 elevation: 0,
-                                color: Color(0xFFFA4A0C),
+                                color: Color(0xFFE50404),
                                 child: const SizedBox(
                                   width: 100,
                                   height: 40,
@@ -1802,7 +2427,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                                     Icons
                                                         .photo_camera,
                                                     color: Color(
-                                                        0XFFFA4A0C),
+                                                        0xFFE50404),
                                                     size: 28,
                                                   ),
                                                   SizedBox(
@@ -1842,7 +2467,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                 ),
                                 child: Icon(
                                   Icons.photo_camera,
-                                  color: Color(0XFFFA4A0C),
+                                  color: Color(0xFFE50404),
                                   size: 28,
                                 ),
                               ),
@@ -1945,7 +2570,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                                         Icons
                                                             .photo_camera,
                                                         color: Color(
-                                                            0XFFFA4A0C),
+                                                            0xFFE50404),
                                                         size: 28,
                                                       ),
                                                       SizedBox(
@@ -1976,7 +2601,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                   BorderRadius.circular(12.0),
                                 ),
                                 elevation: 0,
-                                color: Color(0xFFFA4A0C),
+                                color: Color(0xFFE50404),
                                 child: const SizedBox(
                                   width: 100,
                                   height: 40,
@@ -2021,7 +2646,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                   BorderRadius.circular(12.0),
                                 ),
                                 elevation: 0,
-                                color: Color(0xFFFA4A0C),
+                                color: Color(0xFFE50404),
                                 child: const SizedBox(
                                   width: 100,
                                   height: 40,
@@ -2067,7 +2692,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                     height: 50,
                     padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Color(0XFFFA4A0C),
+                      color: Color(0xFFE50404),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -2126,14 +2751,14 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                                   12),
                                               color: Colors.transparent,
                                               border: Border.all(
-                                                color: Color(0xFFFA4A0C),
+                                                color: Color(0xFFE50404),
                                                 width: 1,
                                               ),
                                             ),
                                             child: Icon(
                                               Icons.delete,
                                               size: 15,
-                                              color: Color(0xFFFA4A0C),
+                                              color: Color(0xFFE50404),
                                             )),
                                       ),
                                       SizedBox(
@@ -2143,11 +2768,10 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                         onTap: () {
                                           setState(() {
                                             isType = item['isType'];
-                                            selectedIndexProduct =
-                                            item['product_id'];
-                                            selectedNameProduct =
-                                            item['product_name'];
-                                            nameProduct = item['name'];
+                                            selectedIndexAsset =
+                                            item['id'];
+                                            selectedNameAsset =
+                                            item['name'];
                                             qty = item['quantity'];
                                             price = item['price'];
                                             isEditItem = true;
@@ -2165,14 +2789,14 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                                                   12),
                                               color: Colors.transparent,
                                               border: Border.all(
-                                                color: Color(0xFFFA4A0C),
+                                                color: Color(0xFFE50404),
                                                 width: 1,
                                               ),
                                             ),
                                             child: Icon(
                                               Icons.edit,
                                               size: 15,
-                                              color: Color(0xFFFA4A0C),
+                                              color: Color(0xFFE50404),
                                             )),
                                       ),
                                     ],
@@ -2247,7 +2871,7 @@ class FormRequestOrderState extends State<FormRequestOrderScreen> {
                   height: 50,
                   width: size.width * 0.9,
                   decoration: BoxDecoration(
-                      color: Color(0xFFFA4A0C),
+                      color: Color(0xFFE50404),
                       borderRadius: BorderRadius.circular(20)),
                   child: TextButton(
                     onPressed: () {

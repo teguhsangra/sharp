@@ -278,7 +278,7 @@ class _EditProfileState extends State<EditProfile> {
                     Text("Save",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xFFFA4A0C)
+                      color: Color(0xFFE50404)
                     ),
                     )
                   ],

@@ -90,7 +90,7 @@ class ChecklistMapState extends State<ChecklistMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFA4A0C),
+        backgroundColor: const Color(0xFFE50404),
         title: Text("Checklist Map"),
         actions: [
           Container(

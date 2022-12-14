@@ -3,25 +3,31 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:telkom/ui/auth/login/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:telkom/components/card.dart';
-import 'package:telkom/ui/checklist/checklist_is_checked_screen.dart';
-import 'package:telkom/ui/checklist/checklist_screen.dart';
-import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
-import 'package:telkom/ui/auth/profile/profile_screen.dart';
+
+
+
 import 'package:telkom/network/api.dart';
 import 'package:telkom/constants.dart';
 import 'package:telkom/components/CustomPageRoute.dart';
-import 'package:telkom/ui/request_order/request_order_screen.dart';
+
 import '../../components/helper.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_apple/geolocator_apple.dart';
 import 'package:geolocator_android/geolocator_android.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:telkom/ui/home/presensi_screen.dart';
 import 'package:loader_skeleton/loader_skeleton.dart';
+
+import 'package:telkom/ui/home/presensi_screen.dart';
+import 'package:telkom/ui/auth/login/login_screen.dart';
+import 'package:telkom/ui/auth/profile/profile_screen.dart';
+import 'package:telkom/ui/checklist/checklist_screen.dart';
+import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
+import 'package:telkom/ui/checklist/checklist_is_checked_screen.dart';
+import 'package:telkom/ui/sales_order/sales_order_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   bool checkin;
@@ -233,16 +239,16 @@ class _HomeScreenState extends State<HomeScreen> {
         index: index,
         children: [
           HomeIndex(context),
+          const SalesOrderScreen(),
           const ChecklistScreen(),
-          const RequestOrderScreen(),
           const ProfileScreen()
         ],
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
         child: GNav(
-            color: const Color(0xFFFA4A0C),
-            activeColor: const Color(0xFFFA4A0C),
+            color: const Color(0xFFE50404),
+            activeColor: const Color(0xFFE50404),
             gap: 8,
             tabBackgroundColor: const Color(0XFFFDF0D2),
             padding: const EdgeInsets.all(15),
@@ -255,8 +261,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             tabs: const [
               GButton(icon: Icons.home, text: 'Home'),
-              GButton(icon: Icons.checklist, text: 'Checklist'),
-              GButton(icon: Icons.request_page_outlined, text: 'Request Order'),
+              GButton(icon: Icons.request_page_outlined, text: 'Sales Order'),
+              GButton(icon: Icons.check_circle, text: 'Stock'),
               GButton(icon: Icons.settings, text: 'Settings')
             ]),
       ),
@@ -275,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                height: 260,
+                height: 240,
                 child: Stack(
                   alignment: Alignment.center,
                   children: <Widget>[
@@ -340,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               minHeight: 14,
                                             ),
                                             child: Text(
-                                              '$counter',
+                                              counter >= 9 ? '9 +' : '$counter',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 8,
@@ -384,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Icon(
                                   Icons.location_pin,
-                                  color: Color(0XFFFA4A0C),
+                                  color: Color(0xFF2109B4),
                                   size: 20,
                                 ),
                                 SizedBox(
@@ -430,6 +436,179 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   : Column(
                       children: [
+                        CardContainer(
+                            height: 140,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              14),
+                                        ),
+                                        elevation: 0,
+                                        color:
+                                        const Color(0xFFE6ECF6),
+                                        child: Container(
+                                          width: 140,
+                                          height: 100,
+                                          padding: EdgeInsets.all(15),
+                                          child: Column(
+                                            children: [
+                                              Align(
+                                                child: Text(
+                                                  'Pencapaian',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 12
+                                                  ),
+                                                ),
+                                                alignment: Alignment.center,
+                                              ),
+                                              SizedBox(height: 10,),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    children: [
+                                                      Text(
+                                                        '55',
+                                                        style: TextStyle(
+                                                            fontWeight: FontWeight.bold,
+                                                            fontSize: 16,
+                                                            color: Colors.red
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 10,),
+                                                      Text(
+                                                          'Unit Terjual',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: Colors.black54
+                                                          )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(width: 20,),
+                                                  Column(
+                                                    children: [
+                                                      Text(
+                                                          '101',
+                                                          style: TextStyle(
+                                                              fontWeight: FontWeight.bold,
+                                                              fontSize: 16,
+                                                              color: Colors.blue
+                                                          )
+                                                      ),
+                                                      SizedBox(height: 10,),
+                                                      Text(
+                                                          'Point',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: Colors.black54
+                                                          )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              14),
+                                        ),
+                                        elevation: 0,
+                                        color:
+                                        const Color(0xFFE6ECF6),
+                                        child: Container(
+                                          width: 140,
+                                          height: 100,
+                                          padding: EdgeInsets.all(15),
+                                          child: Column(
+                                            children: [
+                                              Align(
+                                                child: Text(
+                                                  'Target',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 12
+                                                  ),
+                                                ),
+                                                alignment: Alignment.center,
+                                              ),
+                                              SizedBox(height: 10,),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    children: [
+                                                      Text(
+                                                        '55',
+                                                        style: TextStyle(
+                                                            fontWeight: FontWeight.bold,
+                                                            fontSize: 16,
+                                                            color: Colors.red
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 10,),
+                                                      Text(
+                                                          'Unit Terjual',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: Colors.black54
+                                                          )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(width: 20,),
+                                                  Column(
+                                                    children: [
+                                                      Text(
+                                                          '100',
+                                                          style: TextStyle(
+                                                              fontWeight: FontWeight.bold,
+                                                              fontSize: 16,
+                                                              color: Colors.blue
+                                                          )
+                                                      ),
+                                                      SizedBox(height: 10,),
+                                                      Text(
+                                                          'Point',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: Colors.black54
+                                                          )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            )
+                        ),
                         // Card Absensi
                         (checkin
                             ? CardContainer(
@@ -446,7 +625,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: const [
                                               Icon(
                                                 Icons.access_alarm,
-                                                color: Color(0XFFFA4A0C),
+                                                color: Color(0xFFE50404),
                                                 size: 35,
                                               ),
                                             ],
@@ -489,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               Icons
                                                                   .directions_walk,
                                                               color: Color(
-                                                                  0XFFFA4A0C),
+                                                                  0xFFE50404),
                                                               size: 12,
                                                             ),
                                                           ),
@@ -578,7 +757,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 Icons
                                                                     .exit_to_app,
                                                                 color: Color(
-                                                                    0XFFFA4A0C),
+                                                                    0xFFE50404),
                                                                 size: 13,
                                                               ),
                                                             ),
@@ -628,7 +807,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               SizedBox(height: 20.0),
                                               Icon(
                                                 Icons.access_alarm,
-                                                color: Color(0XFFFA4A0C),
+                                                color: Color(0xFFE50404),
                                                 size: 35,
                                               ),
                                             ],
@@ -686,7 +865,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 Icons
                                                                     .qr_code_rounded,
                                                                 color: Color(
-                                                                    0XFFFA4A0C),
+                                                                    0xFFE50404),
                                                                 size: 13,
                                                               ),
                                                             ),
@@ -712,235 +891,250 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ))),
                         // End Card Absensi
-
-                        //Card Check list Atm
-                        CardContainer(
-                            height: 120,
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
+                        SizedBox(height: 10,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                                color: const Color(0xFFF8F8F8),
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      blurRadius: 2,
+                                      // Shadow position
+                                      spreadRadius: 1,
+                                      offset: const Offset(0, 3)),
+                                ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.checklist,
-                                        color: Color(0XFFFA4A0C),
-                                        size: 35,
-                                      ),
-                                    ],
+                                  Icon(
+                                    Icons.shopping_cart,
+                                    color: Colors.red,
+                                    size: 40,
                                   ),
-                                  SizedBox(width: size.width / 20),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Checklist Overview',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black),
-                                      ),
-                                      SizedBox(height: 20.0),
-                                      Row(
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const ChecklistIsCheckedScreen()),
-                                              );
-                                            },
-                                            child: Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                              ),
-                                              elevation: 0,
-                                              color: const Color(0xFFE6ECF6),
-                                              child: SizedBox(
-                                                width: size.width / 3.5,
-                                                height: 40,
-                                                child: Center(
-                                                  child: Text.rich(
-                                                    TextSpan(
-                                                      children: <InlineSpan>[
-                                                        TextSpan(
-                                                            text:
-                                                                ' $totalIsChecked' +
-                                                                    " Sudah",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black,
-                                                                fontSize: 12)),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () {
-                                              _onItemTapped(1);
-                                            },
-                                            child: Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                              ),
-                                              elevation: 0,
-                                              color: Color(0xFFE6ECF6),
-                                              child: SizedBox(
-                                                width: size.width / 3.5,
-                                                height: 40,
-                                                child: Center(
-                                                  child: Text.rich(
-                                                    TextSpan(
-                                                      children: <InlineSpan>[
-                                                        TextSpan(
-                                                            text:
-                                                                ' $totalIsNotChecked' +
-                                                                    " Belum",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black,
-                                                                fontSize: 12)),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
+                                  SizedBox(height: 10,),
+                                  Text(
+                                    'Penjualan',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
                                 ],
                               ),
-                            )),
-                        //  End Card Check list arm
-
-                        //  Card Lapor Temuan
-                        CardContainer(
-                            height: 120,
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
+                            ),
+                            Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFF8F8F8),
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        blurRadius: 2,
+                                        // Shadow position
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3)),
+                                  ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.request_page_outlined,
-                                        color: Color(0XFFFA4A0C),
-                                        size: 35,
-                                      ),
-                                    ],
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.red,
+                                    size: 40,
                                   ),
-                                  SizedBox(width: size.width / 20),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Request Order',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black),
-                                      ),
-                                      const SizedBox(height: 20.0),
-                                      Row(
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      RequestOrderScreen(),
-                                                ),
-                                              );
-                                            },
-                                            child: Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                              ),
-                                              elevation: 0,
-                                              color: Color(0xFFE6ECF6),
-                                              child: SizedBox(
-                                                width: size.width / 3.5,
-                                                height: 40,
-                                                child: Center(
-                                                  child: Text.rich(
-                                                    TextSpan(
-                                                      children: <InlineSpan>[
-                                                        TextSpan(
-                                                            text:
-                                                                '$totalRequestOrder' +
-                                                                    " Request",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black,
-                                                                fontSize: 12)),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      RequestOrderScreen(),
-                                                ),
-                                              );
-                                            },
-                                            child: Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                              ),
-                                              elevation: 0,
-                                              color: Color(0xFFE6ECF6),
-                                              child: SizedBox(
-                                                width: size.width / 3.5,
-                                                height: 40,
-                                                child: Center(
-                                                  child: Text.rich(
-                                                    TextSpan(
-                                                      children: <InlineSpan>[
-                                                        TextSpan(
-                                                            text:
-                                                                '$totalApprovedRequestOrder' +
-                                                                    " Approved",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black,
-                                                                fontSize: 12)),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
+                                  SizedBox(height: 10,),
+                                  Text(
+                                    'Stok Barang',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
                                 ],
                               ),
-                            )),
-                        //  End Card Lapor Temuan
+                            ),
+                            Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFF8F8F8),
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        blurRadius: 2,
+                                        // Shadow position
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3)),
+                                  ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.folder,
+                                    color: Colors.red,
+                                    size: 40,
+                                  ),
+                                  SizedBox(height: 10,),
+                                  Text(
+                                    'Data Barang',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 10,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFF8F8F8),
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        blurRadius: 2,
+                                        // Shadow position
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3)),
+                                  ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.insert_chart_outlined_outlined,
+                                    color: Colors.red,
+                                    size: 25,
+                                  ),
+                                  SizedBox(height: 5,),
+                                  Text(
+                                    'Report',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFF8F8F8),
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        blurRadius: 2,
+                                        // Shadow position
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3)),
+                                  ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.supervisor_account_rounded,
+                                    color: Colors.red,
+                                    size: 25,
+                                  ),
+                                  SizedBox(height: 5,),
+                                  Text(
+                                    'Competitor \n  Info',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFF8F8F8),
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        blurRadius: 2,
+                                        // Shadow position
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3)),
+                                  ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.supervisor_account_rounded,
+                                    color: Colors.red,
+                                    size: 25,
+                                  ),
+                                  SizedBox(height:5,),
+                                  Text(
+                                    'Competitor \n Activity',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFFF8F8F8),
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        blurRadius: 2,
+                                        // Shadow position
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 3)),
+                                  ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.feedback,
+                                    color: Colors.red,
+                                    size: 25,
+                                  ),
+                                  SizedBox(height: 5,),
+                                  Text(
+                                    'Feedback',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20,),
                       ],
                     ),
             ],
