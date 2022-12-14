@@ -7,6 +7,7 @@ import 'package:full_screen_image_null_safe/full_screen_image_null_safe.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:telkom/components/customer.dart';
 import 'package:telkom/components/helper.dart';
 import 'package:telkom/components/rounded_input_field.dart';
 import 'package:telkom/model/customer.dart';
@@ -29,7 +30,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final formBottom = GlobalKey<FormState>();
-  final formCustomer = GlobalKey<FormState>();
+
 
   var user = {};
   List requestOrders = [];
@@ -53,13 +54,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
   var file_1;
   var file_2;
 
-  var codeCustomer;
-  var typeCustomer = 'person';
-  var nameCustomer;
-  var emailCustomer;
-  var phoneCustomer = '';
-  var typeIdentityCustomer = 'id_cards';
-  var noIdentity = '';
+
 
   var code;
   var name;
@@ -90,31 +85,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
   var selectedIndexAsset = null;
   var selectedNameAsset;
 
-  var type = [
-    {
-      "name": "Pribadi",
-      "value": "person"
-    },
-    {
-      "name": "Perusahaan",
-      "value": "company"
-    }
-  ];
 
-  var type_identity = [
-    {
-      "name": "ID Card",
-      "value": "id_cards"
-    },
-    {
-      "name": "Driving License",
-      "value": "driving_license"
-    },
-    {
-      "name": "Passport",
-      "value": "passport"
-    }
-  ];
 
   showAlertDialog(BuildContext context) {
     AlertDialog alert = AlertDialog(
@@ -177,7 +148,6 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
       user = userSession;
     });
     getCode();
-    getCodeCustomer();
     getCustomer();
     customers = listCustomer;
     getLocation();
@@ -193,17 +163,6 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
       var resultData = jsonDecode(res.body);
       setState(() {
         code = resultData['data'];
-      });
-    }
-  }
-
-  void getCodeCustomer() async {
-    var res = await Network().getData('customers-get-code');
-
-    if (res.statusCode == 201) {
-      var resultData = jsonDecode(res.body);
-      setState(() {
-        codeCustomer = resultData['data'];
       });
     }
   }
@@ -254,386 +213,35 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
     }
   }
 
-  void addCustomer() async{
-    Size size = MediaQuery.of(context).size;
-    showModalBottomSheet(
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(25.0),
-          ),
-        ),
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return Container(
-              width: size.width,
-              height: size.height * 0.95,
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 50.0,
-                        height: 5.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15.0),
-                    Text('Form Add Customer',
-                        style: TextStyle(
-                            fontSize: 17.0,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black)),
-                    SizedBox(height: 15.0),
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          Form(
-                            key: formCustomer,
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text('Kode *',
-                                      style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
-                                ),
-                                SizedBox(height: 20.0),
-                                Container(
-                                  height: 50,
-                                  child: TextFormField(
-                                    initialValue: codeCustomer,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      labelText: "",
-                                    ),
-                                    onChanged: (value) {
-                                      // print(value);
-                                      setState(() {
-                                        codeCustomer = value;
-                                      });
-                                    },
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return "Kode harus di isi";
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                  ),
-                                ),
-                                SizedBox(height: 20,),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text('Tipe *',
-                                      style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
-                                ),
-                                SizedBox(height: 20.0),
-                                Padding(
-                                  padding:  EdgeInsets.all(5),
-                                  child: Container(
-                                    width: 400,
-                                    padding: EdgeInsets.only(left: 10, right: 10),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(color:Colors.grey, width: 1),
-                                        borderRadius: BorderRadius.circular(19)
-                                    ),
-                                    child: DropdownButtonFormField(
 
-                                        value: typeCustomer,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            typeCustomer = value.toString();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          focusedBorder: InputBorder.none,
-                                          enabledBorder: InputBorder.none,
-                                        ),
-                                        items: type
-                                            .map((type) => DropdownMenuItem(
-                                            value: type['value'].toString(),
-                                            child: Text(type['name'].toString())
-                                        ))
-                                            .toList(),
-                                        validator: (value) {
-                                          if (value!.isEmpty) {
-                                            return "Pilih tipe identitas yang benar";
-                                          } else {
-                                            return null;
-                                          }
-                                        }
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 20,),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text('Nama *',
-                                      style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
-                                ),
-                                SizedBox(height: 20.0),
-                                Container(
-                                  height: 50,
-                                  child: TextFormField(
-                                    initialValue: nameCustomer,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      labelText: "",
-                                    ),
-                                    onChanged: (value) {
-                                      // print(value);
-                                      setState(() {
-                                        nameCustomer = value;
-                                      });
-                                    },
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return "Nama harus di isi";
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                  ),
-                                ),
-                                SizedBox(height: 20,),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text('Email *',
-                                      style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
-                                ),
-                                SizedBox(height: 20.0),
-                                Container(
-                                  height: 50,
-                                  child: TextFormField(
-                                    initialValue: emailCustomer,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      labelText: "",
-                                    ),
-                                    onChanged: (value) {
-                                      // print(value);
-                                      setState(() {
-                                        emailCustomer = value;
-                                      });
-                                    },
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return "Email harus di isi";
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                  ),
-                                ),
-                                SizedBox(height: 20,),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text('Phone',
-                                      style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
-                                ),
-                                SizedBox(height: 20.0),
-                                Container(
-                                  height: 50,
-                                  child: TextFormField(
-                                    initialValue: phoneCustomer,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      labelText: "",
-                                    ),
-                                    onChanged: (value) {
-                                      // print(value);
-                                      setState(() {
-                                        phoneCustomer = value;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                (typeCustomer == 'person' ?
-                                Column(
-                                  children: [
-                                    SizedBox(height: 20,),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('Type Indentity *',
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black)),
-                                    ),
-                                    SizedBox(height: 20.0),
-                                    Padding(
-                                      padding:  EdgeInsets.all(5),
-                                      child: Container(
-                                        width: 400,
-                                        padding: EdgeInsets.only(left: 10, right: 10),
-                                        decoration: BoxDecoration(
-                                            border: Border.all(color:Colors.grey, width: 1),
-                                            borderRadius: BorderRadius.circular(19)
-                                        ),
-                                        child: DropdownButtonFormField(
 
-                                            value: typeIdentityCustomer,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                typeIdentityCustomer = value.toString();
-                                              });
-                                            },
-                                            decoration: InputDecoration(
-                                              focusedBorder: InputBorder.none,
-                                              enabledBorder: InputBorder.none,
-                                            ),
-                                            items: type_identity
-                                                .map((type) => DropdownMenuItem(
-                                                value: type['value'].toString(),
-                                                child: Text(type['name'].toString())
-                                            ))
-                                                .toList(),
-                                            validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return "Pilih tipe identitas yang benar";
-                                              } else {
-                                                return null;
-                                              }
-                                            }
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 20,),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('Number Identity',
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black)),
-                                    ),
-                                    SizedBox(height: 20,),
-                                    Container(
-                                      height: 50,
-                                      child: TextFormField(
-                                        initialValue: noIdentity,
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          labelText: "",
-                                        ),
-                                        onChanged: (value) {
-                                          // print(value);
-                                          setState(() {
-                                            noIdentity = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ) :
-                                new Container()
-                                ),
-                                SizedBox(height: 20,),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 10),
-                      height: 50,
-                      width: size.width * 0.9,
-                      decoration: BoxDecoration(
-                          color: Color(0xFFE50404),
-                          borderRadius: BorderRadius.circular(20)),
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          saveCustomer();
-                        },
-                        child: const Text(
-                          'Simpan',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          });
-        }).whenComplete(() {
-
-    });
+  Future openAddCustomerDialog() async {
+    var dataCustomer =
+    await Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) {
+          return new CustomerScreen();
+        },
+        fullscreenDialog: true));
+    if (dataCustomer != null) {
+      saveCustomer(dataCustomer);
+    }
   }
 
-  void saveCustomer() async{
-    if(formCustomer.currentState!.validate())
+  void saveCustomer(dataCustomer)async {
+
+    var res = await Network().postUrl('customers', dataCustomer);
+    var body = json.decode(res.body);
+    if(res.statusCode == 200 || res.statusCode == 201)
     {
-      var data =
-      {
-        "tenant_id": user['tenant_id'],
-        "code":codeCustomer,
-        "name":nameCustomer,
-        "type":typeCustomer,
-        "email":emailCustomer,
-        "phone":phoneCustomer,
-        "identity_type":typeIdentityCustomer,
-        "identity_number":noIdentity
-
-      };
-
-      var res = await Network().postUrl('customers', data);
-      var body = json.decode(res.body);
-      if(res.statusCode == 200 || res.statusCode == 201)
-      {
-        getCustomer();
-        setState(() {
-          selectedIndexCustomer = body['data']['id'];
-          selectedNameCustomer = nameCustomer;
-          isAddCustomer = false;
-          codeCustomer = '';
-          typeCustomer = 'person';
-          nameCustomer = '';
-          emailCustomer= '';
-          phoneCustomer = '';
-          typeIdentityCustomer = 'id_cards';
-          noIdentity = '';
-        });
-      }
-
-
-
+      setState(() {
+        selectedIndexCustomer = body['data']['id'];
+        selectedNameCustomer = dataCustomer['name'];
+        isAddCustomer = false;
+      });
     }
 
   }
+
 
   void addItemOrders() async {
     var availability = true;
@@ -1899,7 +1507,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
                 isAddCustomer  ?
                 GestureDetector(
                   onTap: () {
-                    addCustomer();
+                    openAddCustomerDialog();
                   },
                   child: Container(
                     width: 200,
