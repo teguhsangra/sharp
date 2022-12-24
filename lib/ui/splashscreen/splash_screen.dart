@@ -13,6 +13,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+  bool isStarted = false;
+
   @override
   void initState() {
     super.initState();
@@ -25,13 +27,16 @@ class SplashScreenState extends State<SplashScreen> {
     var token = localStorage.getString('token');
 
     if (token != null) {
+      setState(() {
+        isStarted = true;
+      });
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
     }else{
-      Timer(
-          const Duration(seconds: 3),
-              () => Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const LoginScreen())));
+      setState(() {
+        isStarted = false;
+      });
+
     }
   }
 
@@ -39,29 +44,72 @@ class SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: Stack(
         children: [
-          Center(
+          Positioned(
+            top:60,
+            left:20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('BIRAWA',style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                    color: Color(0xFF818088)
+                ),),Text('SHARP',style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 40,
+                    color: Color(0xFFE50404)
+                ),)
+
+              ],
+            ),
+          ),
+          Positioned(
+            top:160,
+            left:30,
+            right:30,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Aplikasi untuk mempermudah petugas dalam melakukan pekerjaan, memonitoring dan record selling',style: TextStyle(
+                    fontSize: 12
+                ),)
+
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 180,
+            left: 0,
+            right: 0,
             child: Image.asset(
-              "assets/images/ic_logo.png",
-              width: 200.0,
-              height: 120.0,
-              fit: BoxFit.contain,
+              "assets/images/logo_spalsh.png",
+              fit: BoxFit.fill,
             ),
           ),
-          const SizedBox(
-            height: 24.0,
-          ),
-          const Text(
-            "Checklist ATM Apps",
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20.0,
-            ),
-          ),
+          if(isStarted == false)
+          Positioned(
+              bottom: 50,
+              left: 60,
+              right: 60,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                height: 70,
+                decoration: BoxDecoration(
+                    color: Color(0xFFE50404), borderRadius: BorderRadius.circular(30)),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()));
+                  },
+                  child: const Text(
+                    'Mulai',
+                    style: TextStyle(color: Colors.white, fontSize: 25),
+                  ),
+                ),
+              ),
+            )
         ],
       ),
     );
