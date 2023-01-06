@@ -36,9 +36,9 @@ class Network {
       var url = Uri.parse(_url + apiURL);
       var response = await http.get(url);
       if (response.statusCode == 200) {
-        var data = response.body;
+        var resultData = jsonDecode(response.body);
 
-        return tenantFromJson(data);
+        return Tenant.fromJson(resultData);
       }
     } catch (e) {
       log(e.toString());
@@ -50,6 +50,13 @@ class Network {
     await _getToken();
     return await http.post(Uri.parse(fullUrl),
         body: jsonEncode(data),headers: _setHeaders());
+  }
+
+  putUrl(apiURL, data) async {
+    var fullUrl = _url + apiURL;
+    await _getToken();
+    return await http.put(Uri.parse(fullUrl),
+        body: jsonEncode(data), headers: _setHeaders());
   }
 
   getChecklistDetail(apiURL) async {

@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom/components/helper.dart';
+import 'package:telkom/components/sales_order_detail.dart';
 import 'package:telkom/model/sales_order.dart';
 import 'package:telkom/network/api.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
@@ -18,8 +20,10 @@ class SalesOrderScreen extends StatefulWidget {
 
 class SalesOrderState extends State<SalesOrderScreen> {
   bool isLoading = true;
+  var user = {};
+  var access_group ={};
   List<SalesOrder> salesOrder = [];
-  String? selectedFilter = 'semua';
+  String? selectedFilter = 'draft';
 
   @override
   void initState() {
@@ -27,7 +31,8 @@ class SalesOrderState extends State<SalesOrderScreen> {
     setState(() {
       isLoading = true;
     });
-    getRequestOrder();
+    loadUserData();
+
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         isLoading = false;
@@ -35,8 +40,45 @@ class SalesOrderState extends State<SalesOrderScreen> {
     });
   }
 
+  loadUserData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var userSession = jsonDecode(localStorage.getString('user').toString());
+    setState(() {
+      user = userSession;
+    });
+    getAccessGroup();
+    getRequestOrder();
+  }
+  void getAccessGroup() async{
+    var access_group_id = user['person']['employee']['access_group_id'];
+    var res = await Network().getData('get_access_group??link=sales_orders&access_group_id=$access_group_id');
+    if (res.statusCode == 200) {
+      var resultData = jsonDecode(res.body);
+      access_group = resultData['data'];
+    }
+  }
+
   void getRequestOrder() async {
-    var res = await Network().getData('sales_orders?this_year=Y');
+    var res = await Network().getData('sales_orders?this_year=Y&select_by=status&select_query=${selectedFilter}');
+    if (res.statusCode == 200) {
+      var resultData = jsonDecode(res.body);
+
+      setState(() {
+        salesOrder.clear();
+        resultData['data'].forEach((detailData) {
+          salesOrder.add(SalesOrder.fromJson(detailData));
+        });
+      });
+    }
+    getAccessGroup();
+  }
+
+  void filterRequestOrder() async{
+    var url = 'sales_orders?this_year=Y&select_by=status&select_query=${selectedFilter}';
+    if(selectedFilter == 'semua'){
+      url = 'request_orders?this_year=Y';
+    }
+    var res = await Network().getData(url);
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
 
@@ -49,23 +91,95 @@ class SalesOrderState extends State<SalesOrderScreen> {
     }
   }
 
-  // void filterRequestOrder() async{
-  //   var url = 'request_orders?this_year=Y&select_by=status&select_query=${selectedFilter}';
-  //   if(selectedFilter == 'semua'){
-  //     url = 'request_orders?this_year=Y';
-  //   }
-  //   var res = await Network().getData(url);
-  //   if (res.statusCode == 200) {
-  //     var resultData = jsonDecode(res.body);
-  //
-  //     setState(() {
-  //       requestOrders.clear();
-  //       resultData['data'].forEach((detailData) {
-  //         requestOrders.add(RequestOrder.fromJson(detailData));
-  //       });
-  //     });
-  //   }
-  // }
+  void sheetMenuCard(Id,status) async{
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius:
+          BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder:
+              (context,
+              StateSetter setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.2,
+              child: Padding(
+                padding:
+                EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment
+                      .start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 50.0,
+                        height: 5.0,
+                        decoration:
+                        BoxDecoration(
+                          borderRadius: BorderRadius
+                              .all(Radius
+                              .circular(
+                              10.0)),
+                          color:
+                          Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                        height: 30.0),
+                    GestureDetector(
+                      onTap: () async {
+                          Navigator.pop(context);
+                          updateSalesOrder(Id,status);
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.update),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            'Approve Sales order',
+                            style: TextStyle(
+                                fontSize:
+                                16),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  void updateSalesOrder(Id, status) async{
+    var data = {
+      "status": status
+    };
+
+    var res = await Network().putUrl('sales_orders/$Id/update_status?show_type=test', data);
+    var body = json.decode(res.body);
+    if (res.statusCode == 201 || res.statusCode == 200) {
+      setState(() {
+        status = "draft";
+      });
+      getRequestOrder();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,16 +254,16 @@ class SalesOrderState extends State<SalesOrderScreen> {
                         padding: EdgeInsets.all(10),
                         backgroundColor: Colors.grey,
                         selectedColor: Color(0xFFE50404),
-                        selected: selectedFilter == 'semua'
+                        selected: selectedFilter == 'draft'
                             ? true
                             : false,
-                        label: Text("semua",style: TextStyle(color: Colors.white)),
+                        label: Text("Request",style: TextStyle(color: Colors.white)),
 
                         onSelected: (selected) {
                           if (selected) {
                             setState(() {
-                              selectedFilter = 'semua';
-                              // filterRequestOrder();
+                              selectedFilter = 'draft';
+                              filterRequestOrder();
                             });
                           }
 
@@ -162,15 +276,15 @@ class SalesOrderState extends State<SalesOrderScreen> {
                         padding: EdgeInsets.all(10),
                         backgroundColor: Colors.grey,
                         selectedColor: Color(0xFFE50404),
-                        selected: selectedFilter == 'submission'
+                        selected: selectedFilter == 'posted'
                             ? true
                             : false,
-                        label: Text("submission",style: TextStyle(color: Colors.white)),
+                        label: Text("Approve",style: TextStyle(color: Colors.white)),
                         onSelected: (bool value) {
                           setState(() {
                             if (value) {
-                              selectedFilter = 'submission';
-                              // filterRequestOrder();
+                              selectedFilter = 'posted';
+                              filterRequestOrder();
                             } else {
                               selectedFilter = '';
                             }
@@ -184,37 +298,15 @@ class SalesOrderState extends State<SalesOrderScreen> {
                         padding: EdgeInsets.all(10),
                         backgroundColor: Colors.grey,
                         selectedColor: Color(0xFFE50404),
-                        selected: selectedFilter == 'approve'
+                        selected: selectedFilter == 'cancel'
                             ? true
                             : false,
-                        label: Text("approve",style: TextStyle(color: Colors.white)),
+                        label: Text("Reject",style: TextStyle(color: Colors.white)),
                         onSelected: (bool value) {
                           setState(() {
                             if (value) {
-                              selectedFilter = 'approve';
-                              // filterRequestOrder();
-                            } else {
-                              selectedFilter = '';
-                            }
-                          });
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: ChoiceChip(
-                        padding: EdgeInsets.all(10),
-                        backgroundColor: Colors.grey,
-                        selectedColor: Color(0xFFE50404),
-                        selected: selectedFilter == 'reject'
-                            ? true
-                            : false,
-                        label: Text("reject", style: TextStyle(color: Colors.white),),
-                        onSelected: (bool value) {
-                          setState(() {
-                            if (value) {
-                              selectedFilter = 'reject';
-                              // filterRequestOrder();
+                              selectedFilter = 'cancel';
+                              filterRequestOrder();
                             } else {
                               selectedFilter = '';
                             }
@@ -238,7 +330,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                           context,
                           MaterialPageRoute(
                             builder: ((context) {
-                              return RequestOrderDetailScreen(requestOrderId: item.id);
+                              return SalesOrderDetailScreen.add(item.id);
                             }),
                           ),
                         );
@@ -283,84 +375,221 @@ class SalesOrderState extends State<SalesOrderScreen> {
                                   )
                                 ],
                               ),
-                              Text(
-                                formatDate('yyyy-MM-dd HH:mm', item.createdAt),
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                              if(access_group['is_update'] == 1 && item.status == 'draft')
+                              GestureDetector(
+                                onTap:(){
+                                  sheetMenuCard(item.id, 'posted');
+                                },
+                                child: Icon(
+                                  Icons.more_vert,
                                   color: Colors.black,
-                                  fontSize: 12,
-                                  fontStyle: FontStyle.normal,
+
                                 ),
-                              ),
+                              )
                             ],
                           ),
                           SizedBox(height: 2,),
                           Divider(color: Colors.grey),
                           SizedBox(height: 10,),
-                          Container(
-                              width: 300,
-                              child: Column(
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    item.name,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Kode',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey
+                                      ),
                                     ),
                                   ),
-                                  Text(item.product!.name,
-                                    softWrap: true,
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 12
+                                  SizedBox(height: 5,),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      item.code.toString(),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Tanggal Order',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 5,),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      formatDate('yyyy-MM-dd HH:mm', item.createdAt),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                        fontStyle: FontStyle.normal,
+                                      ),
                                     ),
                                   )
                                 ],
                               )
+                            ],
                           ),
-                          SizedBox(height: 20,),
-
-                          // Container(
-                          //   width: 400,
-                          //   child: Column(
-                          //     crossAxisAlignment: CrossAxisAlignment.start,
-                          //     children: [
-                          //       Card(
-                          //         shape: RoundedRectangleBorder(
-                          //           borderRadius:
-                          //           BorderRadius.circular(
-                          //               30.0),
-                          //         ),
-                          //         elevation: 0,
-                          //         color:
-                          //         item.status == 'reject'?
-                          //         Color(0xFFFFEBEB)
-                          //             : item.status == 'approve' ? Color(0xFF50C594)
-                          //             : Color(0XFFFFF5E8)
-                          //         ,
-                          //         child: SizedBox(
-                          //             width: size.width / 4,
-                          //             height: 35,
-                          //             child: Center(child: Text(item.status,
-                          //               style: TextStyle(
-                          //                   color: item.status == 'reject'?
-                          //                   Color(0xFFCB4C4D)
-                          //                       : item.status == 'approve' ? Colors.white
-                          //                       : Color(0XFFEA9B3F),
-                          //                   fontWeight: FontWeight.bold,
-                          //                   fontSize: 14
-                          //               ),
-                          //             ))
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // )
+                          SizedBox(height: 25,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Text(
+                                      'Klien',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 5,),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      item.customer!.name.toString(),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Text(
+                                      'Lokasi',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 5,),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      item.location!.name.toString(),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 15,),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Produk',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5,),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              item.product!.name.toString(),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 15,),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Total Harga',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5,),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              currencyFormat(int.parse(item.totalPrice.toString())),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10,),
+                          Container(
+                            width: 400,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(
+                                        30.0),
+                                  ),
+                                  elevation: 0,
+                                  color:
+                                  item.status == 'reject'?
+                                  Color(0xFFFFEBEB)
+                                      : item.status == 'posted' ? Color(0xFF50C594)
+                                      : Color(0XFFFFF5E8)
+                                  ,
+                                  child: SizedBox(
+                                      width: size.width / 4,
+                                      height: 35,
+                                      child: Center(child:
+                                      Text(item.status == 'draft' ? 'Request' : item.status == 'posted' ? 'Approve' : 'Reject',
+                                        style: TextStyle(
+                                            color: item.status == 'reject'?
+                                            Color(0xFFCB4C4D)
+                                                : item.status == 'posted' ? Colors.white
+                                                : Color(0XFFEA9B3F),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14
+                                        ),
+                                      ))
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                         ]),
                       ),
                     );
@@ -371,13 +600,18 @@ class SalesOrderState extends State<SalesOrderScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FormSalesOrderScreen(),
-            ),
-          );
+        onPressed: () async {
+          var dataCustomer =
+          await Navigator.of(context).push(new MaterialPageRoute(
+              builder: (BuildContext context) {
+                return new FormSalesOrderScreen();
+              },
+              fullscreenDialog: true));
+          if (dataCustomer != null) {
+            getRequestOrder();
+          }
+
+
         },
         backgroundColor: Color(0xFFE50404),
         child: const Icon(

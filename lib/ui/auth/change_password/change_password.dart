@@ -110,6 +110,7 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -122,24 +123,6 @@ class _ChangePasswordState extends State<ChangePassword> {
           "Ubah password",
           style: TextStyle(color: Colors.black),
         ),
-        actions: [
-          Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () => _save(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Save",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFFE50404)
-                      ),
-                    )
-                  ],
-                ),
-              ))
-        ],
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => {Navigator.pop(context, true)},
@@ -152,7 +135,19 @@ class _ChangePasswordState extends State<ChangePassword> {
               child: Form(
                 key: formKey,
                 child: ListView(children: [
-
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal:20,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Password Baru',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
                   Container(
                     height: kSpacingUnit.w * 5.5,
                     margin: EdgeInsets.symmetric(
@@ -178,7 +173,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                         focusedErrorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide()),
-                        labelText: 'Password Baru *',
+                        labelText: '',
                         suffixIcon: IconButton(
                           icon: Icon(
                             _passwordVisible2
@@ -207,6 +202,19 @@ class _ChangePasswordState extends State<ChangePassword> {
                       controller: _new_password,
                     ),
                   ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal:20,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Konfirmasi Password Baru',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
                   Container(
                     height: kSpacingUnit.w * 5.5,
                     margin: EdgeInsets.symmetric(
@@ -232,7 +240,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                         focusedErrorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide()),
-                        labelText: 'Konfirmasi Password Baru *',
+                        labelText: '',
                         suffixIcon: IconButton(
                           icon: Icon(
                             _passwordVisible3
@@ -265,6 +273,30 @@ class _ChangePasswordState extends State<ChangePassword> {
               ))
         ],
       ),
+        bottomNavigationBar: Container(
+          height: 100,
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+                height: 50,
+                width: size.width,
+                decoration: BoxDecoration(
+                    color: Color(0xFF000075),
+                    borderRadius: BorderRadius.circular(18)),
+                child: TextButton(
+                  onPressed: () {
+                    _save();
+                  },
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )
     );
   }
 }

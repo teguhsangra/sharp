@@ -51,7 +51,7 @@ class ChecklistState extends State<ChecklistScreen> {
   }
 
   void getChecklistResult() async {
-    var res = await Network().getData('checklist_results?check_unfinish=Y');
+    var res = await Network().getData('stocks?check_unfinish=Y');
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
       setState(() {

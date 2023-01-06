@@ -11,7 +11,7 @@ class Customer {
     email = json['email'] != null ? json['email']  : '';
     phone = json['phone'] != null ? json['phone']: '';
     identityType = json['person'] != null ? json['person']['identity_type'] : 'id_cards';
-    identityNumber = json['person'] != null ? json['person']['identity_number'] : '';
+    identityNumber = json['person'] != null ? json['person']['identity_number'].toString() : '';
     type = json['type'];
   }
 }

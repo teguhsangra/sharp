@@ -61,6 +61,7 @@ dependencies:
   pinput: ^2.2.16
   firebase_core: ^2.4.0
   cool_alert: ^1.1.0
+  sliding_up_panel: ^2.0.0+1
 
 flutter_icons:
     android: "launcher_icon"

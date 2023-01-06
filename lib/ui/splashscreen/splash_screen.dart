@@ -66,7 +66,7 @@ class SplashScreenState extends State<SplashScreen> {
             ),
           ),
           Positioned(
-            top:160,
+            top:140,
             left:30,
             right:30,
             child: Column(
@@ -95,7 +95,7 @@ class SplashScreenState extends State<SplashScreen> {
               right: 60,
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
-                height: 70,
+                height: 50,
                 decoration: BoxDecoration(
                     color: Color(0xFFE50404), borderRadius: BorderRadius.circular(30)),
                 child: TextButton(

@@ -1,16 +1,19 @@
+import 'package:telkom/model/primary_product.dart';
 import 'package:telkom/model/product.dart';
 import 'package:telkom/model/customer.dart';
 import 'package:telkom/model/location.dart';
 import 'package:telkom/model/sales_order_detail.dart';
+import 'package:telkom/model/tenant.dart';
 
 class SalesOrder {
   late int id;
   late int? locationId, customerId, employeeId, primaryProductId,totalPrice;
   late String code, name, status;
   late String? remarks, evidence1, evidence2, timeZone;
-  late Product? product;
+  late PrimaryProduct? product;
   late Location? location;
   late Customer? customer;
+  // late Tenant? tenant;
   late List<SalesOrderDetail> salesOrderDetail;
   late DateTime? startedAt,endedAt,createdAt;
   // late String? followUpBy, followUpNotes, followUpPicture;
@@ -33,15 +36,20 @@ class SalesOrder {
     endedAt = DateTime.parse(json['ended_at']);
     timeZone = json['timezone'];
     product = (json['primary_product'] != []
-        ? Product.fromJson(json['primary_product'])
-        : []) as Product?;
+        ? PrimaryProduct.fromJson(json['primary_product'])
+        : []) as PrimaryProduct?;
     customer = (json['customer'] != []
         ? Customer.fromJson(json['customer'])
         : []) as Customer?;
+    // tenant =  (
+    //     json['tenant'] != null
+    //     ? Tenant.fromJson(json['tenant'])
+    //     : []
+    // ) as Tenant?;
     location = (json['location'] != []
         ? Location.fromJson(json['location'])
         : []) as Location?;
-    if (json['sales_order_details'] != null) {
+    if (json['sales_order_details'] != []) {
       salesOrderDetail = List<SalesOrderDetail>.from(
           json["sales_order_details"]
               .map((detailData) => SalesOrderDetail.fromJson(detailData)));

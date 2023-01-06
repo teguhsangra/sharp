@@ -12,6 +12,7 @@ import 'package:telkom/components/card.dart';
 import 'package:telkom/network/api.dart';
 import 'package:telkom/constants.dart';
 import 'package:telkom/components/CustomPageRoute.dart';
+import 'package:telkom/ui/stock/stock_screen.dart';
 
 import '../../components/helper.dart';
 import 'package:geolocator/geolocator.dart';
@@ -145,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Placemark place = placemarks[0];
     setState(() {
-      locationName = '${place.street},${place.locality},${place.country}';
+      locationName = '${place.street},${place.locality}';
     });
   }
 
@@ -231,6 +232,35 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future checkInDialog() async {
+    var checkIn = await Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) {
+          return new PresensiScreen();
+        }));
+
+    if (checkIn != null) {
+      setState(() {
+        checkin = true;
+      });
+      checkUnsignout();
+    }
+  }
+
+  Future checkOutDialog() async {
+    var checkOut = await Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) {
+          return new PresensiScreen(
+              unSignout: unSignout
+          );
+        }));
+    if (checkOut != null) {
+      setState(() {
+        checkin = false;
+      });
+      checkUnsignout();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -240,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           HomeIndex(context),
           const SalesOrderScreen(),
-          const ChecklistScreen(),
+          const StockScreen(),
           const ProfileScreen()
         ],
       ),
@@ -281,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                height: 240,
+                height: 220,
                 child: Stack(
                   alignment: Alignment.center,
                   children: <Widget>[
@@ -324,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     Stack(
                                       children: <Widget>[
-                                        new IconButton(icon: Icon(Icons.notifications, color: Colors.white,), onPressed: () {
+                                        new IconButton(icon: Icon(Icons.notifications_outlined, color: Colors.white,), onPressed: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -436,12 +466,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   : Column(
                       children: [
+                        // Card Absensi
+                        Column(
+                          children: [
+                            (checkin
+                                ?
+                            CardCheckOut()
+                                :
+                            CardCheckin()
+                            )
+                          ],
+                        ),
+                        // End Card Absensi
                         CardContainer(
                             height: 140,
                             child: Padding(
                               padding: const EdgeInsets.only(left: 10, right: 10),
                               child: Row(
-                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -609,536 +651,487 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             )
                         ),
-                        // Card Absensi
-                        (checkin
-                            ? CardContainer(
-                                height: 120,
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Row(
-                                        children: [
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: const [
-                                              Icon(
-                                                Icons.access_alarm,
-                                                color: Color(0xFFE50404),
-                                                size: 35,
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(width: size.width / 20),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Text(
-                                                'Presensi',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: Colors.black),
-                                              ),
-                                              const SizedBox(height: 20.0),
-                                              Card(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                  BorderRadius.circular(
-                                                      30.0),
-                                                ),
-                                                elevation: 0,
-                                                color:
-                                                const Color(0xFFE6ECF6),
-                                                child: SizedBox(
-                                                  width: size.width / 3.5,
-                                                  height: 40,
-                                                  child: Center(
-                                                    child: Text.rich(
-                                                      TextSpan(
-                                                        children: <
-                                                            InlineSpan>[
-                                                          WidgetSpan(
-                                                            alignment:
-                                                            PlaceholderAlignment
-                                                                .middle,
-                                                            child: Icon(
-                                                              Icons
-                                                                  .directions_walk,
-                                                              color: Color(
-                                                                  0xFFE50404),
-                                                              size: 12,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                              text:
-                                                              ' Check-in: ',
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize:
-                                                                  10)),
-                                                          TextSpan(
-                                                              text: formatDate(
-                                                                  'HH:mm:ss',
-                                                                  unSignout.length >
-                                                                      0
-                                                                      ? DateTime.tryParse(unSignout[
-                                                                  'sign_in_at'])
-                                                                      : DateTime
-                                                                      .now()),
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize:
-                                                                  10)),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(width: size.width / 30),
-                                          Column(
-                                            children: [
-                                              Text(
-                                                formatDate('dd MMMM yyyy',
-                                                    DateTime.now()),
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: Colors.black),
-                                              ),
-                                              const SizedBox(height: 20.0),
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  Navigator.push(
-                                                    context,
-                                                    CustomPageRoute(
-                                                        child: PresensiScreen(
-                                                          latitude: _latitude,
-                                                          longitude: _longitude,
-                                                          username:
-                                                              user['name'],
-                                                          tenant_id:
-                                                              user['tenant_id'],
-                                                          unSignout: unSignout,
-                                                        ),
-                                                        direction:
-                                                            AxisDirection.left),
-                                                  );
-                                                },
-                                                child: Card(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30.0),
-                                                  ),
-                                                  elevation: 0,
-                                                  color:
-                                                      const Color(0xFFE6ECF6),
-                                                  child: SizedBox(
-                                                    width: size.width / 4,
-                                                    height: 40,
-                                                    child: Center(
-                                                      child: Text.rich(
-                                                        TextSpan(
-                                                          children: <
-                                                              InlineSpan>[
-                                                            WidgetSpan(
-                                                              alignment:
-                                                                  PlaceholderAlignment
-                                                                      .middle,
-                                                              child: Icon(
-                                                                Icons
-                                                                    .exit_to_app,
-                                                                color: Color(
-                                                                    0xFFE50404),
-                                                                size: 13,
-                                                              ),
-                                                            ),
-                                                            TextSpan(
-                                                                text:
-                                                                    ' Check out',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .black,
-                                                                    fontSize:
-                                                                        10)),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ))
-                            : CardContainer(
-                                height: 120,
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: const [
-                                              Text(
-                                                'Presensi',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: Colors.black),
-                                              ),
-                                              SizedBox(height: 20.0),
-                                              Icon(
-                                                Icons.access_alarm,
-                                                color: Color(0xFFE50404),
-                                                size: 35,
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              Text(
-                                                formatDate('dd MMMM yyyy',
-                                                    DateTime.now()),
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: Colors.black),
-                                              ),
-                                              const SizedBox(height: 20.0),
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  Navigator.push(
-                                                    context,
-                                                    CustomPageRoute(
-                                                        child: PresensiScreen(
-                                                          latitude: _latitude,
-                                                          longitude: _longitude,
-                                                          username:
-                                                              user['name'],
-                                                          tenant_id:
-                                                              user['tenant_id'],
-                                                        ),
-                                                        direction:
-                                                            AxisDirection.left),
-                                                  );
-                                                },
-                                                child: Card(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30.0),
-                                                  ),
-                                                  elevation: 0,
-                                                  color:
-                                                      const Color(0xFFE6ECF6),
-                                                  child: SizedBox(
-                                                    width: size.width / 3,
-                                                    height: 40,
-                                                    child: Center(
-                                                      child: Text.rich(
-                                                        TextSpan(
-                                                          children: <
-                                                              InlineSpan>[
-                                                            WidgetSpan(
-                                                              alignment:
-                                                                  PlaceholderAlignment
-                                                                      .middle,
-                                                              child: Icon(
-                                                                Icons
-                                                                    .qr_code_rounded,
-                                                                color: Color(
-                                                                    0xFFE50404),
-                                                                size: 13,
-                                                              ),
-                                                            ),
-                                                            TextSpan(
-                                                              text: ' Check-in',
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize: 16),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ))),
-                        // End Card Absensi
                         SizedBox(height: 10,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                            height: 100,
-                            width: 100,
-                            decoration: BoxDecoration(
-                                color: const Color(0xFFF8F8F8),
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      blurRadius: 2,
-                                      // Shadow position
-                                      spreadRadius: 1,
-                                      offset: const Offset(0, 3)),
-                                ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.shopping_cart,
-                                    color: Colors.red,
-                                    size: 40,
-                                  ),
-                                  SizedBox(height: 10,),
-                                  Text(
-                                    'Penjualan',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: 100,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFFF8F8F8),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        blurRadius: 2,
-                                        // Shadow position
-                                        spreadRadius: 1,
-                                        offset: const Offset(0, 3)),
-                                  ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Colors.red,
-                                    size: 40,
-                                  ),
-                                  SizedBox(height: 10,),
-                                  Text(
-                                    'Stok Barang',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: 100,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFFF8F8F8),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        blurRadius: 2,
-                                        // Shadow position
-                                        spreadRadius: 1,
-                                        offset: const Offset(0, 3)),
-                                  ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.folder,
-                                    color: Colors.red,
-                                    size: 40,
-                                  ),
-                                  SizedBox(height: 10,),
-                                  Text(
-                                    'Data Barang',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                        SizedBox(height: 10,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                              height: 70,
-                              width: 70,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFFF8F8F8),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        blurRadius: 2,
-                                        // Shadow position
-                                        spreadRadius: 1,
-                                        offset: const Offset(0, 3)),
-                                  ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.insert_chart_outlined_outlined,
-                                    color: Colors.red,
-                                    size: 25,
-                                  ),
-                                  SizedBox(height: 5,),
-                                  Text(
-                                    'Report',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: 70,
-                              width: 70,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFFF8F8F8),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        blurRadius: 2,
-                                        // Shadow position
-                                        spreadRadius: 1,
-                                        offset: const Offset(0, 3)),
-                                  ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.supervisor_account_rounded,
-                                    color: Colors.red,
-                                    size: 25,
-                                  ),
-                                  SizedBox(height: 5,),
-                                  Text(
-                                    'Competitor \n  Info',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: 70,
-                              width: 70,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFFF8F8F8),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        blurRadius: 2,
-                                        // Shadow position
-                                        spreadRadius: 1,
-                                        offset: const Offset(0, 3)),
-                                  ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.supervisor_account_rounded,
-                                    color: Colors.red,
-                                    size: 25,
-                                  ),
-                                  SizedBox(height:5,),
-                                  Text(
-                                    'Competitor \n Activity',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: 70,
-                              width: 70,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFFF8F8F8),
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        blurRadius: 2,
-                                        // Shadow position
-                                        spreadRadius: 1,
-                                        offset: const Offset(0, 3)),
-                                  ]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.feedback,
-                                    color: Colors.red,
-                                    size: 25,
-                                  ),
-                                  SizedBox(height: 5,),
-                                  Text(
-                                    'Feedback',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20,),
+                        CardMenu()
                       ],
                     ),
             ],
           )),
     );
   }
+
+
+  Widget CardCheckin(){
+    Size size = MediaQuery.of(context).size;
+    return  Container(
+      width: size.width,
+      height: 150,
+      margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: BoxDecoration(
+          color:  Color(0xFFE50404),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                blurRadius: 2,
+                // Shadow position
+                spreadRadius: 3,
+                offset: const Offset(0, 3)),
+          ]),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
+            child:  Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Masuk untuk absen", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),
+                Icon(
+                  Icons.access_alarm,
+                  color: Colors.white,
+                  size: 35,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20,),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formatDate('dd MMMM yyyy',
+                      DateTime.now()),
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    checkInDialog();
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.circular(
+                          30.0),
+                    ),
+                    elevation: 0,
+                    color:
+                    const Color(0xFFE6ECF6),
+                    child: SizedBox(
+                      width: size.width / 4,
+                      height: 40,
+                      child: Center(
+                        child: Text.rich(
+                          TextSpan(
+                            children: <
+                                InlineSpan>[
+                              WidgetSpan(
+                                alignment:
+                                PlaceholderAlignment
+                                    .middle,
+                                child: Icon(
+                                  Icons
+                                      .qr_code_rounded,
+                                  color: Colors.blue,
+                                  size: 14,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' Check-in',
+                                style: TextStyle(
+                                    color: Colors
+                                        .black,
+                                    fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget CardCheckOut(){
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      width: size.width,
+      height: 190,
+      margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: BoxDecoration(
+          color:  Color(0xFFE50404),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                blurRadius: 2,
+                // Shadow position
+                spreadRadius: 3,
+                offset: const Offset(0, 3)),
+          ]),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
+            child:  Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Presensi", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),
+                Text(
+                  formatDate('dd MMMM yyyy',
+                      DateTime.now()),
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10,),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
+            child:  Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_pin,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                    Container(
+                      child: Text(
+                        maxLines:4,
+                        softWrap: true,
+                        ' $locationName',
+                        style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20,),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(
+                        30.0),
+                  ),
+                  elevation: 0,
+                  color:
+                  const Color(0xFFE6ECF6),
+                  child: SizedBox(
+                    width: size.width / 3.5,
+                    height: 40,
+                    child: Center(
+                      child: Text.rich(
+                        TextSpan(
+                          children: <
+                              InlineSpan>[
+                            WidgetSpan(
+                              alignment:
+                              PlaceholderAlignment
+                                  .middle,
+                              child: Icon(
+                                Icons
+                                    .directions_walk,
+                                color: Color(
+                                    0XFFFA4A0C),
+                                size: 12,
+                              ),
+                            ),
+                            TextSpan(
+                                text:
+                                ' Check-in: ',
+                                style: TextStyle(
+                                    color: Colors
+                                        .black,
+                                    fontSize:
+                                    10)),
+                            TextSpan(
+                                text: formatDate(
+                                    'HH:mm:ss',
+                                    unSignout.length >
+                                        0
+                                        ? DateTime.tryParse(unSignout[
+                                    'sign_in_at'])
+                                        : DateTime
+                                        .now()),
+                                style: TextStyle(
+                                    color: Colors
+                                        .black,
+                                    fontSize:
+                                    10)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    checkOutDialog();
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.circular(
+                          30.0),
+                    ),
+                    elevation: 0,
+                    color:
+                    const Color(0xFFE6ECF6),
+                    child: SizedBox(
+                      width: size.width / 4,
+                      height: 40,
+                      child: Center(
+                        child: Text.rich(
+                          TextSpan(
+                            children: <
+                                InlineSpan>[
+                              WidgetSpan(
+                                alignment:
+                                PlaceholderAlignment
+                                    .middle,
+                                child: Icon(
+                                  Icons
+                                      .exit_to_app,
+                                  color: Color(
+                                      0XFFFA4A0C),
+                                  size: 13,
+                                ),
+                              ),
+                              TextSpan(
+                                  text:
+                                  ' Check out',
+                                  style: TextStyle(
+                                      color: Colors
+                                          .black,
+                                      fontSize:
+                                      10)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget CardMenu(){
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: BoxDecoration(
+          color:  Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                blurRadius: 1,
+                // Shadow position
+                spreadRadius: 1,
+                offset: const Offset(0, 2)),
+          ]),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Container(
+                height: 60,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.sell,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(height: 10,),
+                    Text(
+                      'Penjualan',
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                height: 60,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(height: 10,),
+                    Text(
+                      'Stok Barang',
+
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                height: 60,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.dataset,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(height: 10,),
+                    Text(
+                      'Data Barang',
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                height: 60,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.insert_chart_outlined_outlined,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(height: 5,),
+                    Text(
+                      'Report',
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 20,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Container(
+                height: 70,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.supervisor_account_rounded,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(height: 5,),
+                    Text(
+                      'Competitor Info',
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                height: 70,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.supervisor_account_rounded,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(height:5,),
+                    Text(
+                      'Competitor \n Activity',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                height: 70,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.feedback,
+                      color: Colors.red,
+                      size: 30,
+                    ),
+                    SizedBox(height: 5,),
+                    Text(
+                      'Feedback',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
 }

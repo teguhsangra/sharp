@@ -267,24 +267,7 @@ class _EditProfileState extends State<EditProfile> {
           "Edit Profile",
           style: TextStyle(color: Colors.black),
         ),
-        actions: [
-          Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () => _save(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Save",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFFE50404)
-                    ),
-                    )
-                  ],
-                ),
-              ))
-        ],
+
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => {Navigator.pop(context, true)},
@@ -303,6 +286,19 @@ class _EditProfileState extends State<EditProfile> {
                   key: formKey,
                   child: Column(
                 children: [
+                  Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Nama',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                  ),
                   TextFormField(
                     initialValue: nama,
                     onChanged: (value) {
@@ -319,15 +315,31 @@ class _EditProfileState extends State<EditProfile> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: "Nama",
+                      labelText: "",
                       hintText: "Masukan nama anda",
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      suffixIcon: Icon(Icons.person),
+                      suffixIcon: Icon(Icons.person,color: Colors.black,),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 15),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Nomor Handphone',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
                   TextFormField(
                     initialValue: no_hp,
                     keyboardType: TextInputType.phone,
@@ -344,15 +356,31 @@ class _EditProfileState extends State<EditProfile> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: "Nomor Handphone",
+                      labelText: "",
                       hintText: "Masukan Nomor HandphoneS",
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      suffixIcon: Icon(Icons.phone),
+                      suffixIcon: Icon(Icons.phone,color: Colors.black),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        )
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 15),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Kota',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
                   TextFormField(
                     initialValue: kota,
                     onChanged: (value) {
@@ -368,15 +396,31 @@ class _EditProfileState extends State<EditProfile> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: "Kota",
+                      labelText: "",
                       hintText: "Masukan Kota anda",
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      suffixIcon: Icon(Icons.location_pin),
+                      suffixIcon: Icon(Icons.location_pin,color: Colors.black),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        )
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 15),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Negara',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
                   TextFormField(
                     initialValue: negara,
                     onChanged: (value) {
@@ -392,22 +436,33 @@ class _EditProfileState extends State<EditProfile> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: "Negara",
+                      labelText: "",
                       hintText: "Masukan Negara anda",
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        )
                       //
                     ),
                   ),
-                  SizedBox(height: 20,),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text('Tipe Identitas'),
-                  ),
-                  SizedBox(height: 10,),
+                  SizedBox(height: 15,),
                   Padding(
-                    padding:  EdgeInsets.all(5),
+                    padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Tipe Identitas',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding:  EdgeInsets.symmetric(horizontal: 5),
                     child: Container(
                       width: 400,
                       padding: EdgeInsets.only(left: 10, right: 10),
@@ -443,7 +498,20 @@ class _EditProfileState extends State<EditProfile> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 15,),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Nomor Identitas',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
                   TextFormField(
                     initialValue: nomor_identitas.toString(),
                     onChanged: (value) {
@@ -459,15 +527,31 @@ class _EditProfileState extends State<EditProfile> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: "Nomor Identitas",
+                      labelText: "",
                       hintText: "Masukan Nomor Identitas anda",
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      floatingLabelBehavior: FloatingLabelBehavior.always,border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    )
+
                       //
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 15,),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Alamat',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
                   TextFormField(
                     initialValue: alamat,
                     onChanged: (value) {
@@ -483,11 +567,14 @@ class _EditProfileState extends State<EditProfile> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: "Alamat",
+                      labelText: "",
                       hintText: "Masukan Alamat anda",
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        )
                       //
                     ),
                   )
@@ -495,8 +582,32 @@ class _EditProfileState extends State<EditProfile> {
               ))
             ],
           ),
+        )
+      ),
+      bottomNavigationBar: Container(
+        height: 100,
+        child: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+              height: 50,
+              width: size.width,
+              decoration: BoxDecoration(
+                  color: Color(0xFF000075),
+                  borderRadius: BorderRadius.circular(18)),
+              child: TextButton(
+                onPressed: () {
+                  _save();
+                },
+                child: const Text(
+                  'Submit',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 }
