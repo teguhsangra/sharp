@@ -35,6 +35,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
 
   var user = {};
   List requestOrders = [];
+
   late List listCustomer = <Customer>[];
   List customers = <Customer>[];
 
@@ -86,44 +87,16 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
 
 
   showAlertDialog(BuildContext context) {
-    AlertDialog alert = AlertDialog(
-      content: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: 100.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Center(
-              child: new SizedBox(
-                height: 50.0,
-                width: 50.0,
-                child: new CircularProgressIndicator(
-                  value: null,
-                  strokeWidth: 7.0,
-                ),
-              ),
-            ),
-            new Container(
-              margin: const EdgeInsets.only(top: 25.0),
-              child: new Center(
-                child: new Text(
-                  "Sedang memuat...",
-                  style: new TextStyle(color: Colors.black),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return alert;
+        return Center(child: CircularProgressIndicator());
       },
     );
   }
+
 
   @override
   void initState() {
@@ -227,91 +200,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
   }
 
 
-  // void addItemOrders() async {
-  //   var availability = true;
-  //   for (var orderDetail in requestOrders) {
-  //     if (orderDetail['isType'] == 'product') {
-  //       if (orderDetail['product_id'] == selectedIndexAsset) {
-  //         availability = false;
-  //         break;
-  //       }
-  //     } else {
-  //       if (orderDetail['name'] == name) {
-  //         availability = false;
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   if (availability) {
-  //     setState(() {
-  //       requestOrders.add({
-  //         'id': selectedIndexAsset,
-  //         'name': selectedNameAsset,
-  //         'quantity': qty,
-  //         'price': price
-  //       });
-  //       isQty = false;
-  //       isProduct = false;
-  //
-  //       isType = 'notProduct';
-  //       selectedIndexAsset = null;
-  //       selectedNameAsset = null;
-  //       nameProduct = '';
-  //       qty = 0;
-  //       price = 0;
-  //     });
-  //     Navigator.pop(context);
-  //   } else {
-  //     SnackBar(
-  //       content: Text(
-  //         'You already select this product',
-  //         style: TextStyle(fontSize: 18),
-  //         textAlign: TextAlign.center,
-  //       ),
-  //       backgroundColor: Colors.red,
-  //       duration: Duration(seconds: 3),
-  //       shape: StadiumBorder(),
-  //       margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-  //       behavior: SnackBarBehavior.floating,
-  //       elevation: 0,
-  //       action: SnackBarAction(
-  //         textColor: Colors.white,
-  //         label: 'x',
-  //         onPressed: () {
-  //           // Code to execute.
-  //         },
-  //       ),
-  //     );
-  //   }
-  //   countPrice();
-  // }
-  //
-  // void editItemOrders() async {
-  //   var item = requestOrders[indexItem];
-  //
-  //   setState(() {
-  //     item['isType'] = isType.toString();
-  //     item['product_id'] = selectedIndexProduct;
-  //     item['product_name'] = selectedNameProduct;
-  //     item['name'] = nameProduct;
-  //     item['quantity'] = qty;
-  //     item['price'] = price;
-  //
-  //     isQty = false;
-  //     isProduct = false;
-  //     indexItem = null;
-  //     isType = 'notProduct';
-  //     selectedIndexProduct = null;
-  //     selectedNameProduct = null;
-  //     nameProduct = '';
-  //     qty = 0;
-  //     price = 0;
-  //     isEditItem = false;
-  //   });
-  //   Navigator.pop(context);
-  //   countPrice();
-  // }
-  //
+
   void removeItemOrders(indexItem) async {
     salesOrders.removeAt(indexItem);
     indexItem = null;
@@ -319,12 +208,12 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
   }
 
   void openAddProdukDialog() async{
-    if(selectedCustomer.length > 0)
+    if(selectedLocation.length > 0)
     {
       var save =
       await Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) {
-            return new SalesOrderDetailDialogScreen.add(selectedCustomer['id'],null);
+            return new SalesOrderDetailDialogScreen.add(selectedLocation['id'],null);
           },
           fullscreenDialog: true));
       if (save != null) {
@@ -362,7 +251,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
         .push(
       new MaterialPageRoute(
         builder: (BuildContext context) {
-          return new SalesOrderDetailDialogScreen.edit(selectedCustomer['id'],value);
+          return new SalesOrderDetailDialogScreen.edit(selectedLocation['id'], value);
         },
         fullscreenDialog: true,
       ),
@@ -699,87 +588,15 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
     bool isValid = false;
     FocusScope.of(context).unfocus();
 
-    if(selectedLocation.length == 0)
+    if(selectedLocation.length == 0 || selectedCustomer.length == 0 || salesOrders.length == 0)
     {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Lokasi harus diisi',
-              style: TextStyle(fontSize: 18),
-            ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-            shape: StadiumBorder(),
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            behavior: SnackBarBehavior.floating,
-            elevation: 0,
-            action: SnackBarAction(
-              textColor: Colors.white,
-              label: 'x',
-              onPressed: () {
-                // Code to execute.
-              },
-            ),
-          )
-      );
+      alertDialogForm();
 
     }else{
       isValid = true;
     }
 
-    if(selectedCustomer.length == 0)
-    {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Customer harus diisi',
-              style: TextStyle(fontSize: 18),
-            ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-            shape: StadiumBorder(),
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            behavior: SnackBarBehavior.floating,
-            elevation: 0,
-            action: SnackBarAction(
-              textColor: Colors.white,
-              label: 'x',
-              onPressed: () {
-                // Code to execute.
-              },
-            ),
-          )
-      );
-    }else{
-      isValid = true;
-    }
 
-    if(salesOrders.length == 0)
-    {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Pesanan barang harus diisi',
-              style: TextStyle(fontSize: 18),
-            ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-            shape: StadiumBorder(),
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            behavior: SnackBarBehavior.floating,
-            elevation: 0,
-            action: SnackBarAction(
-              textColor: Colors.white,
-              label: 'x',
-              onPressed: () {
-                // Code to execute.
-              },
-            ),
-          )
-      );
-    }else{
-      isValid = true;
-    }
 
     if(isValid == true){
       if (_formKey.currentState!.validate()) {
@@ -812,29 +629,17 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
           "sales_order_details": jsonEncode(salesOrders),
           'drafted_by': user['name']
         };
-
+        showAlertDialog(context);
         var res = await Network().postRequestOrder('sales_orders', data);
         var body = json.decode(res.body);
+        print(body);
         if(res.statusCode == 201 || res.statusCode == 200){
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: const Text('Sukses tambahkan pesanan Permintaan'),
-              action: SnackBarAction(
-                textColor: Colors.white,
-                label: 'x',
-                onPressed: () {
-                  // Code to execute.
-                },
-              ),
-              duration: Duration(seconds: 3),
-              shape: StadiumBorder(),
-              margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-              behavior: SnackBarBehavior.floating,
-              elevation: 0,
-            ),
-          );
-          Navigator.pop(context, 'refresh');
+          await Future.delayed(const Duration(milliseconds: 2000), () {
+            Navigator.pop(context);
+            Navigator.of(
+              context,
+            ).pop('success');
+          });
         }
 
       }
@@ -865,7 +670,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
       total_diskon = diskon;
       total_price = price;
       total_tax = pajak;
-      grand_total = price - diskon + service + pajak;
+      grand_total =(price - diskon) + service + pajak;
     });
   }
 
@@ -923,6 +728,76 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
         }
       });
     }
+  }
+
+  void alertDialogForm() {
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        enableDrag: false,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.5,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              size: 30,
+                            )),
+                        SizedBox(
+                          width: 10,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: [
+                        Image.asset(
+                          "assets/images/no_image_pelaporan.png",
+                          fit: BoxFit.cover,
+                          width: 200,
+                          height: 200,
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Mohon lengkapi isian form, nama, lokasi, klien dan pesanan barang tidak boleh kosong.',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
   }
 
   @override
@@ -997,7 +872,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
                       SizedBox(height: 20.0),
                       Container(
                         child: TextFormField(
-                          autofocus: true,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           initialValue: code,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
@@ -1036,6 +911,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
                       ),
                       Container(
                         child: TextFormField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -1172,6 +1048,16 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              item['selectedCategory']['name']+' - '+item['selectedAsset']['name'],
+                                              maxLines: 2,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Text(
@@ -1395,7 +1281,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black)),
                           ),
-                          Text('${currencyFormat(total_price)}',
+                          Text('${currencyFormat(grand_total)}',
                               style: TextStyle(
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.w600,

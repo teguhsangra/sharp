@@ -39,7 +39,7 @@ class PresensiScreen extends StatefulWidget {
 
 class PresensiScreenState extends State<PresensiScreen> {
   PanelController _panelController = PanelController();
-  static const double fabHeightClosed = 320;
+  static const double fabHeightClosed = 490;
   double fabHeight = fabHeightClosed;
 
   bool isOutArea = false;
@@ -51,9 +51,10 @@ class PresensiScreenState extends State<PresensiScreen> {
   var image;
   double _latitude = 0;
   double _longitude = 0;
+  double distance = 0;
   String locationName = '';
   final List<Marker> locations = <Marker>[];
-
+  var image_error = "assets/images/no_image_pelaporan.png";
   PresensiScreenState(this.unSignout);
 
 
@@ -64,41 +65,12 @@ class PresensiScreenState extends State<PresensiScreen> {
   }
 
   showAlertDialog(BuildContext context) {
-    AlertDialog alert = AlertDialog(
-      content: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: 100.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Center(
-              child: new SizedBox(
-                height: 50.0,
-                width: 50.0,
-                child: new CircularProgressIndicator(
-                  value: null,
-                  strokeWidth: 7.0,
-                ),
-              ),
-            ),
-            new Container(
-              margin: const EdgeInsets.only(top: 25.0),
-              child: new Center(
-                child: new Text(
-                  "loading.. wait...",
-                  style: new TextStyle(color: Colors.black),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return alert;
+        return Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -203,54 +175,21 @@ class PresensiScreenState extends State<PresensiScreen> {
       "timezone": dateTime.timeZoneName,
     };
     if (isOutArea) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          'Mohon maaf anda sedang tidak dalam lokasi',
-          style: TextStyle(fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
-        shape: StadiumBorder(),
-        margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        behavior: SnackBarBehavior.floating,
-        elevation: 0,
-        action: SnackBarAction(
-          textColor: Colors.white,
-          label: 'x',
-          onPressed: () {
-            // Code to execute.
-          },
-        ),
-      ));
+      alertDialogLocation();
     } else {
 
+      showAlertDialog(context);
       var res = await Network().postCheckIn('presences', data);
       var body = json.decode(res.body);
+      if (res.statusCode == 201 || res.statusCode == 200) {
 
-      if (res.body != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.green,
-            content: const Text('Sukses Check-in'),
-            action: SnackBarAction(
-              textColor: Colors.white,
-              label: 'x',
-              onPressed: () {
-                // Code to execute.
-              },
-            ),
-            duration: Duration(seconds: 3),
-            shape: StadiumBorder(),
-            margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            behavior: SnackBarBehavior.floating,
-            elevation: 0,
-          ),
-        );
-        Navigator
-            .of(context)
-            .pop(body['data']);
+        await Future.delayed(const Duration(milliseconds: 2000), () {
+
+          Navigator.pop(context);
+          Navigator.of(
+            context,
+          ).pop('success');
+        });
       }
     }
   }
@@ -280,58 +219,22 @@ class PresensiScreenState extends State<PresensiScreen> {
       "timezone": dateTime.timeZoneName,
     };
     if (isOutArea) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          'Mohon maaf anda sedang tidak dalam lokasi',
-          style: TextStyle(fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
-        shape: StadiumBorder(),
-        margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        behavior: SnackBarBehavior.floating,
-        elevation: 0,
-        action: SnackBarAction(
-          textColor: Colors.white,
-          label: 'x',
-          onPressed: () {
-            // Code to execute.
-          },
-        ),
-      ));
+      alertDialogLocation();
     } else {
+      showAlertDialog(context);
       var res =
       await Network().postCheckOut('presences/${unSignout['id']}', data);
       var body = json.decode(res.body);
+      if (res.statusCode == 201 || res.statusCode == 200) {
 
-      if (res.body != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.green,
-            content: const Text('Sukses Check-out'),
-            action: SnackBarAction(
-              textColor: Colors.white,
-              label: 'x',
-              onPressed: () {
-                // Code to execute.
-              },
-            ),
-            duration: Duration(seconds: 3),
-            shape: StadiumBorder(),
-            margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            behavior: SnackBarBehavior.floating,
-            elevation: 0,
-          ),
-        );
-        Navigator
-            .of(context)
-            .pop(body['data']);
-
+        await Future.delayed(const Duration(milliseconds: 2000), () {
+          Navigator.pop(context);
+          Navigator.of(
+            context,
+          ).pop('success');
+        });
       }
     }
-
   }
 
   calculate() async {
@@ -358,22 +261,139 @@ class PresensiScreenState extends State<PresensiScreen> {
     double totalDistance = 0;
 
     var ignore_latlong = employee['ignore_latlong'];
-    if(ignore_latlong == 1)
-    {
+
+    if (ignore_latlong == 0) {
       for (var item in location) {
         totalDistance = calculateDistance(
             _latitude, _longitude, item['latitude'], item['longitude']);
 
         if (totalDistance * 1000 > toleranceDistance) {
-          // outOfArea = true;
-          // break;
+          outOfArea = true;
+        } else {
+          outOfArea = false;
         }
-        outOfArea = false;
       }
+    } else {
+      outOfArea = false;
     }
+
     setState(() {
       isOutArea = false;
+      distance = totalDistance;
     });
+  }
+
+  void alertDialogLocation() {
+    Size size = MediaQuery
+        .of(context)
+        .size;
+    showModalBottomSheet(
+        enableDrag: false,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.66,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              size: 30,
+                            )),
+                        SizedBox(
+                          width: 10,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      children: [
+                        Image.asset(
+                          "assets/images/no_image_pelaporan.png",
+                          fit: BoxFit.cover,
+                          width: 200,
+                          height: 200,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Mohon maaf anda sedang tidak dalam lokasi',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Lokasi anda: ' +
+                                _latitude.toString() +
+                                ' , ' +
+                                _longitude.toString(),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Lokasi checklist: ' +
+                                user['person']['employee']['locations'][0]['latitude']
+                                    .toString() +
+                                ' , ' +
+                                user['person']['employee']['locations'][0]['longitude']
+                                    .toString(),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Jarak: ' + distance.toString(),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
   }
 
   void togglePanel() => _panelController.isPanelOpen ? _panelController.close() : _panelController.open();
@@ -381,8 +401,8 @@ class PresensiScreenState extends State<PresensiScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final panelHeightOpen = size.height * 0.8;
-    final panelHeightClosed = size.height * 0.4;
+    final panelHeightOpen = size.height * 0.7;
+    final panelHeightClosed = size.height * 0.7;
     return Scaffold(
         backgroundColor: Colors.white,
         body: isLoading
@@ -439,12 +459,143 @@ class PresensiScreenState extends State<PresensiScreen> {
                               padding: EdgeInsets.symmetric(horizontal: 10),
                               child: Column(
                                 children: [
-                                  Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(unSignout.length > 0 ? 'Check-Out' :'Check-In', style: TextStyle(
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap:(){
+                                          Navigator.pop(context);
+                                        },
+                                        child: Icon(
+                                          Icons.close,
+                                          color: Colors.black,
+                                          size: 30,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10,),
+                                      Text(unSignout.length > 0 ? 'Check-Out' :'Check-In', style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold
                                       ),)
+                                    ],
+                                  ),
+                                  SizedBox(height: 20,),
+                                  (
+                                      image != null ?
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                  padding: EdgeInsets
+                                                      .symmetric(
+                                                      horizontal:
+                                                      10,
+                                                      vertical: 10),
+                                                  width: 120,
+                                                  height: 120,
+                                                  child: FullScreenWidget(
+                                                    child: ClipRRect(
+                                                      borderRadius: BorderRadius.circular(16),
+                                                      child: Image.file(
+                                                          image,
+                                                          fit: BoxFit.cover
+                                                      ),
+                                                    ),
+                                                  )
+                                              ),
+                                              Positioned(
+                                                right: 5.0,
+                                                child: InkWell(
+                                                  child: Icon(
+                                                    Icons.remove_circle,
+                                                    size: 30,
+                                                    color: Colors.red,
+                                                  ),
+                                                  // This is where the _image value sets to null on tap of the red circle icon
+                                                  onTap: () {
+                                                    setState(
+                                                          () {
+                                                        image = null;
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ) :
+                                      GestureDetector(
+                                        onTap:
+                                            () async {
+                                          final pickedFile = await ImagePicker().pickImage(
+                                              source: ImageSource
+                                                  .camera,
+                                              maxWidth:
+                                              1800,
+                                              maxHeight:
+                                              1800,
+                                              preferredCameraDevice:
+                                              CameraDevice
+                                                  .front);
+
+                                          if (pickedFile ==
+                                              null)
+                                            return;
+                                          final imageTemp =
+                                          File(pickedFile
+                                              .path);
+                                          setState(() =>
+                                          image =
+                                              imageTemp);
+
+                                        },
+                                        child: Column(
+                                          children: [
+                                            Card(
+                                              shape:
+                                              RoundedRectangleBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(
+                                                    18.0),
+                                              ),
+                                              elevation: 0,
+                                              color: const Color(
+                                                  0xFFE50404),
+                                              child:
+                                              const SizedBox(
+                                                width: 70,
+                                                height: 70,
+                                                child:
+                                                Center(
+                                                  child: Text
+                                                      .rich(
+                                                    TextSpan(
+                                                      children: <
+                                                          InlineSpan>[
+                                                        WidgetSpan(
+                                                          alignment: PlaceholderAlignment.middle,
+                                                          child: Icon(
+                                                            Icons.face_unlock_rounded,
+                                                            color: Colors.white,
+                                                            size: 50,
+                                                          ),
+                                                        ),
+
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Text('Ambil foto', style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500
+                                            ),)
+                                          ],
+                                        ),
+                                      )
                                   ),
                                   SizedBox(height: 20,),
                                   Align(
@@ -504,141 +655,7 @@ class PresensiScreenState extends State<PresensiScreen> {
                                           ),
                                         ),
                                       )),
-                                  SizedBox(height: 20,),
 
-                                  (
-                                      image != null ?
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              Container(
-                                                  padding: EdgeInsets
-                                                      .symmetric(
-                                                      horizontal:
-                                                      10,
-                                                      vertical: 10),
-                                                  width: 120,
-                                                  height: 120,
-                                                  child: FullScreenWidget(
-                                                    child: ClipRRect(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      child: Image.file(
-                                                          image,
-                                                          fit: BoxFit.cover
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                              Positioned(
-                                                right: 5.0,
-                                                child: InkWell(
-                                                  child: Icon(
-                                                    Icons.remove_circle,
-                                                    size: 30,
-                                                    color: Colors.red,
-                                                  ),
-                                                  // This is where the _image value sets to null on tap of the red circle icon
-                                                  onTap: () {
-                                                    setState(
-                                                          () {
-                                                        image = null;
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ) :
-                                      Container(
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal:
-                                              50,
-                                              vertical: 50),
-                                          alignment:
-                                          Alignment.center,
-                                          child: Wrap(
-                                            spacing: 10.0,
-                                            runSpacing: 10.0,
-                                            crossAxisAlignment:
-                                            WrapCrossAlignment
-                                                .center,
-                                            alignment:
-                                            WrapAlignment
-                                                .center,
-                                            children: [
-                                              GestureDetector(
-                                                onTap:
-                                                    () async {
-                                                  final pickedFile = await ImagePicker().pickImage(
-                                                      source: ImageSource
-                                                          .camera,
-                                                      maxWidth:
-                                                      1800,
-                                                      maxHeight:
-                                                      1800,
-                                                      preferredCameraDevice:
-                                                      CameraDevice
-                                                          .front);
-
-                                                  if (pickedFile ==
-                                                      null)
-                                                    return;
-                                                  final imageTemp =
-                                                  File(pickedFile
-                                                      .path);
-                                                  setState(() =>
-                                                  image =
-                                                      imageTemp);
-
-                                                },
-                                                child: Card(
-                                                  shape:
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        18.0),
-                                                  ),
-                                                  elevation: 0,
-                                                  color: const Color(
-                                                      0xFFE50404),
-                                                  child:
-                                                  const SizedBox(
-                                                    width: 200,
-                                                    height: 70,
-                                                    child:
-                                                    Center(
-                                                      child: Text
-                                                          .rich(
-                                                        TextSpan(
-                                                          children: <
-                                                              InlineSpan>[
-                                                            WidgetSpan(
-                                                              alignment: PlaceholderAlignment.middle,
-                                                              child: Icon(
-                                                                Icons.face_unlock_outlined,
-                                                                color: Colors.white,
-                                                                size: 20,
-                                                              ),
-                                                            ),
-                                                            TextSpan(
-                                                                text: ' Take a photo selfie',
-                                                                style: TextStyle(color: Colors.white, fontSize: 18)),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          )
-
-                                      )
-                                  ),
                                 ],
                               ),
 
@@ -648,13 +665,6 @@ class PresensiScreenState extends State<PresensiScreen> {
                       ),
                     ],
                   );
-                },
-                onPanelSlide: (position){
-                  setState(() {
-                    final panelMaxScrollExtent = panelHeightOpen - panelHeightClosed;
-
-                    fabHeight = position * panelMaxScrollExtent + fabHeightClosed;
-                  });
                 },
                 footer:Container(
                   color: Colors.white,
@@ -719,21 +729,6 @@ class PresensiScreenState extends State<PresensiScreen> {
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                  left: 10,
-                  bottom: fabHeight,
-                  child: FloatingActionButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      backgroundColor: Colors.white,
-                      child: const Icon(
-                        Icons.chevron_left,
-                        color: Colors.black,
-                        size: 30,
-                      )
-                  )
               )
             ]
         )

@@ -19,32 +19,6 @@ class LoginForm extends StatefulWidget {
 
 class LoginState extends State<LoginForm> {
   get validate => null;
-
-  @override
-  void initState() {
-    super.initState();
-    FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance; // Change here
-    _firebaseMessaging.getToken().then((token){
-      print(token);
-      setState(() {
-        tokenFCM = token;
-      });
-    });
-    getTenant();
-  }
-
-  void getTenant() async {
-    var tenantData = await Network().getTenant('get_tenant?code=BIRAWASFA');
-
-    if (tenantData != null) {
-      setState(() {
-        tenantId = tenantData.data.id;
-      });
-    }
-  }
-
-
-
   final _formKey = GlobalKey<FormState>();
 
   String? email;
@@ -56,6 +30,33 @@ class LoginState extends State<LoginForm> {
 
   bool? isLoading = false;
   bool secureText = true;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance; // Change here
+    _firebaseMessaging.getToken().then((token){
+
+      setState(() {
+        tokenFCM = token;
+      });
+    });
+    getTenant();
+  }
+
+  void getTenant() async {
+    var res = await Network().getData('get_tenant?code=BIRAWASFA');
+    var body = json.decode(res.body);
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      setState(() {
+        tenantId = body['data']['id'];
+      });
+    }
+  }
+
+
+
+
 
   showHide() {
     setState(() {
@@ -90,6 +91,7 @@ class LoginState extends State<LoginForm> {
       var res = await Network().auth(data, 'login');
 
       var body = json.decode(res.body);
+      print(body);
       if (res.statusCode == 200) {
         SharedPreferences localStorage = await SharedPreferences.getInstance();
         localStorage.setString(

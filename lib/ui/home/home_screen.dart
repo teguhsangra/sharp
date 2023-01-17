@@ -6,6 +6,8 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:telkom/components/card.dart';
+import 'package:telkom/components/dialog_pop_up_success_check_in.dart';
+import 'package:telkom/components/dialog_pop_up_success_check_out.dart';
 
 
 
@@ -233,30 +235,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future checkInDialog() async {
-    var checkIn = await Navigator.of(context).push(new MaterialPageRoute(
+    var res = await Navigator.of(context).push(new MaterialPageRoute(
         builder: (BuildContext context) {
           return new PresensiScreen();
         }));
 
-    if (checkIn != null) {
+    if (res == 'success') {
       setState(() {
         checkin = true;
       });
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) {
+            return new DialogPopUpSuccessCheckIn();
+          },
+          fullscreenDialog: true));
       checkUnsignout();
     }
   }
 
   Future checkOutDialog() async {
-    var checkOut = await Navigator.of(context).push(new MaterialPageRoute(
+    var res = await Navigator.of(context).push(new MaterialPageRoute(
         builder: (BuildContext context) {
           return new PresensiScreen(
               unSignout: unSignout
           );
         }));
-    if (checkOut != null) {
+    if (res == 'success') {
       setState(() {
         checkin = false;
       });
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) {
+            return new DialogPopUpSuccessCheckOut();
+          },
+          fullscreenDialog: true));
       checkUnsignout();
     }
   }

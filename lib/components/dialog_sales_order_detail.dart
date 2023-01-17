@@ -4,93 +4,69 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:telkom/components/dialog_produk_category.dart';
 import 'package:telkom/components/helper.dart';
 import 'package:telkom/model/asset.dart';
-import 'package:telkom/model/asset_type.dart';
-import 'package:telkom/model/location.dart';
 import 'package:telkom/model/product.dart';
-import 'package:telkom/model/product_include.dart';
-import 'package:telkom/model/product_price.dart';
 import 'package:telkom/network/api.dart';
 
 class SalesOrderDetailDialogScreen extends StatefulWidget {
   final int location_id;
-  final dynamic initialData;
+  final dynamic editData;
 
-  SalesOrderDetailDialogScreen.add(this.location_id,this.initialData);
+  SalesOrderDetailDialogScreen.add(this.location_id,this.editData);
 
-  SalesOrderDetailDialogScreen.edit(this.location_id,this.initialData);
+  SalesOrderDetailDialogScreen.edit(this.location_id,this.editData);
 
   @override
   SalesOrderDetailDialogState createState() {
-    if (initialData != null) {
+    if (this.location_id != null) {
       return new SalesOrderDetailDialogState(
-          this.location_id,this.initialData
+          this.location_id, this.editData
       );
     } else {
-      return new SalesOrderDetailDialogState(this.location_id,null);
+      return new SalesOrderDetailDialogState(this.location_id,this.editData);
     }
   }
 }
 
 class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
-
+  final form = GlobalKey<FormState>();
   var quantityContorller = TextEditingController();
   var discountContorller = TextEditingController();
 
   bool isLoading = false;
+  bool isProduct = false;
   bool listSelectedProduct = false;
   bool submitSelectedProduct = false;
-  bool listSelectedTypeAsset = false;
-  bool submitSelectedTypeAsset = false;
   bool listSelectedAsset = false;
   bool submitSelectedAsset = false;
-  bool listSelectedProductPrices = false;
-  bool submitSelectedProductPrices = false;
-  bool has_asset_type = false;
   bool has_asset = false;
-  bool has_product_prices = false;
 
-  var valueEdit;
+  late List listProduct = <Product>[];
+  List products = <Product>[];
+  late List listAsset = <Asset>[];
+  List asset = <Asset>[];
+  var editData;
 
+
+
+  var user = {};
+  var location_id;
   var price;
   var serviceCharge;
   var tax;
   var total;
 
-  var user = {};
-  var location_id;
 
-  final form = GlobalKey<FormState>();
-
-  late List listProduct = <Product>[];
-  List product = <Product>[];
-
-
-  late List listProductPrices = <ProductPrices>[];
-  List productPrices = <ProductPrices>[];
-
-  late List listProductIncludes = <ProductIncludes>[];
-  List productIncludes = <ProductIncludes>[];
-
-  late List listAssetType = <AssetType>[];
-  List assetType = <AssetType>[];
-
-  late List listAsset = <Asset>[];
-  List asset = <Asset>[];
-
-  late List listLocation = <Location>[];
-  List location = <Location>[];
-
+  var selectedCategory = {};
   var selectedProduct = {};
-  var selectedTypeAsset = {};
   var selectedAsset = {};
-  var selectedProductPrices = {};
 
 
 
 
-  SalesOrderDetailDialogState(this.location_id,this.valueEdit);
+  SalesOrderDetailDialogState(this.location_id,this.editData);
 
   @override
   void initState() {
@@ -118,79 +94,69 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
     setState(() {
       user = userSession;
     });
-
-
-    setDataUpdate(valueEdit);
-    getProduct();
-    product = listProduct;
-    // getAssetType();
-    // assetType = listAssetType;
-    getLocation();
-    location = listLocation;
-  }
-
-  void setDataUpdate(valueEdit) async {
-    print(valueEdit);
-    if(valueEdit != null){
-        setState(() {
-          selectedProduct = valueEdit['selectedProduct'];
-          selectedProductPrices = valueEdit['selectedProductPrices'];
-          selectedAsset = valueEdit['selectedAsset'];
-          quantityContorller.text = valueEdit['quantity'];
-          discountContorller.text = valueEdit['discount'];
-        });
-        getProductById(valueEdit['product_id']);
+    if(editData != null){
+      setDataUpdate();
     }
   }
 
-  void getLocation() async {
-    var res = await Network().getData('locations');
-    if (res.statusCode == 200) {
-      var resultData = jsonDecode(res.body);
+  void setDataUpdate() async {
+    if(editData != null){
       setState(() {
-        listLocation.clear();
-        resultData['data'].forEach((v) {
-          listLocation.add(Location.fromJson(v));
-        });
+        selectedCategory = editData['selectedCategory'];
+        selectedProduct = editData['selectedProduct'];
+        selectedAsset = editData['selectedAsset'];
+        quantityContorller.text = editData['quantity'];
+        discountContorller.text = editData['discount'];
+        isProduct = true;
       });
+      getProductById(editData['product_id']);
     }
   }
 
-  void getProduct() async {
-
-    var res = await Network().getData('products?tenant_id=${user['tenant_id']}');
+  void getCategorybyId() async {
+    var category_id = selectedCategory['id'];
+    var res = await Network().getData('product_categories/$category_id');
     var resultData = jsonDecode(res.body);
-    // print(tenant_id);
     if (res.statusCode == 200 || res.statusCode == 201) {
-
-
       setState(() {
         listProduct.clear();
-        resultData['data'].forEach((v) {
+        resultData['data']['products'].forEach((v) {
           listProduct.add(Product.fromJson(v));
         });
+        products = listProduct;
+        isProduct = true;
       });
     }
   }
 
-  void getAssetType() async {
-
-    var res = await Network().getData('asset_types');
-    var resultData = jsonDecode(res.body);
-    // print(tenant_id);
-    if (res.statusCode == 200 || res.statusCode == 201) {
 
 
+  void refreshSelected() async {
+    setState(() {});
+  }
+
+  void openDialogCateory() async{
+
+    var res =
+    await Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) {
+          return new ProductCategoryDialogScreen.add(0,null);
+        }));
+
+    if(res != null)
+    {
       setState(() {
-        listAssetType.clear();
-        resultData['data'].forEach((v) {
-          listAssetType.add(AssetType.fromJson(v));
-        });
+        selectedProduct ={};
+        selectedCategory = res;
       });
+      getCategorybyId();
     }
   }
 
   void sheetProduct() async{
+    setState(() {
+      selectedAsset ={};
+    });
     Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
         isScrollControlled: true,
@@ -236,7 +202,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                           if (value.isEmpty) {
                             final suggestions = listProduct;
                             setState(() {
-                              product = suggestions;
+                              products = suggestions;
                             });
                           } else {
                             final suggestions = listProduct.where((item) {
@@ -246,7 +212,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                               return name.contains(input);
                             }).toList();
                             setState(() {
-                              product = suggestions;
+                              products = suggestions;
                             });
                           }
                         },
@@ -283,11 +249,11 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                     const SizedBox(height: 15),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: product.length,
+                        itemCount: products.length,
                         itemBuilder: (context, index){
-                          var item = product[index];
+                          var item = products[index];
                           return CheckboxListTile(
-                            title: Text(product[index].name),
+                            title: Text(products[index].name),
                             value: selectedProduct['id'] == item.id ? true : false,
                             onChanged: (value){
                               setState(() {
@@ -321,7 +287,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                             Navigator.pop(context);
                             setState(() {
                               submitSelectedProduct = false;
-                              product = listProduct;
+                              products = listProduct;
                               price = 0;
                               discountContorller.text = '0';
                               quantityContorller.text = '1';
@@ -346,170 +312,51 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
             );
           });
         }).whenComplete(()  {
-        final suggestions = listProduct;
-        setState(() {
-          product = suggestions;
-        });
+      final suggestions = listProduct;
+      setState(() {
+        products = suggestions;
+      });
     });
   }
 
-  void sheetTypeAsset() async{
-    Size size = MediaQuery.of(context).size;
-    showModalBottomSheet(
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(25.0),
-          ),
-        ),
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return Container(
-              width: size.width,
-              height: size.height * 0.8,
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child:  Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 50.0,
-                        height: 5.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15.0),
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                            prefixIcon: Icon(Icons.search),
-                            hintText: 'Search',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                borderSide: BorderSide(color: Colors.grey))),
-                        onChanged: (value) {
-                          // print(value);
-                          if (value.isEmpty) {
-                            final suggestions = listAssetType;
-                            setState(() {
-                              assetType = suggestions;
-                            });
-                          } else {
-                            final suggestions = listAssetType.where((item) {
-                              final name = item.name.toLowerCase();
-                              final input = value.toLowerCase();
+  void getProductById(Id) async{
+    var res = await Network().getData('products/$Id');
+    var resultData = jsonDecode(res.body);
 
-                              return name.contains(input);
-                            }).toList();
-                            setState(() {
-                              assetType = suggestions;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 20,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Tipe Asset',
-                            style: TextStyle(
-                                fontSize: 17.0,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black)
-                        ),
-                        if (listSelectedTypeAsset == true)
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedTypeAsset = {};
-                                listSelectedTypeAsset = false;
-                                submitSelectedTypeAsset = true;
-                              });
-                              refreshSelected();
-                            },
-                            child: Text('Reset',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.green)),
-                          )
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: assetType.length,
-                        itemBuilder: (context, index){
-                          var item = assetType[index];
-                          return CheckboxListTile(
-                            title: Text(assetType[index].name),
-                            value: selectedTypeAsset['id'] == item.id ? true : false,
-                            onChanged: (value){
-                              setState(() {
-                                if (value == true) {
-                                  selectedTypeAsset = {'id': item.id, 'name': item.name};
+    if (res.statusCode == 200 || res.statusCode == 201) {
 
-                                  listSelectedTypeAsset = true;
-                                  submitSelectedTypeAsset = true;
-                                } else {
-                                  selectedTypeAsset = {};
 
-                                  listSelectedTypeAsset = false;
-                                  submitSelectedTypeAsset = false;
-                                }
-                              });
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    if(submitSelectedTypeAsset != false)
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        height: 50,
-                        width: size.width * 0.9,
-                        decoration: BoxDecoration(
-                            color: Color(0xFF000075),
-                            borderRadius: BorderRadius.circular(12)),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            setState(() {
-                              submitSelectedTypeAsset = false;
-                              assetType = listAssetType;
-                              selectedAsset ={};
-                            });
-                            refreshSelected();
-                            if(selectedTypeAsset.length > 0 )
-                              {
-                                getAsset(null,location_id,selectedTypeAsset['id']);
-                              }
-                          },
-                          child: const Text(
-                            'Simpan',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          ),
-                        ),
-                      )
-                  ],
-                ) ,
-              ),
-            );
-          });
-        }).whenComplete(() {
-          final suggestions = listAssetType;
-          setState(() {
-            assetType = suggestions;
-          });
+
+      if (resultData['data']['has_stock'] == 1 && resultData['data']['has_asset_as_a_stock'] == 1) {
+        // getAsset(location_id,resultData['data']['id']);
+        has_asset = true;
+        setState(() {
+          listAsset.clear();
+          for(var data in resultData['data']['assets']){
+            if(data['is_sold'] == 0){
+              listAsset.add(Asset.fromJson(data));
+            }
+          }
+
+          asset = listAsset;
         });
+      } else {
+        has_asset = false;
+      }
+
+      setState(() {
+        price = resultData['data']['price'];
+        serviceCharge = (price * user['tenant']['service_charge_percentage'] / 100);
+
+        var total_tax = (price + serviceCharge) * user['tenant']['tax_percentage'] / 100;
+        tax = total_tax.round();
+
+        var total_price = price + serviceCharge + tax;
+        total = total_price.round();
+      });
+
+    }
+
   }
 
   void sheetAsset() async{
@@ -609,12 +456,12 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                         itemBuilder: (context, index){
                           var item = asset[index];
                           return CheckboxListTile(
-                            title: Text(asset[index].name),
+                            title: Text(item.name+' '+item.brand),
                             value: selectedAsset['id'] == item.id ? true : false,
                             onChanged: (value){
                               setState(() {
                                 if (value == true) {
-                                  selectedAsset = {'id': item.id, 'name': item.name};
+                                  selectedAsset = {'id': item.id, 'name': item.name+' '+item.brand};
 
                                   listSelectedAsset = true;
                                   submitSelectedAsset = true;
@@ -666,323 +513,6 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
     });
   }
 
-  void sheetProductPrices() async{
-    Size size = MediaQuery.of(context).size;
-    showModalBottomSheet(
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(25.0),
-          ),
-        ),
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return Container(
-              width: size.width,
-              height: size.height * 0.8,
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child:  Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 50.0,
-                        height: 5.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15.0),
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                            prefixIcon: Icon(Icons.search),
-                            hintText: 'Search',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                borderSide: BorderSide(color: Colors.grey))),
-                        onChanged: (value) {
-                          // print(value);
-                          if (value.isEmpty) {
-                            final suggestions = listProductPrices;
-                            setState(() {
-                              productPrices = suggestions;
-                            });
-                          } else {
-                            final suggestions = listProductPrices.where((item) {
-                              final name = item.name.toLowerCase();
-                              final input = value.toLowerCase();
-
-                              return name.contains(input);
-                            }).toList();
-                            setState(() {
-                              productPrices = suggestions;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 20,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Product',
-                            style: TextStyle(
-                                fontSize: 17.0,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black)
-                        ),
-                        if (listSelectedProductPrices == true)
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedProductPrices = {};
-                                listSelectedProductPrices = false;
-                                submitSelectedProductPrices = true;
-                              });
-                              refreshSelected();
-                            },
-                            child: Text('Reset',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.green)),
-                          )
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: productPrices.length,
-                        itemBuilder: (context, index){
-                          var item = productPrices[index];
-                          return CheckboxListTile(
-                            title: Text(productPrices[index].name),
-                            value: selectedProductPrices['id'] == item.id ? true : false,
-                            onChanged: (value){
-                              setState(() {
-                                if (value == true) {
-                                  selectedProductPrices = {'id': item.id, 'name': item.name};
-
-                                  listSelectedProductPrices = true;
-                                  submitSelectedProductPrices = true;
-                                } else {
-                                  selectedProductPrices = {};
-
-                                  listSelectedProductPrices = false;
-                                  submitSelectedProductPrices = false;
-                                }
-                              });
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    if(submitSelectedProductPrices != false)
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        height: 50,
-                        width: size.width * 0.9,
-                        decoration: BoxDecoration(
-                            color: Color(0xFF000075),
-                            borderRadius: BorderRadius.circular(12)),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            setState(() {
-                              submitSelectedProductPrices = false;
-                              productPrices = listProductPrices;
-                            });
-                            refreshSelected();
-                            if(selectedProductPrices.length >0){
-                              getProductPrices(selectedProductPrices['id']);
-                            }
-
-                          },
-                          child: const Text(
-                            'Simpan',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          ),
-                        ),
-                      )
-                  ],
-                ) ,
-              ),
-            );
-          });
-        }).whenComplete(()  {
-      final suggestions = listProductPrices;
-      setState(() {
-        productPrices = suggestions;
-      });
-    });
-  }
-
-  void refreshSelected() async {
-    setState(() {});
-  }
-
-  void getProductById(Id) async{
-    var res = await Network().getData('products/$Id');
-    var resultData = jsonDecode(res.body);
-
-    if (res.statusCode == 200 || res.statusCode == 201) {
-        setState(() {
-          listProductPrices.clear();
-        });
-
-        if(resultData['data']['has_asset_type'] == 1){
-          setState(() {
-            // has_asset_type = true;
-            has_asset = true;
-          });
-        }else if(resultData['data']['has_asset_type'] == 0){
-            setState(() {
-              // has_asset_type = false;
-              has_asset = false;
-              has_product_prices = false;
-              selectedTypeAsset = {};
-              selectedAsset = {};
-              selectedProductPrices = {};
-            });
-        }
-
-        if (resultData['data']['has_stock'] == 1 && resultData['data']['has_asset_as_a_stock'] == 1) {
-          getAsset(null,location_id,resultData['data']['id']);
-          has_asset = true;
-        } else {
-          has_asset = false;
-        }
-
-        if(resultData['data']['has_product_prices'] == 1){
-
-          var product_prices;
-          for (var i = 0; i <  resultData['data']['product_prices'].length; i++) {
-
-            if (resultData['data']['has_room'] == 1) {
-              for (var j = 0; j < location.length; j++) {
-                if (listLocation[j].id == resultData['data']['product_prices'][i]['room_id']) {
-
-                  product_prices = {
-                    'id': resultData['data']['product_prices'][i]['id'],
-                    'tenant_id': resultData['data']['product_prices'][i]['tenant_id'],
-                    'product_id' : resultData['data']['product_prices'][i]['product_id'],
-                    'name' : resultData['data']['product_prices'][i]['item'] +' - '+resultData['data']['product_prices'][i]['name']+' : '+resultData['data']['product_prices'][i]['currency_code']+' '+currencyFormat(resultData['data']['product_prices'][i]['price']),
-                    'asset_type_id' : resultData['data']['product_prices'][i]['asset_type_id'],
-                    'room_id' : resultData['data']['product_prices'][i]['room_id'],
-                    'has_quantity' : resultData['data']['product_prices'][i]['has_quantity'],
-                    'term': resultData['data']['product_prices'][i]['term'],
-                    'item' : resultData['data']['product_prices'][i]['item'],
-                    'price' : resultData['data']['product_prices'][i]['price'],
-                    'default_quantity' : resultData['data']['product_prices'][i]['default_quantity'],
-                  };
-                  setState(() {
-                    has_product_prices = true;
-                    listProductPrices.add(ProductPrices.fromJson(product_prices));
-                  });
-                  break;
-
-                }
-              }
-            } else if (resultData['data']['has_asset_type'] == 1) {
-               product_prices = {
-                'id': resultData['data']['product_prices'][i]['id'],
-                'tenant_id': resultData['data']['product_prices'][i]['tenant_id'],
-                'product_id' : resultData['data']['product_prices'][i]['product_id'],
-                'name' : resultData['data']['product_prices'][i]['item'] +' - '+resultData['data']['product_prices'][i]['name'],
-                'asset_type_id' : resultData['data']['product_prices'][i]['asset_type_id'],
-                'room_id' : resultData['data']['product_prices'][i]['room_id'],
-                'has_quantity' : resultData['data']['product_prices'][i]['has_quantity'],
-                'term': resultData['data']['product_prices'][i]['term'],
-                'item' : resultData['data']['product_prices'][i]['item'],
-                'price' : resultData['data']['product_prices'][i]['price'],
-                'default_quantity' : resultData['data']['product_prices'][i]['default_quantity'],
-              };
-               setState(() {
-                 has_product_prices = true;
-                 // has_asset_type = false;
-                 has_asset = true;
-                 listProductPrices.add(ProductPrices.fromJson(product_prices));
-               });
-            } else {
-              // do nothing
-            }
-
-          }
-
-          productPrices = listProductPrices;
-        }else if(resultData['data']['has_product_prices'] == 0){
-
-          setState(() {
-            price = resultData['data']['price'];
-            serviceCharge = (price * user['tenant']['service_charge_percentage'] / 100);
-            
-            var total_tax = (price + serviceCharge) * user['tenant']['tax_percentage'] / 100;
-            tax = total_tax.round();
-
-            var total_price = price + serviceCharge + tax;
-            total = total_price.round();
-            has_product_prices = false;
-
-          });
-
-        }
-
-    }
-
-  }
-
-  void getProductPrices(Id) async{
-
-    for (var i = 0; i < productPrices.length; i++) {
-      if (productPrices[i].id == Id) {
-        setState(() {
-          price = productPrices[i].price;
-          serviceCharge = (price * user['tenant']['service_charge_percentage'] / 100);
-
-          var total_tax = (price + serviceCharge) * user['tenant']['tax_percentage'] / 100;
-          tax = total_tax.round();
-
-          var total_price = price + serviceCharge + tax;
-          total = total_price.round();
-        });
-        getAsset(null,location_id,productPrices[i].productId);
-      }
-    }
-  }
-
-  void getAsset(Id,locationId,productId) async{
-    var url = "assets";
-
-    url += '?get_all=Y';
-
-    if (productId != null) {
-      url += '&product_id=' + productId.toString();
-    }
-
-    if (locationId != null) {
-      url += '&location_id=' + locationId.toString();
-    }
-    var res = await Network().getData(url);
-    var resultData = jsonDecode(res.body);
-    print(resultData);
-    if (res.statusCode == 200 || res.statusCode == 201) {
-      setState(() {
-        listAsset.clear();
-        resultData['data'].forEach((v) {
-          listAsset.add(Asset.fromJson(v));
-        });
-        asset = listAsset;
-      });
-    }
-  }
-
   void calculatePrice() async{
     var quantity = quantityContorller.text;
     var discount = discountContorller.text;
@@ -1000,9 +530,9 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
 
 
     var total_price = ( price - int.parse(discount) + serviceCharge + tax ) * int.parse(quantity);
-     setState(() {
-       total = total_price.round();
-     });
+    setState(() {
+      total = total_price.round();
+    });
 
   }
 
@@ -1011,8 +541,8 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
     var data = {
       'sales_order_id': '',
       'product_id': selectedProduct['id'],
+      'selectedCategory':selectedCategory,
       'selectedProduct':selectedProduct,
-      'selectedProductPrices':selectedProductPrices,
       'selectedAsset':selectedAsset,
       'customer_complimentary_id': null,
       'complimentary_id': null,
@@ -1038,12 +568,87 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
       'service_charge': serviceCharge,
       'tax': tax,
     };
+    if(selectedCategory.length == 0 && selectedProduct.length == 0 || selectedAsset.length == 0){
+      alertDialogForm();
+    }else{
+      Navigator
+          .of(context)
+          .pop(data);
+    }
 
-    Navigator
-        .of(context)
-        .pop(data);
 
   }
+
+  void alertDialogForm() {
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        enableDrag: false,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.5,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              size: 30,
+                            )),
+                        SizedBox(
+                          width: 10,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: [
+                        Image.asset(
+                          "assets/images/no_image_pelaporan.png",
+                          fit: BoxFit.cover,
+                          width: 200,
+                          height: 200,
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Mohon lengkapi isian form, kategori produk, produk / asset dan jumlah tidak boleh kosong.',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
 
   @override
   Widget build(BuildContext context){
@@ -1072,124 +677,106 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                     padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
                     child:  Column(
                       children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('Produk',
-                              style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text('Produk Category',
+                                  style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black)),
+                            ),
+                            if(editData == null)
+                            GestureDetector(
+                              onTap: () {
+                                openDialogCateory();
+                              },
+                              child: Text('Lihat semua',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.green)),
+                            )
+                          ],
                         ),
                         SizedBox(
                           height: 10,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            sheetProduct();
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.white,
-                              border: Border.all(
-                                color: Color(0xFFE1120F),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  width: size.height / 4,
-                                  padding: new EdgeInsets.all(10),
-                                  child: Text(
-                                    selectedProduct.length > 0
-                                        ? selectedProduct['name']
-                                        : 'Pilih Product',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: new TextStyle(
-                                      fontSize: 13.0,
-                                      fontFamily: 'Roboto',
-                                      color: new Color(0xFF212121),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Icon(Icons.arrow_drop_down_circle,
-                                    color: Color(0xFFE1120F))
-                              ],
+                        if(selectedCategory.length > 0)
+                        Container(
+                          width: size.height / 2,
+                          padding: new EdgeInsets.only(top: 10),
+                          child: Text(
+                            selectedCategory.length > 0
+                                ? selectedCategory['name']
+                                : 'Pilih Product Category',
+                            overflow: TextOverflow.ellipsis,
+                            style: new TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Roboto',
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         )
                       ],
                     ),
                   ),
-
-                  (
-                      has_product_prices
-                          ?
-                      Container(
-                        padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
-                        child:  Column(
+                  if(isProduct)
+                  Container(
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
+                    child:  Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Align(
-                              child:  Text('Harga Produk',
+                              alignment: Alignment.centerLeft,
+                              child: Text('Produk',
                                   style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 16.0,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black)),
-                              alignment: Alignment.centerLeft,
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
+                            if(editData == null)
                             GestureDetector(
                               onTap: () {
-                                sheetProductPrices();
+                                sheetProduct();
                               },
-                              child: Container(
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: Colors.white,
-                                  border: Border.all(
-                                    color: Color(0xFFE1120F),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: size.height / 3,
-                                      padding: new EdgeInsets.all(10),
-                                      child: Text(
-                                        selectedProductPrices.length > 0
-                                            ? selectedProductPrices['name']
-                                            : 'Pilih Harga Produk',
-                                        overflow: TextOverflow.ellipsis,
-                                        style: new TextStyle(
-                                          fontSize: 12.0,
-                                          fontFamily: 'Roboto',
-                                          color: new Color(0xFF212121),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Icon(Icons.arrow_drop_down_circle,
-                                        color: Color(0xFFE1120F))
-                                  ],
-                                ),
-                              ),
+                              child: Text('Lihat semua',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.green)),
                             )
                           ],
                         ),
-                      )
-                          :
-                      new Container()
+                        SizedBox(
+                          height: 10,
+                        ),
+                        if(selectedProduct.length > 0)
+                        Container(
+                          width: size.height / 2,
+                          padding: new EdgeInsets.only(top: 10),
+                          child: Text(
+                            selectedProduct.length > 0
+                                ? selectedProduct['name']
+                                : '',
+                            overflow: TextOverflow.ellipsis,
+                            style: new TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Roboto',
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            softWrap: true,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                   (
                       has_asset
@@ -1198,64 +785,55 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                         padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
                         child:  Column(
                           children: [
-                            Align(
-                              child:  Text('Asset',
-                                  style: TextStyle(
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black)),
-                              alignment: Alignment.centerLeft,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Align(
+                                  child:  Text('Asset',
+                                      style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black)),
+                                  alignment: Alignment.centerLeft,
+                                ),
+                                if(editData == null)
+                                GestureDetector(
+                                  onTap: () {
+                                    sheetAsset();
+                                  },
+                                  child: Text('Lihat semua',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.green)),
+                                )
+                              ],
                             ),
                             SizedBox(
                               height: 10,
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                sheetAsset();
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: Colors.white,
-                                  border: Border.all(
-                                    color: Color(0xFFE1120F),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: size.height / 4,
-                                      padding: new EdgeInsets.all(10),
-                                      child: Text(
-                                        selectedAsset.length > 0
-                                            ? selectedAsset['name']
-                                            : 'Pilih Asset',
-                                        overflow: TextOverflow.ellipsis,
-                                        style: new TextStyle(
-                                          fontSize: 13.0,
-                                          fontFamily: 'Roboto',
-                                          color: new Color(0xFF212121),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Icon(Icons.arrow_drop_down_circle,
-                                        color: Color(0xFFE1120F))
-                                  ],
+                            Container(
+                              width: size.height / 2,
+                              padding: new EdgeInsets.all(10),
+                              child: Text(
+                                selectedAsset.length > 0
+                                    ? selectedAsset['name']
+                                    : '',
+                                overflow: TextOverflow.ellipsis,
+                                style: new TextStyle(
+                                  fontSize: 13.0,
+                                  fontFamily: 'Roboto',
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       )
                           :
                       new Container()
                   ),
-
                   Container(
                     padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
                     child:  Column(

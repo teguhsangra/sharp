@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:telkom/network/api.dart';
 import 'package:telkom/ui/auth/login/login_screen.dart';
 import 'package:telkom/ui/home/home_screen.dart';
 
@@ -27,16 +29,38 @@ class SplashScreenState extends State<SplashScreen> {
     var token = localStorage.getString('token');
 
     if (token != null) {
-      setState(() {
-        isStarted = true;
-      });
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+      getDataLogin();
     }else{
       setState(() {
         isStarted = false;
       });
 
+    }
+  }
+
+  void getDataLogin() async {
+    var res = await Network().getData('me');
+    var body = json.decode(res.body);
+    if (res.statusCode == 200 || res.statusCode == 201) {
+
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.clear();
+      localStorage.setString(
+          'token', json.encode(body['data']['access_token']));
+      localStorage.setString('user', json.encode(body['data']['user']));
+
+      setState(() {
+        isStarted = true;
+      });
+
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+
+    }else{
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.clear();
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (BuildContext context) => LoginScreen()));
     }
   }
 

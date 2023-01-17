@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:telkom/components/dialog_alert_success.dart';
 import 'package:telkom/components/helper.dart';
 import 'package:telkom/components/sales_order_detail.dart';
 import 'package:telkom/model/sales_order.dart';
@@ -24,6 +25,17 @@ class SalesOrderState extends State<SalesOrderScreen> {
   var access_group ={};
   List<SalesOrder> salesOrder = [];
   String? selectedFilter = 'draft';
+
+  showAlertDialog(BuildContext context) {
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -137,7 +149,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                     GestureDetector(
                       onTap: () async {
                           Navigator.pop(context);
-                          updateSalesOrder(Id,status);
+                          sheetApprove(Id,status);
                       },
                       child: Row(
                         children: [
@@ -166,18 +178,162 @@ class SalesOrderState extends State<SalesOrderScreen> {
         });
   }
 
+  void sheetApprove(Id,status) {
+    Size size = MediaQuery
+        .of(context)
+        .size;
+    showModalBottomSheet(
+        enableDrag: true,
+        isDismissible: true,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.6,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20)
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      children: [
+                        SizedBox(height: 10,),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Update Lokasi', style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold
+                            ),)
+                          ],
+                        ),
+                        SizedBox(height: 10,),
+                        Image.asset(
+                          "assets/images/no_image_pelaporan.png",
+                          fit: BoxFit.cover,
+                          width: 200,
+                          height: 200,
+                        ),
+                        SizedBox(height: 20,),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Apa anda yakin untuk approve sales order tersebut?',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            ),),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 20, horizontal: 10),
+                              height: 50,
+                              width: size.width / 3,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey,
+                                  borderRadius: BorderRadius.circular(18)),
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  'Batal',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 20, horizontal: 10),
+                              height: 50,
+                              width: size.width / 3,
+                              decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(18)),
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  updateSalesOrder(Id, status);
+                                },
+                                child: const Text(
+                                  'Simpan',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
   void updateSalesOrder(Id, status) async{
     var data = {
       "status": status
     };
-
+    showAlertDialog(context);
     var res = await Network().putUrl('sales_orders/$Id/update_status?show_type=test', data);
     var body = json.decode(res.body);
     if (res.statusCode == 201 || res.statusCode == 200) {
+      await Future.delayed(const Duration(milliseconds: 2000), () {
+        Navigator.pop(context);
+        Navigator.of(context).push(new MaterialPageRoute(
+            builder: (BuildContext context) {
+              return new DialogPopUpSuccess(text: 'Sukses update sales order.',);
+            },
+            fullscreenDialog: true));
+      });
       setState(() {
         status = "draft";
       });
       getRequestOrder();
+    }
+  }
+
+  void openSalesOrderDetail(item) async{
+
+    var res =
+    await Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) {
+          return new SalesOrderDetailScreen.add(item.id);
+        },
+        fullscreenDialog: true));
+
+    if(res == 'success'){
+      getRequestOrder();
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) {
+            return new DialogPopUpSuccess(text: 'Sukses update sales order.',);
+          },
+          fullscreenDialog: true));
     }
   }
 
@@ -324,16 +480,10 @@ class SalesOrderState extends State<SalesOrderScreen> {
                   itemCount: salesOrder.length,
                   itemBuilder: (context, index) {
                     var item = salesOrder[index];
+                    var total = (int.parse(item.totalPrice.toString()) - int.parse(item.totalDiscount.toString()) ) + int.parse(item.totalTax.toString()) + int.parse(item.totalServiceCharge.toString());
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: ((context) {
-                              return SalesOrderDetailScreen.add(item.id);
-                            }),
-                          ),
-                        );
+                        openSalesOrderDetail(item);
                       },
                       child: Container(
                         margin: EdgeInsets.all(15),
@@ -366,7 +516,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                                     ),
                                   ),
                                   SizedBox(width: 10,),
-                                  Text('Request Order',
+                                  Text('Sales Order',
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 14,
@@ -545,7 +695,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              currencyFormat(int.parse(item.totalPrice.toString())),
+                              currencyFormat(total),
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500
@@ -601,15 +751,26 @@ class SalesOrderState extends State<SalesOrderScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          var dataCustomer =
+          var res =
           await Navigator.of(context).push(new MaterialPageRoute(
               builder: (BuildContext context) {
                 return new FormSalesOrderScreen();
               },
               fullscreenDialog: true));
-          if (dataCustomer != null) {
+
+          if (res == 'success') {
+
             getRequestOrder();
+            Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return new DialogPopUpSuccess(text: 'Sukses tambah sales order.',);
+                },
+                fullscreenDialog: true));
+
+
           }
+
+
 
 
         },

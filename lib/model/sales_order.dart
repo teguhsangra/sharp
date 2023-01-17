@@ -7,7 +7,7 @@ import 'package:telkom/model/tenant.dart';
 
 class SalesOrder {
   late int id;
-  late int? locationId, customerId, employeeId, primaryProductId,totalPrice;
+  late int? locationId, customerId, employeeId, primaryProductId,totalPrice,totalDiscount,totalTax,totalServiceCharge;
   late String code, name, status;
   late String? remarks, evidence1, evidence2, timeZone;
   late PrimaryProduct? product;
@@ -31,6 +31,9 @@ class SalesOrder {
     evidence2 = json['evidence_2'];
     status = json['status'];
     totalPrice = json['total_price'];
+    totalDiscount = json['total_discount'];
+    totalServiceCharge = json['total_service_charge'];
+    totalTax = json['total_tax'];
     createdAt = DateTime.parse(json['created_at']);
     startedAt = DateTime.parse(json['started_at']);
     endedAt = DateTime.parse(json['ended_at']);
