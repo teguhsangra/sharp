@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -16,6 +17,7 @@ import 'package:telkom/model/location.dart';
 import 'package:telkom/model/product.dart';
 import 'package:telkom/model/room.dart';
 import 'package:telkom/network/api.dart';
+import 'package:telkom/services/sales_order.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/request_order/detail_request_order.dart';
 import 'package:telkom/ui/home/home_screen.dart';
@@ -28,6 +30,7 @@ class FormSalesOrderScreen extends StatefulWidget {
 }
 
 class FormSalesOrderState extends State<FormSalesOrderScreen> {
+  var _salesOrder = SalesOrderService();
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final formBottom = GlobalKey<FormState>();
@@ -597,7 +600,6 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
     }
 
 
-
     if(isValid == true){
       if (_formKey.currentState!.validate()) {
         var data = {
@@ -620,7 +622,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
           "term" : "month", // Harus diisi dan diambil dari konfigurasi product
           "term_of_payment" : "annually", // Harus diisi dengan nilai anually
           "term_notice_period" : 3, // Harus diisi dengan nilai 3
-          "tax_percentage" : 11, // Diambil dari postman login di bagian tenant
+          "tax_percentage" : user['tenant']['tax_percentage'], // Diambil dari postman login di bagian tenant
           "length_of_term" : 1, // Isian dari user dan harus diisi
           "total_cost" : 0, // Harus diisi dengan nilai 0
           "total_price" : total_price, // Harus diisi dengan nilai sesuai pilihan produk yang di kali dengan length of term dan di kali dengan quantity
@@ -630,17 +632,29 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
           'drafted_by': user['name']
         };
         showAlertDialog(context);
-        var res = await Network().postRequestOrder('sales_orders', data);
-        var body = json.decode(res.body);
-        print(body);
-        if(res.statusCode == 201 || res.statusCode == 200){
+        try{
+          var res = await Network().postRequestOrder('sales_orders', data);
+          var body = json.decode(res.body);
+          if(res.statusCode == 201 || res.statusCode == 200){
+            await Future.delayed(const Duration(milliseconds: 2000), () {
+              Navigator.pop(context);
+              Navigator.of(
+                context,
+              ).pop('success');
+            });
+          }
+        }on TimeoutException{
+          var res = await _salesOrder.saveSalesorder(data);
           await Future.delayed(const Duration(milliseconds: 2000), () {
             Navigator.pop(context);
             Navigator.of(
               context,
             ).pop('success');
           });
+        }catch (e){
+          alertDialogFail();
         }
+
 
       }
     }
@@ -786,6 +800,76 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
                           alignment: Alignment.center,
                           child: Text(
                             'Mohon lengkapi isian form, nama, lokasi, klien dan pesanan barang tidak boleh kosong.',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  void alertDialogFail() {
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        enableDrag: false,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.5,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              size: 30,
+                            )),
+                        SizedBox(
+                          width: 10,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: [
+                        Image.asset(
+                          "assets/images/no_image_pelaporan.png",
+                          fit: BoxFit.cover,
+                          width: 200,
+                          height: 200,
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Gagal submit sales order, mohon dicoba kembali.',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold),
                           ),

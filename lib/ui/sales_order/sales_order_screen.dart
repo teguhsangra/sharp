@@ -8,6 +8,7 @@ import 'package:telkom/components/helper.dart';
 import 'package:telkom/components/sales_order_detail.dart';
 import 'package:telkom/model/sales_order.dart';
 import 'package:telkom/network/api.dart';
+import 'package:telkom/services/sales_order.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/request_order/detail_request_order.dart';
 import 'package:telkom/ui/sales_order/form_sales_order.dart';
@@ -21,13 +22,15 @@ class SalesOrderScreen extends StatefulWidget {
 
 class SalesOrderState extends State<SalesOrderScreen> {
   bool isLoading = true;
+  var _salesOrder = SalesOrderService();
   var user = {};
   var access_group ={};
   List<SalesOrder> salesOrder = [];
   String? selectedFilter = 'draft';
+  int counter = 0;
+  int count_pending = 0;
 
   showAlertDialog(BuildContext context) {
-
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -60,7 +63,9 @@ class SalesOrderState extends State<SalesOrderScreen> {
     });
     getAccessGroup();
     getRequestOrder();
+    getCheklistPending();
   }
+
   void getAccessGroup() async{
     var access_group_id = user['person']['employee']['access_group_id'];
     var res = await Network().getData('get_access_group??link=sales_orders&access_group_id=$access_group_id');
@@ -82,7 +87,15 @@ class SalesOrderState extends State<SalesOrderScreen> {
         });
       });
     }
-    getAccessGroup();
+  }
+
+
+  void getCheklistPending() async{
+    var count = await _salesOrder.countSalesOrder();
+    setState(() {
+      count_pending = count;
+    });
+
   }
 
   void filterRequestOrder() async{
@@ -337,6 +350,118 @@ class SalesOrderState extends State<SalesOrderScreen> {
     }
   }
 
+  void submitPending() async {
+    bool is_done = false;
+
+    showAlertDialog(context);
+    var data = await _salesOrder.getSalesOrder();
+
+    for(var result in data){
+
+      var data = {
+        "tenant_id": result['tenant_id'],
+        "location_id": result['location_id'],
+        "customer_id": result['customer_id'],
+        "contact_id": null,
+        "emergency_contact_id": null,
+        "primary_product_id": result['primary_product_id'],
+        "code" : result['code'],
+        "name":result['name'],
+        "is_inquiry" : false, // Harus diisi dengan nilai false
+        "has_contract" : false, // Harus diisi dengan nilai true
+        "is_renewal" : false, // Harus diisi dengan nilai false
+        "status" : result['status'],
+        "renewal_status" : result['renewal_status'], // Harus diisi dengan nilai on renewal
+        "started_at" : result['started_at'], // Isian dari user dan harus diisi
+        "ended_at" : result['ended_at'], // Isian dari user dan harus diisi
+        "signed_at" : result['signed_at'], // Isian dari user dan harus diisi
+        "term" : result['term'], // Harus diisi dan diambil dari konfigurasi product
+        "term_of_payment" : result['term_of_payment'], // Harus diisi dengan nilai anually
+        "term_notice_period" : result['term_notice_period'], // Harus diisi dengan nilai 3
+        "tax_percentage" : result['tax_percentage'], // Diambil dari postman login di bagian tenant
+        "length_of_term" : result['length_of_term'], // Isian dari user dan harus diisi
+        "total_cost" : 0, // Harus diisi dengan nilai 0
+        "total_price" : result['total_price'], // Harus diisi dengan nilai sesuai pilihan produk yang di kali dengan length of term dan di kali dengan quantity
+        "total_discount" : result['total_discount'], // Harus diisi dengan nilai 0
+        "total_tax" : result['total_tax'],
+        "sales_order_details": await getDetails(result['id']),
+        'drafted_by': result['drafted_by']
+      };
+
+      final res = await Network().postUrl('sales_orders', data);
+      var body = json.decode(res.body);
+
+      if (res.statusCode == 201 || res.statusCode == 200) {
+        var res = await _salesOrder.updateSalesOrder(result['id'], 1);
+        is_done = true;
+        // deleteAll(result['id']);
+      }else{
+        is_done = false;
+        var res = await _salesOrder.updateSalesOrder(result['id'], 0);
+      }
+    }
+
+    if(is_done == true){
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: const Text('Sukses Update Checklist pending'),
+          action: SnackBarAction(
+            textColor: Colors.white,
+            label: 'x',
+            onPressed: () {
+              // Code to execute.
+            },
+          ),
+          duration: Duration(seconds: 3),
+          shape: StadiumBorder(),
+          margin: EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+          behavior: SnackBarBehavior.floating,
+          elevation: 0,
+        ),
+      );
+      loadUserData();
+    }
+  }
+
+  getDetails(Id) async{
+    var list_detail = [];
+    var data = await _salesOrder.getSalesOrderDetail(Id);
+    list_detail.clear();
+    for(var items in data){
+      list_detail.add({
+        'sales_order_id': '',
+        'product_id': items['product_id'],
+        'customer_complimentary_id': null,
+        'complimentary_id': null,
+        'asset_type_id': null,
+        'asset_id': items['asset_id'],
+        'room_id': null,
+        'name': items['name'],
+        'type': 'charged',
+        'has_complimentary':0,
+        'has_term': 0,
+        'is_repeated_in_term': 0,
+        'has_quantity' : 1,
+        'term': 'no term',
+        'repeated_term': 'no term',
+        'started_at': items['started_at'],
+        'ended_at': items['ended_at'],
+        'length_of_term': 1,
+        'quantity': items['quantity'],
+        'total_use_of_complimentary':0,
+        'cost': 0,
+        'price': items['price'],
+        'discount': items['discount'],
+        'service_charge': items['service_charge'],
+        'tax': items['tax'],
+      });
+    }
+    return list_detail;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -393,7 +518,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
       ) :
       RefreshIndicator(
         onRefresh: () async {
-          getRequestOrder();
+          loadUserData();
         },
         child: Column(
           children: [
@@ -474,6 +599,67 @@ class SalesOrderState extends State<SalesOrderScreen> {
                 ),
               ),
             ),
+            GestureDetector(
+              onTap: (){
+                submitPending();
+              },
+              child: Container(
+                margin: EdgeInsets.all(10),
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                color: Colors.blueAccent, shape: BoxShape.circle),
+                            child: Icon(
+                              Icons.refresh,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                          ),
+                          SizedBox(width: 10,),
+                          Text(
+                            'Sales order Pending',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        count_pending.toString(),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                   shrinkWrap: true,
@@ -486,7 +672,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                         openSalesOrderDetail(item);
                       },
                       child: Container(
-                        margin: EdgeInsets.all(15),
+                        margin: EdgeInsets.all(10),
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
                             color: const Color(0xFFF8F8F8),
@@ -760,7 +946,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
 
           if (res == 'success') {
 
-            getRequestOrder();
+            loadUserData();
             Navigator.of(context).push(new MaterialPageRoute(
                 builder: (BuildContext context) {
                   return new DialogPopUpSuccess(text: 'Sukses tambah sales order.',);

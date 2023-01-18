@@ -35,6 +35,8 @@ class SalesOrderDetailScreen extends StatefulWidget {
 class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
   bool isLoading = false;
   late SalesOrder salesOrder;
+  var user = {};
+  var access_group ={};
 
   var sales_order_id;
   int total_diskon = 0;
@@ -62,7 +64,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
     setState(() {
       isLoading = true;
     });
-    getData();
+    loadUserData();
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         isLoading = false;
@@ -71,14 +73,32 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
   }
 
 
+  loadUserData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var userSession = jsonDecode(localStorage.getString('user').toString());
+    setState(() {
+      user = userSession;
+    });
+    getAccessGroup();
+    getData();
+  }
+
+  void getAccessGroup() async{
+    var access_group_id = user['person']['employee']['access_group_id'];
+    var res = await Network().getData('get_access_group??link=sales_orders&access_group_id=$access_group_id');
+    if (res.statusCode == 200) {
+      var resultData = jsonDecode(res.body);
+      access_group = resultData['data'];
+    }
+  }
+
   void getData() async{
-    print(sales_order_id);
+
     var res = await Network().getData('sales_orders/$sales_order_id');
     var body = json.decode(res.body);
 
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
-      print(resultData['data']);
       setState(() {
         salesOrder = SalesOrder.fromJson(resultData['data']);
       });
@@ -681,10 +701,10 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
           ? Center(child: CircularProgressIndicator())
           :
           Container(
-          height: salesOrder.status != 'posted' || salesOrder.status == 'cancel' ? 100 : 0,
+          height: salesOrder.status != 'posted' && salesOrder.status != 'cancel' && access_group['is_update'] == 1 ? 100 : 0,
           child: Column(
           children: [
-            if(salesOrder.status != 'posted' || salesOrder.status == 'cancel' )
+            if(salesOrder.status != 'posted' && salesOrder.status != 'cancel' && access_group['is_update'] == 1 )
             Container(
               margin: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
               height: 50,
