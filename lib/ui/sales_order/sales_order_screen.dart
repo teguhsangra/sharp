@@ -12,6 +12,7 @@ import 'package:telkom/services/sales_order.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/request_order/detail_request_order.dart';
 import 'package:telkom/ui/sales_order/form_sales_order.dart';
+import 'package:unicons/unicons.dart';
 
 class SalesOrderScreen extends StatefulWidget {
   const SalesOrderScreen({super.key});
@@ -21,7 +22,9 @@ class SalesOrderScreen extends StatefulWidget {
 }
 
 class SalesOrderState extends State<SalesOrderScreen> {
+  final scrollController = ScrollController();
   bool isLoading = true;
+  bool isLoadingMore = false;
   var _salesOrder = SalesOrderService();
   var user = {};
   var access_group ={};
@@ -29,6 +32,10 @@ class SalesOrderState extends State<SalesOrderScreen> {
   String? selectedFilter = 'draft';
   int counter = 0;
   int count_pending = 0;
+
+  int present = 1;
+  int perPage = 0;
+  int totalPage =0;
 
   showAlertDialog(BuildContext context) {
     showDialog(
@@ -47,7 +54,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
       isLoading = true;
     });
     loadUserData();
-
+    scrollController.addListener(_scrollListener);
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         isLoading = false;
@@ -60,6 +67,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
     var userSession = jsonDecode(localStorage.getString('user').toString());
     setState(() {
       user = userSession;
+      present = 1;
     });
     getAccessGroup();
     getRequestOrder();
@@ -76,13 +84,30 @@ class SalesOrderState extends State<SalesOrderScreen> {
   }
 
   void getRequestOrder() async {
-    var res = await Network().getData('sales_orders?this_year=Y&select_by=status&select_query=${selectedFilter}');
+    var res = await Network().getData('sales_orders?page=$present&this_year=Y&select_by=status&select_query=${selectedFilter}');
+    if (res.statusCode == 200) {
+      var resultData = jsonDecode(res.body);
+      setState(() {
+        salesOrder.clear();
+        resultData['data']['data'].forEach((detailData) {
+          salesOrder.add(SalesOrder.fromJson(detailData));
+        });
+        perPage = resultData['data']['per_page'];
+        totalPage = resultData['data']['total'];
+      });
+    }
+  }
+
+  void moreRequestOrder(page) async {
+    var res = await Network().getData('sales_orders?page=$page&this_year=Y&select_by=status&select_query=${selectedFilter}');
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
 
       setState(() {
-        salesOrder.clear();
-        resultData['data'].forEach((detailData) {
+        perPage = resultData['data']['per_page'];
+        totalPage = resultData['data']['total'];
+
+        resultData['data']['data'].forEach((detailData) {
           salesOrder.add(SalesOrder.fromJson(detailData));
         });
       });
@@ -461,6 +486,28 @@ class SalesOrderState extends State<SalesOrderScreen> {
     return list_detail;
   }
 
+  Future<void> _scrollListener() async{
+
+    if(scrollController.position.pixels == scrollController.position.maxScrollExtent){
+
+      setState(() {
+        isLoadingMore = true;
+      });
+      loadMore();
+
+    }
+  }
+  Future<void> loadMore() async{
+
+    setState(() {
+
+      if(present != totalPage) {
+        present += 1;
+        moreRequestOrder(present);
+      }
+      isLoadingMore = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -662,11 +709,11 @@ class SalesOrderState extends State<SalesOrderScreen> {
             ),
             Expanded(
               child: ListView.builder(
+                  controller: scrollController,
                   shrinkWrap: true,
                   itemCount: salesOrder.length,
                   itemBuilder: (context, index) {
                     var item = salesOrder[index];
-                    var total = (int.parse(item.totalPrice.toString()) - int.parse(item.totalDiscount.toString()) ) + int.parse(item.totalTax.toString()) + int.parse(item.totalServiceCharge.toString());
                     return GestureDetector(
                       onTap: () {
                         openSalesOrderDetail(item);
@@ -712,16 +759,16 @@ class SalesOrderState extends State<SalesOrderScreen> {
                                 ],
                               ),
                               if(access_group['is_update'] == 1 && item.status == 'draft')
-                              GestureDetector(
-                                onTap:(){
-                                  sheetMenuCard(item.id, 'posted');
-                                },
-                                child: Icon(
-                                  Icons.more_vert,
-                                  color: Colors.black,
+                                GestureDetector(
+                                  onTap:(){
+                                    sheetMenuCard(item.id, 'posted');
+                                  },
+                                  child: Icon(
+                                    Icons.more_vert,
+                                    color: Colors.black,
 
-                                ),
-                              )
+                                  ),
+                                )
                             ],
                           ),
                           SizedBox(height: 2,),
@@ -881,7 +928,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              currencyFormat(total),
+                              currencyFormat((int.parse(item.totalPrice.toString()) - int.parse(item.totalDiscount.toString()) ) + int.parse(item.totalTax.toString()) + int.parse(item.totalServiceCharge.toString())),
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500
@@ -931,7 +978,14 @@ class SalesOrderState extends State<SalesOrderScreen> {
                     );
                   }
               ),
-            )
+            ),
+            if(isLoadingMore == true)
+              Padding(
+                padding: EdgeInsets.only(top: 10,bottom: 20),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
           ],
         ),
       ),
@@ -962,7 +1016,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
         },
         backgroundColor: Color(0xFFE50404),
         child: const Icon(
-          Icons.add,
+          UniconsLine.plus,
           color: Colors.white,
         ),
       ),

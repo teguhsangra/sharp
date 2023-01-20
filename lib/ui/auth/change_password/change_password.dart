@@ -5,6 +5,7 @@ import 'package:telkom/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:telkom/model/password.dart';
 import 'package:telkom/network/api.dart';
+import 'package:unicons/unicons.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({super.key});
@@ -177,9 +178,9 @@ class _ChangePasswordState extends State<ChangePassword> {
                         suffixIcon: IconButton(
                           icon: Icon(
                             _passwordVisible2
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Theme.of(context).primaryColorDark,
+                                ? UniconsLine.eye
+                                : UniconsLine.eye_slash,
+                            color: Colors.black,
                           ),
                           onPressed: () {
                             setState(() {
@@ -244,9 +245,9 @@ class _ChangePasswordState extends State<ChangePassword> {
                         suffixIcon: IconButton(
                           icon: Icon(
                             _passwordVisible3
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Theme.of(context).primaryColorDark,
+                                ? UniconsLine.eye
+                                : UniconsLine.eye_slash,
+                            color: Colors.black,
                           ),
                           onPressed: () {
                             setState(() {

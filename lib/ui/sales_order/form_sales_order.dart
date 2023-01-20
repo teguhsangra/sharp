@@ -205,7 +205,7 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
 
 
   void removeItemOrders(indexItem) async {
-    salesOrders.removeAt(indexItem);
+    salesOrders.where(indexItem);
     indexItem = null;
     countPrice();
   }

@@ -6,6 +6,7 @@ import 'package:telkom/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:telkom/model/profile.dart';
 import 'package:telkom/network/api.dart';
+import 'package:unicons/unicons.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -320,7 +321,7 @@ class _EditProfileState extends State<EditProfile> {
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      suffixIcon: Icon(Icons.person,color: Colors.black,),
+                      suffixIcon: Icon(UniconsLine.user_circle,color: Colors.black,),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -361,7 +362,7 @@ class _EditProfileState extends State<EditProfile> {
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      suffixIcon: Icon(Icons.phone,color: Colors.black),
+                      suffixIcon: Icon(UniconsLine.phone,color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                         )
@@ -401,7 +402,7 @@ class _EditProfileState extends State<EditProfile> {
                       // If  you are using latest version of flutter then lable text and hint text shown like this
                       // if you r using flutter less then 1.20.* then maybe this is not working properly
                       floatingLabelBehavior: FloatingLabelBehavior.always,
-                      suffixIcon: Icon(Icons.location_pin,color: Colors.black),
+                      suffixIcon: Icon(UniconsLine.location_point,color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                         )

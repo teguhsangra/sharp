@@ -328,7 +328,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
 
 
       if (resultData['data']['has_stock'] == 1 && resultData['data']['has_asset_as_a_stock'] == 1) {
-        // getAsset(location_id,resultData['data']['id']);
+
         has_asset = true;
         setState(() {
           listAsset.clear();

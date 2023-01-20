@@ -14,6 +14,7 @@ import 'package:telkom/components/dialog_pop_up_success_check_out.dart';
 import 'package:telkom/network/api.dart';
 import 'package:telkom/constants.dart';
 import 'package:telkom/components/CustomPageRoute.dart';
+import 'package:telkom/ui/asset/asset_screen.dart';
 import 'package:telkom/ui/stock/stock_screen.dart';
 
 import '../../components/helper.dart';
@@ -22,6 +23,7 @@ import 'package:geolocator_apple/geolocator_apple.dart';
 import 'package:geolocator_android/geolocator_android.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:loader_skeleton/loader_skeleton.dart';
+import 'package:unicons/unicons.dart';
 
 import 'package:telkom/ui/home/presensi_screen.dart';
 import 'package:telkom/ui/auth/login/login_screen.dart';
@@ -30,6 +32,7 @@ import 'package:telkom/ui/checklist/checklist_screen.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/checklist/checklist_is_checked_screen.dart';
 import 'package:telkom/ui/sales_order/sales_order_screen.dart';
+
 
 
 class HomeScreen extends StatefulWidget {
@@ -61,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var unSignout = {};
   var locationName = '';
   int counter = 0;
+  int point_fee = 0;
   _HomeScreenState(this.checkin);
 
   @override
@@ -153,13 +157,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   loadUserData() async {
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var res = await Network().getData('me');
+    var body = json.decode(res.body);
+    if (res.statusCode == 200 || res.statusCode == 200) {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      var userSession = jsonDecode(localStorage.getString('user').toString());
 
-    var userSession = jsonDecode(localStorage.getString('user').toString());
+      setState(() {
+        point_fee = body['data']['user']['person']['employee']['point_fee'];
+        user = userSession;
+      });
+    }
 
-    setState(() {
-      user = userSession;
-    });
 
     checkUnsignout();
 
@@ -302,10 +311,10 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
             tabs: const [
-              GButton(icon: Icons.home, text: 'Home'),
-              GButton(icon: Icons.request_page_outlined, text: 'Sales Order'),
-              GButton(icon: Icons.check_circle, text: 'Stock'),
-              GButton(icon: Icons.settings, text: 'Settings')
+              GButton(icon: UniconsLine.estate, text: 'Home'),
+              GButton(icon: UniconsLine.transaction, text: 'Sales Order'),
+              GButton(icon: UniconsLine.check_circle, text: 'Stock'),
+              GButton(icon: UniconsLine.setting, text: 'Settings')
             ]),
       ),
     );
@@ -431,10 +440,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Icon(
-                                  Icons.location_pin,
+                                  UniconsLine.user_location,
                                   color: Color(0xFF2109B4),
                                   size: 20,
                                 ),
+                                SizedBox(width: 10,),
                                 SizedBox(
                                   width: size.width / 2,
                                   child: Text(
@@ -553,7 +563,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Column(
                                                     children: [
                                                       Text(
-                                                          '101',
+                                                          point_fee.toString(),
                                                           style: TextStyle(
                                                               fontWeight: FontWeight.bold,
                                                               fontSize: 16,
@@ -701,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text("Masuk untuk absen", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),
                 Icon(
-                  Icons.access_alarm,
+                  UniconsLine.clock,
                   color: Colors.white,
                   size: 35,
                 ),
@@ -748,8 +758,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 PlaceholderAlignment
                                     .middle,
                                 child: Icon(
-                                  Icons
-                                      .qr_code_rounded,
+                                  UniconsLine
+                                      .capture,
                                   color: Colors.blue,
                                   size: 14,
                                 ),
@@ -824,7 +834,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     Icon(
-                      Icons.location_pin,
+                      UniconsLine.user_location,
                       color: Colors.white,
                       size: 14,
                     ),
@@ -869,8 +879,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               PlaceholderAlignment
                                   .middle,
                               child: Icon(
-                                Icons
-                                    .directions_walk,
+                                UniconsLine
+                                    .location_pin_alt,
                                 color: Color(
                                     0XFFFA4A0C),
                                 size: 12,
@@ -980,26 +990,33 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Container(
-                height: 60,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.sell,
-                      color: Colors.red,
-                      size: 30,
-                    ),
-                    SizedBox(height: 10,),
-                    Text(
-                      'Penjualan',
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
+              GestureDetector(
+                onTap: (){
+                  setState(() {
+                    index = 1;
+                  });
+                },
+                child: Container(
+                  height: 60,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        UniconsLine.transaction,
+                        color: Colors.green,
+                        size: 30,
                       ),
-                    )
-                  ],
+                      SizedBox(height: 10,),
+                      Text(
+                        'Penjualan',
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
               Container(
@@ -1008,8 +1025,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.check_circle,
-                      color: Colors.red,
+                      UniconsLine.archive,
+                      color: Colors.indigo,
                       size: 30,
                     ),
                     SizedBox(height: 10,),
@@ -1025,26 +1042,35 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              Container(
-                height: 60,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.dataset,
-                      color: Colors.red,
-                      size: 30,
-                    ),
-                    SizedBox(height: 10,),
-                    Text(
-                      'Data Barang',
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AssetScreen()),
+                  );
+                },
+                child: Container(
+                  height: 60,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        UniconsLine.store_alt,
+                        color: Colors.deepOrange,
+                        size: 30,
                       ),
-                    )
-                  ],
+                      SizedBox(height: 10,),
+                      Text(
+                        'Data Barang',
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
               Container(
@@ -1053,8 +1079,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.insert_chart_outlined_outlined,
-                      color: Colors.red,
+                      UniconsLine.chart,
+                      color: Colors.blueAccent,
                       size: 30,
                     ),
                     SizedBox(height: 5,),
@@ -1081,7 +1107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.supervisor_account_rounded,
+                      UniconsLine.user,
                       color: Colors.red,
                       size: 30,
                     ),
@@ -1103,8 +1129,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.supervisor_account_rounded,
-                      color: Colors.red,
+                      UniconsLine.users_alt,
+                      color: Colors.orangeAccent,
                       size: 30,
                     ),
                     SizedBox(height:5,),
@@ -1124,8 +1150,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.feedback,
-                      color: Colors.red,
+                      UniconsLine.feedback,
+                      color: Colors.blueGrey,
                       size: 30,
                     ),
                     SizedBox(height: 5,),

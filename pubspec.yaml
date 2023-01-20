@@ -65,6 +65,7 @@ dependencies:
   sqflite: ^2.2.2
   path: ^1.8.2
   path_provider: ^2.0.11
+  unicons: ^2.1.0
 
 flutter_icons:
     android: "launcher_icon"

@@ -10,6 +10,7 @@ import 'package:telkom/ui/auth/edit_profile/edit_profile.dart';
 import 'package:telkom/ui/auth/change_password/change_password.dart';
 import 'package:telkom/ui/home/home_screen.dart';
 import 'package:cool_alert/cool_alert.dart';
+import 'package:unicons/unicons.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -147,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                     child: Row(
                       children: <Widget>[
-                        Icon(Icons.account_circle,
+                        Icon(UniconsLine.user_circle,
                             size: kSpacingUnit.w * 2.5, color: Colors.black),
                         SizedBox(width: kSpacingUnit.w * 1.5),
                         Text(
@@ -160,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Spacer(),
                         Icon(
-                          Icons.chevron_right,
+                          UniconsLine.angle_right,
                           size: kSpacingUnit.w * 2.5,
                         ),
                       ],
@@ -177,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                     child: Row(
                       children: <Widget>[
-                        Icon(Icons.lock_outline,
+                        Icon(UniconsLine.lock_access,
                             size: kSpacingUnit.w * 2.5, color: Colors.black),
                         SizedBox(width: kSpacingUnit.w * 1.5),
                         Text(
@@ -190,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Spacer(),
                         Icon(
-                          Icons.chevron_right,
+                          UniconsLine.angle_right,
                           size: kSpacingUnit.w * 2.5,
                         ),
                       ],
@@ -211,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                     child: Row(
                       children: <Widget>[
-                        Icon(Icons.no_accounts,
+                        Icon(UniconsLine.user_times,
                             size: kSpacingUnit.w * 2.5, color: Colors.black),
                         SizedBox(width: kSpacingUnit.w * 1.5),
                         Text(
@@ -224,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Spacer(),
                         Icon(
-                          Icons.chevron_right,
+                          UniconsLine.angle_right,
                           size: kSpacingUnit.w * 2.5,
                         ),
                       ],
@@ -259,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.red,),
             child: Row(
               children: <Widget>[
-                Icon(Icons.logout,
+                Icon(UniconsLine.sign_out_alt,
                     size: kSpacingUnit.w * 2.5, color: Colors.white),
                 SizedBox(width: kSpacingUnit.w * 1.5),
                 Text(
