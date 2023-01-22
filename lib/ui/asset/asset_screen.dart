@@ -3,8 +3,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:telkom/components/dialog_alert_success.dart';
+import 'package:telkom/components/dialog_search_asset.dart';
 import 'package:telkom/components/helper.dart';
 import 'package:telkom/model/asset.dart';
+import 'package:telkom/model/location.dart';
+import 'package:telkom/model/product.dart';
 import 'package:telkom/ui/asset/form_asset.dart';
 import 'package:unicons/unicons.dart';
 
@@ -28,8 +31,21 @@ class AssetState extends State<AssetScreen> {
   int present = 1;
   int perPage = 0;
   int totalPage =0;
+  var selectedLocation ={};
+  var selectedProduct={};
 
   late List assets = <Asset>[];
+  late List listProduct = <Product>[];
+  List products = <Product>[];
+
+  late List listLocation = <Location>[];
+  List locations = <Location>[];
+
+  bool listSelectedLocation = false;
+  bool submitSelectedLocation = false;
+
+  bool listSelectedProduct = false;
+  bool submitSelectedProduct = false;
 
 
 
@@ -60,7 +76,17 @@ class AssetState extends State<AssetScreen> {
   }
 
   void getAssets() async{
-    var res = await Network().getData('assets?page=$present');
+    var url = 'assets?page=$present';
+    if(selectedLocation.length != 0 && selectedProduct.length != 0){
+      url =  url+'&location_id=${selectedLocation['id']}'+'&product_id=${selectedProduct['id']}';
+    }else if(selectedLocation.length != 0 && selectedProduct.length == 0){
+      url =  url+'&location_id=${selectedLocation['id']}';
+    }else if(selectedLocation.length == 0 && selectedProduct.length != 0){
+      url =  url+'&product_id=${selectedProduct['id']}';
+
+    }
+
+    var res = await Network().getData(url);
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
       setState(() {
@@ -71,11 +97,23 @@ class AssetState extends State<AssetScreen> {
         perPage = resultData['data']['per_page'];
         totalPage = resultData['data']['total'];
       });
+      getLocation();
+      getProduct();
     }
   }
 
   void moreRequestOrder(page) async{
-    var res = await Network().getData('assets?page=$page');
+    var url = 'assets?page=$page';
+    if(selectedLocation.length != 0 && selectedProduct.length != 0){
+      url =  url+'&location_id=${selectedLocation['id']}'+'&product_id=${selectedProduct['id']}';
+    }else if(selectedLocation.length != 0 && selectedProduct.length == 0){
+      url =  url+'&location_id=${selectedLocation['id']}';
+    }else if(selectedLocation.length == 0 && selectedProduct.length != 0){
+      url =  url+'&product_id=${selectedProduct['id']}';
+
+    }
+
+    var res = await Network().getData(url);
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
 
@@ -113,6 +151,35 @@ class AssetState extends State<AssetScreen> {
   }
 
 
+  void getLocation() async {
+    var res = await Network().getData('locations');
+    if (res.statusCode == 200) {
+      var resultData = jsonDecode(res.body);
+      setState(() {
+        listLocation.clear();
+        resultData['data'].forEach((v) {
+          listLocation.add(Location.fromJson(v));
+        });
+
+        locations = listLocation;
+      });
+    }
+  }
+
+  void getProduct() async {
+    var res = await Network().getData('products?tenant_id=${user['tenant_id']}');
+    if (res.statusCode == 200) {
+      var resultData = jsonDecode(res.body);
+      setState(() {
+        listProduct.clear();
+        resultData['data'].forEach((v) {
+          listProduct.add(Product.fromJson(v));
+        });
+
+        products = listProduct;
+      });
+    }
+  }
 
 
 
@@ -132,11 +199,17 @@ class AssetState extends State<AssetScreen> {
         actions: [
           IconButton(
               onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SearchAssetScreen()),
+                );
               },
               icon: Icon(UniconsLine.search)
           ),
           IconButton(
               onPressed: (){
+                sheetFilter();
               },
               icon: Icon(UniconsLine.filter)
           ),
@@ -363,7 +436,6 @@ class AssetState extends State<AssetScreen> {
             ),
       ),
       floatingActionButton: FloatingActionButton(
-
         onPressed: () async {
           var res =
           await Navigator.of(context).push(new MaterialPageRoute(
@@ -391,6 +463,486 @@ class AssetState extends State<AssetScreen> {
         ),
       ),
     );
+  }
+
+
+
+  void sheetFilter() async{
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.6,
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 50.0,
+                        height: 5.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Filter', style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            ),),
+                          ),
+                          SizedBox(height: 20,),
+                          Container(
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text('Produk',
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black)),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(25.0),
+                                              ),
+                                            ),
+                                            context: context,
+                                            builder: (context) {
+                                              return StatefulBuilder(builder: (context, setState) {
+                                                return Container(
+                                                  width: size.width,
+                                                  height: size.height * 0.8,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(20.0),
+                                                    child:  Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Center(
+                                                          child: Container(
+                                                            width: 50.0,
+                                                            height: 5.0,
+                                                            decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                              color: Colors.black,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 15.0),
+                                                        Container(
+                                                          margin: EdgeInsets.all(10),
+                                                          child: TextFormField(
+                                                            decoration: InputDecoration(
+                                                                contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                                                prefixIcon: Icon(Icons.search),
+                                                                hintText: 'Search',
+                                                                border: OutlineInputBorder(
+                                                                    borderRadius: BorderRadius.circular(20),
+                                                                    borderSide: BorderSide(color: Colors.grey))),
+                                                            onChanged: (value) {
+                                                              // print(value);
+                                                              if (value.isEmpty) {
+                                                                final suggestions = listProduct;
+                                                                setState(() {
+                                                                  products = suggestions;
+                                                                });
+                                                              } else {
+                                                                final suggestions = listProduct.where((item) {
+                                                                  final name = item.name.toLowerCase();
+                                                                  final input = value.toLowerCase();
+
+                                                                  return name.contains(input);
+                                                                }).toList();
+                                                                setState(() {
+                                                                  products = suggestions;
+                                                                });
+                                                              }
+                                                            },
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 20,),
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            Text('Product',
+                                                                style: TextStyle(
+                                                                    fontSize: 17.0,
+                                                                    fontWeight: FontWeight.w700,
+                                                                    color: Colors.black)
+                                                            ),
+                                                            if (listSelectedProduct == true)
+                                                              GestureDetector(
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    selectedProduct = {};
+                                                                    listSelectedProduct = false;
+                                                                    submitSelectedProduct = true;
+                                                                  });
+                                                                  refreshSelected();
+                                                                },
+                                                                child: Text('Reset',
+                                                                    style: TextStyle(
+                                                                        fontSize: 14,
+                                                                        fontWeight: FontWeight.w700,
+                                                                        color: Colors.green)),
+                                                              )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(height: 15),
+                                                        Expanded(
+                                                          child: ListView.builder(
+                                                            itemCount: products.length,
+                                                            itemBuilder: (context, index){
+                                                              var item = products[index];
+                                                              return CheckboxListTile(
+                                                                title: Text(products[index].name),
+                                                                value: selectedProduct['id'] == item.id ? true : false,
+                                                                onChanged: (value){
+                                                                  setState(() {
+                                                                    if (value == true) {
+                                                                      selectedProduct = {'id': item.id, 'name': item.name};
+
+                                                                      listSelectedProduct = true;
+                                                                      submitSelectedProduct = true;
+                                                                    } else {
+                                                                      selectedProduct = {};
+
+                                                                      listSelectedProduct = false;
+                                                                      submitSelectedProduct = false;
+                                                                    }
+                                                                  });
+                                                                },
+                                                              );
+                                                            },
+                                                          ),
+                                                        ),
+                                                        if(submitSelectedProduct != false)
+                                                          Container(
+                                                            margin: EdgeInsets.symmetric(vertical: 10),
+                                                            height: 50,
+                                                            width: size.width * 0.9,
+                                                            decoration: BoxDecoration(
+                                                                color: Color(0xFF000075),
+                                                                borderRadius: BorderRadius.circular(12)),
+                                                            child: TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(context);
+                                                                setState(() {
+                                                                  submitSelectedProduct = false;
+                                                                  products = listProduct;
+                                                                });
+                                                                refreshSelected();
+
+                                                              },
+                                                              child: const Text(
+                                                                'Simpan',
+                                                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                                              ),
+                                                            ),
+                                                          )
+                                                      ],
+                                                    ) ,
+                                                  ),
+                                                );
+                                              });
+                                            }).whenComplete(()  {
+                                          final suggestions = listProduct;
+                                          setState(() {
+                                            products = suggestions;
+                                          });
+                                        });
+                                      },
+                                      child: Text('Lihat semua',
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.green)),
+                                    )
+                                  ],
+                                ),
+                                SizedBox(height: 10,),
+                                if(selectedProduct.length > 0)
+                                  Container(
+                                    width: size.height / 2,
+                                    padding: new EdgeInsets.only(top: 10),
+                                    child: Text(
+                                      selectedProduct.length > 0
+                                          ? selectedProduct['name']
+                                          : '',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: new TextStyle(
+                                        fontSize: 13,
+                                        fontFamily: 'Roboto',
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 2,
+                                      softWrap: true,
+                                    ),
+                                  )
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20,),
+                          Container(
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text('Lokasi',
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black)),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(25.0),
+                                              ),
+                                            ),
+                                            context: context,
+                                            builder: (context) {
+                                              return StatefulBuilder(builder: (context, setState) {
+                                                return Container(
+                                                  width: size.width,
+                                                  height: size.height * 0.8,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(20.0),
+                                                    child:  Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Center(
+                                                          child: Container(
+                                                            width: 50.0,
+                                                            height: 5.0,
+                                                            decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                              color: Colors.black,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 15.0),
+                                                        Container(
+                                                          margin: EdgeInsets.all(10),
+                                                          child: TextFormField(
+                                                            decoration: InputDecoration(
+                                                                contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                                                prefixIcon: Icon(Icons.search),
+                                                                hintText: 'Search',
+                                                                border: OutlineInputBorder(
+                                                                    borderRadius: BorderRadius.circular(20),
+                                                                    borderSide: BorderSide(color: Colors.grey))),
+                                                            onChanged: (value) {
+                                                              // print(value);
+                                                              if (value.isEmpty) {
+                                                                final suggestions = listLocation;
+                                                                setState(() {
+                                                                  locations = suggestions;
+                                                                });
+                                                              } else {
+                                                                final suggestions = listLocation.where((item) {
+                                                                  final name = item.name.toLowerCase();
+                                                                  final input = value.toLowerCase();
+
+                                                                  return name.contains(input);
+                                                                }).toList();
+                                                                setState(() {
+                                                                  locations = suggestions;
+                                                                });
+                                                              }
+                                                            },
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 20,),
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            Text('Location',
+                                                                style: TextStyle(
+                                                                    fontSize: 17.0,
+                                                                    fontWeight: FontWeight.w700,
+                                                                    color: Colors.black)
+                                                            ),
+                                                            if (listSelectedLocation == true)
+                                                              GestureDetector(
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    selectedLocation = {};
+                                                                    listSelectedLocation = false;
+                                                                    submitSelectedLocation = true;
+                                                                  });
+                                                                  refreshSelected();
+                                                                },
+                                                                child: Text('Reset',
+                                                                    style: TextStyle(
+                                                                        fontSize: 14,
+                                                                        fontWeight: FontWeight.w700,
+                                                                        color: Colors.green)),
+                                                              )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(height: 15),
+                                                        Expanded(
+                                                          child: ListView.builder(
+                                                            itemCount: locations.length,
+                                                            itemBuilder: (context, index){
+                                                              var item = locations[index];
+                                                              return CheckboxListTile(
+                                                                title: Text(locations[index].name),
+                                                                value: selectedLocation['id'] == item.id ? true : false,
+                                                                onChanged: (value){
+                                                                  setState(() {
+                                                                    if (value == true) {
+                                                                      selectedLocation = {'id': item.id, 'name': item.name};
+
+                                                                      listSelectedLocation = true;
+                                                                      submitSelectedLocation = true;
+                                                                    } else {
+                                                                      selectedLocation = {};
+
+                                                                      listSelectedLocation = false;
+                                                                      submitSelectedLocation = false;
+                                                                    }
+                                                                  });
+                                                                },
+                                                              );
+                                                            },
+                                                          ),
+                                                        ),
+                                                        if(submitSelectedLocation != false)
+                                                          Container(
+                                                            margin: EdgeInsets.symmetric(vertical: 10),
+                                                            height: 50,
+                                                            width: size.width * 0.9,
+                                                            decoration: BoxDecoration(
+                                                                color: Color(0xFF000075),
+                                                                borderRadius: BorderRadius.circular(12)),
+                                                            child: TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(context);
+                                                                setState(() {
+                                                                  submitSelectedLocation = false;
+                                                                  locations = listLocation;
+                                                                });
+                                                                refreshSelected();
+
+                                                              },
+                                                              child: const Text(
+                                                                'Simpan',
+                                                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                                              ),
+                                                            ),
+                                                          )
+                                                      ],
+                                                    ) ,
+                                                  ),
+                                                );
+                                              });
+                                            }).whenComplete(()  {
+                                          final suggestions = listLocation;
+                                          setState(() {
+                                            locations = suggestions;
+                                          });
+                                        });
+                                      },
+                                      child: Text('Lihat semua',
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.green)),
+                                    )
+                                  ],
+                                ),
+                                SizedBox(height: 10,),
+                                if(selectedLocation.length > 0)
+                                  Container(
+                                    width: size.height / 2,
+                                    padding: new EdgeInsets.only(top: 10),
+                                    child: Text(
+                                      selectedLocation.length > 0
+                                          ? selectedLocation['name']
+                                          : '',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: new TextStyle(
+                                        fontSize: 13,
+                                        fontFamily: 'Roboto',
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 2,
+                                      softWrap: true,
+                                    ),
+                                  )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      height: 50,
+                      width: size.width * 0.9,
+                      decoration: BoxDecoration(
+                          color: Color(0xFFD60303),
+                          borderRadius: BorderRadius.circular(20)),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          getAssets();
+                        },
+                        child: const Text(
+                          'Tampilkan',
+                          style: TextStyle(
+                              color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+
+
+
+  void refreshSelected() async {
+    setState(() {});
   }
 }
 

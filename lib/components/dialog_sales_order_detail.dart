@@ -695,7 +695,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                               },
                               child: Text('Lihat semua',
                                   style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.green)),
                             )
@@ -747,7 +747,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                               },
                               child: Text('Lihat semua',
                                 style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.green)),
                             )
@@ -803,7 +803,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
                                   },
                                   child: Text('Lihat semua',
                                       style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 13,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.green)),
                                 )
