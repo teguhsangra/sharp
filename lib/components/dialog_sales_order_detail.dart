@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -320,6 +321,7 @@ class SalesOrderDetailDialogState extends State<SalesOrderDetailDialogScreen> {
   }
 
   void getProductById(Id) async{
+    print(Id);
     var res = await Network().getData('products/$Id');
     var resultData = jsonDecode(res.body);
 

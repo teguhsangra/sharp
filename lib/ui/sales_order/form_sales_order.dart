@@ -1064,9 +1064,6 @@ class FormSalesOrderState extends State<FormSalesOrderScreen> {
                     ],
                   ),
                 ),
-
-
-
                 SizedBox(height: 20,),
                 Container(
                   padding: EdgeInsets.only(left: 20, right: 20, top:20),

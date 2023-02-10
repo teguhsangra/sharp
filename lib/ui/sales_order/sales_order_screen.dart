@@ -614,7 +614,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                               selectedFilter = 'posted';
                               filterRequestOrder();
                             } else {
-                              selectedFilter = '';
+                              selectedFilter = 'posted';
                             }
                           });
                         },
@@ -636,7 +636,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
                               selectedFilter = 'cancel';
                               filterRequestOrder();
                             } else {
-                              selectedFilter = '';
+                              selectedFilter = 'cancel';
                             }
                           });
                         },

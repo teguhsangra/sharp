@@ -7,19 +7,23 @@ class Asset {
   late String code,name, brand;
   late Product? product;
   late Location? location;
-  Asset(this.id, this.code,this.name, this.brand, this.product);
 
   Asset.fromJson(Map<String, dynamic> json){
     id = json['id'];
     code = json['code'];
     name = json['name'];
     brand = json['brand'] != null ? json['brand'] : '';
-    product = (json['product'] != null
-        ? Product.fromJson(json['product'])
-        : []) as Product?;
-    location = (json['location'] != null
-        ? Location.fromJson(json['location'])
-        : []) as Location?;
+    if(json['product'] != null){
+      product = ( json['product'] != null ? Product.fromJson(json['product'])
+          : []) as Product?;
+    }
+    if(json['location'] != null){
+      location = (json['location'] != null
+          ? Location.fromJson(json['location'])
+          : []) as Location?;
+    }
+
+
   }
 
 
