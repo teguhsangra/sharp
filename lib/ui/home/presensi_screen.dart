@@ -22,6 +22,7 @@ import '../../components/helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:unicons/unicons.dart';
 
 class PresensiScreen extends StatefulWidget {
   Map unSignout;
@@ -432,238 +433,229 @@ class PresensiScreenState extends State<PresensiScreen> {
                           target: LatLng(_latitude, _longitude), zoom: 20)),
                 ),
                 panelBuilder: (controller){
-                  return Column(
-                    children: [
-                      SingleChildScrollView(
-                        controller: controller,
-                        child: Column(
-                          children: [
-                            GestureDetector(
-                              onTap: (){
-                                togglePanel();
-                              },
-                              child: Center(
-                                child: Container(
-                                  margin: EdgeInsets.only(top: 15),
-                                  height: 5,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.grey
-                                  ),
-                                ),
+                  return  SingleChildScrollView(
+                    controller: controller,
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: (){
+                            togglePanel();
+                          },
+                          child: Center(
+                            child: Container(
+                              margin: EdgeInsets.only(top: 15),
+                              height: 5,
+                              width: 30,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.grey
                               ),
                             ),
-                            SizedBox(height: 20,),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Column(
+                          ),
+                        ),
+                        SizedBox(height: 20,),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            children: [
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      GestureDetector(
-                                        onTap:(){
-                                          Navigator.pop(context);
-                                        },
-                                        child: Icon(
-                                          Icons.close,
-                                          color: Colors.black,
-                                          size: 30,
-                                        ),
-                                      ),
-                                      SizedBox(width: 10,),
-                                      Text(unSignout.length > 0 ? 'Check-Out' :'Check-In', style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold
-                                      ),)
-                                    ],
+                                  GestureDetector(
+                                    onTap:(){
+                                      Navigator.pop(context);
+                                    },
+                                    child: Icon(
+                                      Icons.close,
+                                      color: Colors.black,
+                                      size: 30,
+                                    ),
                                   ),
-                                  SizedBox(height: 20,),
-                                  (
-                                      image != null ?
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              Container(
-                                                  padding: EdgeInsets
-                                                      .symmetric(
-                                                      horizontal:
-                                                      10,
-                                                      vertical: 10),
-                                                  width: 120,
-                                                  height: 120,
-                                                  child: FullScreenWidget(
-                                                    child: ClipRRect(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      child: Image.file(
-                                                          image,
-                                                          fit: BoxFit.cover
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                              Positioned(
-                                                right: 5.0,
-                                                child: InkWell(
-                                                  child: Icon(
-                                                    Icons.remove_circle,
-                                                    size: 30,
-                                                    color: Colors.red,
-                                                  ),
-                                                  // This is where the _image value sets to null on tap of the red circle icon
-                                                  onTap: () {
-                                                    setState(
-                                                          () {
-                                                        image = null;
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ) :
-                                      GestureDetector(
-                                        onTap:
-                                            () async {
-                                          final pickedFile = await ImagePicker().pickImage(
-                                              source: ImageSource
-                                                  .camera,
-                                              maxWidth:
-                                              1800,
-                                              maxHeight:
-                                              1800,
-                                              preferredCameraDevice:
-                                              CameraDevice
-                                                  .front);
-
-                                          if (pickedFile ==
-                                              null)
-                                            return;
-                                          final imageTemp =
-                                          File(pickedFile
-                                              .path);
-                                          setState(() =>
-                                          image =
-                                              imageTemp);
-
-                                        },
-                                        child: Column(
-                                          children: [
-                                            Card(
-                                              shape:
-                                              RoundedRectangleBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(
-                                                    18.0),
-                                              ),
-                                              elevation: 0,
-                                              color: const Color(
-                                                  0xFFE50404),
-                                              child:
-                                              const SizedBox(
-                                                width: 70,
-                                                height: 70,
-                                                child:
-                                                Center(
-                                                  child: Text
-                                                      .rich(
-                                                    TextSpan(
-                                                      children: <
-                                                          InlineSpan>[
-                                                        WidgetSpan(
-                                                          alignment: PlaceholderAlignment.middle,
-                                                          child: Icon(
-                                                            Icons.face_unlock_rounded,
-                                                            color: Colors.white,
-                                                            size: 50,
-                                                          ),
-                                                        ),
-
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Text('Ambil foto', style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500
-                                            ),)
-                                          ],
-                                        ),
-                                      )
-                                  ),
-                                  SizedBox(height: 20,),
-                                  Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(unSignout.length > 0 ? 'Lokasi Check-Out' : 'Lokasi Check-In', style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold
-                                      ),)
-                                  ),
-                                  SizedBox(height: 10,),
+                                  SizedBox(width: 10,),
+                                  Text(unSignout.length > 0 ? 'Check-Out' :'Check-In', style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold
+                                  ),)
+                                ],
+                              ),
+                              SizedBox(height: 20,),
+                              (
+                                  image != null ?
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        width:250,
-                                        child: Text(
-                                            locationName,
-                                            softWrap: true,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                color: Colors
-                                                    .black,
-                                                fontSize:
-                                                16)
-                                        ),
-                                      )
+                                      Stack(
+                                        children: [
+                                          Container(
+                                              padding: EdgeInsets
+                                                  .symmetric(
+                                                  horizontal:
+                                                  10,
+                                                  vertical: 10),
+                                              width: 120,
+                                              height: 120,
+                                              child: FullScreenWidget(
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(16),
+                                                  child: Image.file(
+                                                      image,
+                                                      fit: BoxFit.cover
+                                                  ),
+                                                ),
+                                              )
+                                          ),
+                                          Positioned(
+                                            right: 5.0,
+                                            child: InkWell(
+                                              child: Icon(
+                                                Icons.remove_circle,
+                                                size: 30,
+                                                color: Colors.red,
+                                              ),
+                                              // This is where the _image value sets to null on tap of the red circle icon
+                                              onTap: () {
+                                                setState(
+                                                      () {
+                                                    image = null;
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ],
-                                  ),
-                                  SizedBox(height: 20,),
-                                  Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(unSignout.length > 0 ? 'Waktu Check-Out' :'Waktu Check-In', style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold
-                                      ),)
-                                  ),
-                                  SizedBox(height: 10,),
-                                  SizedBox(
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text.rich(
-                                          TextSpan(
-                                            children: <
-                                                InlineSpan>[
-                                              TextSpan(
-                                                  text: formatDate(
-                                                      ' HH:mm:ss',
-                                                      DateTime
-                                                          .now()),
-                                                  style: TextStyle(
-                                                      color: Colors
-                                                          .black,
-                                                      fontSize:
-                                                      16)),
-                                            ],
+                                  ) :
+                                  GestureDetector(
+                                    onTap:
+                                        () async {
+                                      final pickedFile = await ImagePicker().pickImage(
+                                          source: ImageSource
+                                              .camera,
+                                          maxWidth:
+                                          1800,
+                                          maxHeight:
+                                          1800,
+                                          preferredCameraDevice:
+                                          CameraDevice
+                                              .front);
+
+                                      if (pickedFile ==
+                                          null)
+                                        return;
+                                      final imageTemp =
+                                      File(pickedFile
+                                          .path);
+                                      setState(() =>
+                                      image =
+                                          imageTemp);
+
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Card(
+                                          shape:
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(
+                                                18.0),
+                                          ),
+                                          elevation: 0,
+                                          color: Colors.white,
+                                          child:
+                                          SizedBox(
+                                            width: 70,
+                                            height: 70,
+                                            child:
+                                            Center(
+                                              child: Text
+                                                  .rich(
+                                                TextSpan(
+                                                  children: <
+                                                      InlineSpan>[
+                                                    WidgetSpan(
+                                                      alignment: PlaceholderAlignment.middle,
+                                                      child: Image.asset("assets/images/icons8-face-id-100.png"),
+                                                    ),
+
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      )),
-
+                                        Text('Ambil foto', style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500
+                                        ),)
+                                      ],
+                                    ),
+                                  )
+                              ),
+                              SizedBox(height: 20,),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(unSignout.length > 0 ? 'Lokasi Check-Out' : 'Lokasi Check-In', style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold
+                                  ),)
+                              ),
+                              SizedBox(height: 10,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width:250,
+                                    child: Text(
+                                        locationName,
+                                        softWrap: true,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            color: Colors
+                                                .black,
+                                            fontSize:
+                                            16)
+                                    ),
+                                  )
                                 ],
                               ),
+                              SizedBox(height: 20,),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(unSignout.length > 0 ? 'Waktu Check-Out' :'Waktu Check-In', style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold
+                                  ),)
+                              ),
+                              SizedBox(height: 10,),
+                              SizedBox(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text.rich(
+                                      TextSpan(
+                                        children: <
+                                            InlineSpan>[
+                                          TextSpan(
+                                              text: formatDate(
+                                                  ' HH:mm:ss',
+                                                  DateTime
+                                                      .now()),
+                                              style: TextStyle(
+                                                  color: Colors
+                                                      .black,
+                                                  fontSize:
+                                                  16)),
+                                        ],
+                                      ),
+                                    ),
+                                  )),
 
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
+                            ],
+                          ),
+
+                        )
+                      ],
+                    ),
                   );
                 },
                 footer:Container(

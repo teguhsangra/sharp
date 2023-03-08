@@ -17,15 +17,15 @@ class CardContainer extends StatelessWidget {
       height: height,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color: const Color(0xFFF8F8F8),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
                 color: Colors.grey.withOpacity(0.5),
                 blurRadius: 2,
                 // Shadow position
-                spreadRadius: 3,
-                offset: const Offset(0, 3)),
+                spreadRadius: 1,
+                offset: const Offset(0, 1)),
           ]),
       child: child,
     );

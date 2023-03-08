@@ -500,179 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         // End Card Absensi
-                        CardContainer(
-                            height: 140,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 10, right: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(
-                                              14),
-                                        ),
-                                        elevation: 0,
-                                        color:
-                                        const Color(0xFFE6ECF6),
-                                        child: Container(
-                                          width: 140,
-                                          height: 100,
-                                          padding: EdgeInsets.all(15),
-                                          child: Column(
-                                            children: [
-                                              Align(
-                                                child: Text(
-                                                  'Pencapaian',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 12
-                                                  ),
-                                                ),
-                                                alignment: Alignment.center,
-                                              ),
-                                              SizedBox(height: 10,),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                        '55',
-                                                        style: TextStyle(
-                                                            fontWeight: FontWeight.bold,
-                                                            fontSize: 16,
-                                                            color: Colors.red
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 10,),
-                                                      Text(
-                                                          'Unit Terjual',
-                                                          style: TextStyle(
-                                                              fontSize: 10,
-                                                              color: Colors.black54
-                                                          )
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(width: 20,),
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                          point_fee.toString(),
-                                                          style: TextStyle(
-                                                              fontWeight: FontWeight.bold,
-                                                              fontSize: 16,
-                                                              color: Colors.blue
-                                                          )
-                                                      ),
-                                                      SizedBox(height: 10,),
-                                                      Text(
-                                                          'Point',
-                                                          style: TextStyle(
-                                                              fontSize: 10,
-                                                              color: Colors.black54
-                                                          )
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(
-                                              14),
-                                        ),
-                                        elevation: 0,
-                                        color:
-                                        const Color(0xFFE6ECF6),
-                                        child: Container(
-                                          width: 140,
-                                          height: 100,
-                                          padding: EdgeInsets.all(15),
-                                          child: Column(
-                                            children: [
-                                              Align(
-                                                child: Text(
-                                                  'Target',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 12
-                                                  ),
-                                                ),
-                                                alignment: Alignment.center,
-                                              ),
-                                              SizedBox(height: 10,),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                        '55',
-                                                        style: TextStyle(
-                                                            fontWeight: FontWeight.bold,
-                                                            fontSize: 16,
-                                                            color: Colors.red
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 10,),
-                                                      Text(
-                                                          'Unit Terjual',
-                                                          style: TextStyle(
-                                                              fontSize: 10,
-                                                              color: Colors.black54
-                                                          )
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(width: 20,),
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                          '100',
-                                                          style: TextStyle(
-                                                              fontWeight: FontWeight.bold,
-                                                              fontSize: 16,
-                                                              color: Colors.blue
-                                                          )
-                                                      ),
-                                                      SizedBox(height: 10,),
-                                                      Text(
-                                                          'Point',
-                                                          style: TextStyle(
-                                                              fontSize: 10,
-                                                              color: Colors.black54
-                                                          )
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                            )
-                        ),
+                        CardTarget(),
                         SizedBox(height: 10,),
                         CardMenu()
                       ],
@@ -962,6 +790,106 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget CardTarget(){
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      height: 100,
+      width: size.width,
+      margin: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: BoxDecoration(
+          color:  Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                blurRadius: 1,
+                // Shadow position
+                spreadRadius: 1,
+                offset: const Offset(0, 1)),
+          ]),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Pencapaian',style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14
+            ),),
+          ),
+          SizedBox(height: 15,),
+          IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '55',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.red
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 5,),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                            'Unit Terjual',
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.black54
+                            )
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                VerticalDivider(
+                  width: 20,
+                  thickness: 1,
+                  color: Colors.grey,
+                ),
+                Container(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          point_fee.toString(),
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.red
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 5,),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                            'Point',
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.black54
+                            )
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           )
