@@ -13,6 +13,10 @@ import 'package:telkom/network/api.dart';
 import 'package:telkom/constants.dart';
 import 'package:telkom/components/CustomPageRoute.dart';
 import 'package:telkom/ui/asset/asset_screen.dart';
+import 'package:telkom/ui/competitor/compotior_activity_screen.dart';
+import 'package:telkom/ui/competitor/compotior_info_screen.dart';
+import 'package:telkom/ui/feedback/feedback_screen.dart';
+import 'package:telkom/ui/report/report_screen.dart';
 import 'package:telkom/ui/stock/stock_screen.dart';
 
 import '../../components/helper.dart';
@@ -867,8 +871,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget CardMenu() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -891,11 +895,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     index = 1;
                   });
                 },
-                child: Container(
+                child: SizedBox(
                   height: 60,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: const [
                       Icon(
                         UniconsLine.transaction,
                         color: Colors.green,
@@ -922,11 +926,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     index = 2;
                   });
                 },
-                child: Container(
+                child: SizedBox(
                   height: 60,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: const [
                       Icon(
                         UniconsLine.archive,
                         color: Colors.indigo,
@@ -955,11 +959,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context) => const AssetScreen()),
                   );
                 },
-                child: Container(
+                child: SizedBox(
                   height: 60,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: const [
                       Icon(
                         UniconsLine.store_alt,
                         color: Colors.deepOrange,
@@ -980,108 +984,141 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              Container(
-                height: 60,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      UniconsLine.chart,
-                      color: Colors.blueAccent,
-                      size: 30,
+              GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ReportScreen()),
+                    );
+                  },
+                  child: SizedBox(
+                    height: 60,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          UniconsLine.chart,
+                          color: Colors.blueAccent,
+                          size: 30,
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Report',
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ],
                     ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      'Report',
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    )
-                  ],
-                ),
-              )
+                  ))
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Container(
-                height: 70,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      UniconsLine.user,
-                      color: Colors.red,
-                      size: 30,
+              GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CompetitorInfoScreen()),
+                    );
+                  },
+                  child: SizedBox(
+                    height: 70,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          UniconsLine.user,
+                          color: Colors.red,
+                          size: 30,
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Competitor Info',
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ],
                     ),
-                    SizedBox(
-                      height: 5,
+                  )),
+              GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const CompetitorActivityScreen()),
+                    );
+                  },
+                  child: SizedBox(
+                    height: 70,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          UniconsLine.users_alt,
+                          color: Colors.orangeAccent,
+                          size: 30,
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Competitor \n Activity',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ],
                     ),
-                    Text(
-                      'Competitor Info',
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                height: 70,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      UniconsLine.users_alt,
-                      color: Colors.orangeAccent,
-                      size: 30,
+                  )),
+              GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const FeedbackScreen()),
+                    );
+                  },
+                  child: SizedBox(
+                    height: 70,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          UniconsLine.feedback,
+                          color: Colors.blueGrey,
+                          size: 30,
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Feedback',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ],
                     ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      'Competitor \n Activity',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                height: 70,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      UniconsLine.feedback,
-                      color: Colors.blueGrey,
-                      size: 30,
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      'Feedback',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    )
-                  ],
-                ),
-              )
+                  ))
             ],
           )
         ],
