@@ -36,6 +36,8 @@ class SalesOrderState extends State<SalesOrderScreen> {
   int present = 1;
   int perPage = 0;
   int totalPage =0;
+  String _cancelReason = '';
+  final List<String?> errors = [];
 
   showAlertDialog(BuildContext context) {
     showDialog(
@@ -76,7 +78,7 @@ class SalesOrderState extends State<SalesOrderScreen> {
 
   void getAccessGroup() async{
     var access_group_id = user['person']['employee']['access_group_id'];
-    var res = await Network().getData('get_access_group??link=sales_orders&access_group_id=$access_group_id');
+    var res = await Network().getData('get_access_group?link=sales_orders&access_group_id=$access_group_id');
     if (res.statusCode == 200) {
       var resultData = jsonDecode(res.body);
       access_group = resultData['data'];
@@ -207,6 +209,26 @@ class SalesOrderState extends State<SalesOrderScreen> {
                     SizedBox(
                       height: 20,
                     ),
+                    GestureDetector(
+                      onTap: () async {
+                        Navigator.pop(context);
+                        sheetReject(Id);
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.clear),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            'Reject Sales order',
+                            style: TextStyle(
+                                fontSize:
+                                16),
+                          )
+                        ],
+                      ),
+                    ),
 
                   ],
                 ),
@@ -333,9 +355,167 @@ class SalesOrderState extends State<SalesOrderScreen> {
         });
   }
 
+  void sheetReject(id) {
+    Size size = MediaQuery
+        .of(context)
+        .size;
+    showModalBottomSheet(
+        enableDrag: true,
+        isDismissible: true,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              width: size.width,
+              height: size.height * 0.6,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20)
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      children: [
+                        SizedBox(height: 10,),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Message', style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold
+                            ),)
+                          ],
+                        ),
+                        SizedBox(height: 5,),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Alasan',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: _cancelReason,
+                          onChanged: (value) {
+                            setState(() {
+                              _cancelReason = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              addError(error: 'Masukkan alasan reject');
+                              return "Masukkan alasan reject";
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                              labelText: "",
+                              hintText: "Masukan alasan reject",
+                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              )
+                            //
+                          ),
+                        ),
+                        SizedBox(height: 20,),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Apa anda yakin untuk reject sales order tersebut?',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            ),),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 20, horizontal: 10),
+                              height: 50,
+                              width: size.width / 3,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey,
+                                  borderRadius: BorderRadius.circular(18)),
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  'Batal',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 20, horizontal: 10),
+                              height: 50,
+                              width: size.width / 3,
+                              decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(18)),
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  updateSalesOrder(id, "cancel");
+                                },
+                                child: const Text(
+                                  'Simpan',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  void addError({String? error}) {
+    if (!errors.contains(error))
+      setState(() {
+        errors.add(error);
+      });
+  }
+
   void updateSalesOrder(Id, status) async{
     var data = {
-      "status": status
+      "status": status,
+      "cancel_reason" : _cancelReason
     };
     showAlertDialog(context);
     var res = await Network().putUrl('sales_orders/$Id/update_status?show_type=test', data);

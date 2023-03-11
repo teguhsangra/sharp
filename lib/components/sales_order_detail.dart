@@ -53,7 +53,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -172,7 +172,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
             return Container(
               width: size.width,
               height: size.height * 0.6,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
                     topRight: Radius.circular(20),
@@ -180,31 +180,31 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                 ),
               ),
               child: Padding(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Column(
                       children: [
-                        SizedBox(height: 10,),
+                        const SizedBox(height: 10,),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Update Lokasi', style: TextStyle(
+                            const Text('Update Lokasi', style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold
                             ),)
                           ],
                         ),
-                        SizedBox(height: 10,),
+                        const SizedBox(height: 10,),
                         Image.asset(
                           "assets/images/no_image_pelaporan.png",
                           fit: BoxFit.cover,
                           width: 200,
                           height: 200,
                         ),
-                        SizedBox(height: 20,),
-                        Align(
+                        const SizedBox(height: 20,),
+                        const Align(
                           alignment: Alignment.center,
                           child: Text(
                             'Apa anda yakin untuk approve sales order tersebut?',
@@ -213,14 +213,14 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                 fontWeight: FontWeight.bold
                             ),),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Container(
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   vertical: 20, horizontal: 10),
                               height: 50,
                               width: size.width / 3,
@@ -239,7 +239,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                               ),
                             ),
                             Container(
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   vertical: 20, horizontal: 10),
                               height: 50,
                               width: size.width / 3,
@@ -277,10 +277,10 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.black, //change your color here
         ),
-        title: Text(
+        title: const Text(
           "Sales Order Detail",
           style: TextStyle(color: Colors.black),
         ),
@@ -295,14 +295,14 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                       builder: (context) => const NotificationScreen()),
                 );
               },
-              icon: Icon(Icons.notifications, color: Colors.black),
+              icon: const Icon(Icons.notifications, color: Colors.black),
             ),
           ),
           CircleAvatar(
             radius: 15,
-            backgroundColor: Color(0xffD9D9D9),
+            backgroundColor: const Color(0xffD9D9D9),
             child: Padding(
-              padding: EdgeInsets.all(5),
+              padding: const EdgeInsets.all(5),
               child: ClipOval(
                 child: Image.asset(
                   "assets/images/hero_profile.png",
@@ -312,27 +312,28 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           )
         ],
       ),
       body: isLoading
-    ? Center(child: CircularProgressIndicator())
+    ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
           child: Column(
           children: [
             Container(
               color: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
               child: Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Align(
+                          const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'Kode',
@@ -342,12 +343,12 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 5,),
+                          const SizedBox(height: 5,),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               salesOrder.code.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500
                               ),
@@ -355,12 +356,11 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                           )
                         ],
                       ),
-                      SizedBox(width: 210,),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
+                          const Align(
+                            alignment: Alignment.topLeft,
                             child: Text(
                               'Nama',
                               style: TextStyle(
@@ -369,12 +369,12 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 5,),
+                          const SizedBox(height: 5,),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               salesOrder.name.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500
                               ),
@@ -384,14 +384,14 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20,),
+                  const SizedBox(height: 20,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Align(
+                          const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'Klien',
@@ -401,12 +401,12 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 5,),
+                          const SizedBox(height: 5,),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               salesOrder.customer!.name.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500
                               ),
@@ -417,7 +417,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Align(
+                          const Align(
                             alignment: Alignment.topLeft,
                             child: Text(
                               'Lokasi',
@@ -427,12 +427,12 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 5,),
+                          const SizedBox(height: 5,),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               salesOrder.location!.name.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500
                               ),
@@ -446,52 +446,52 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 10,),
+            const SizedBox(height: 10,),
             Container(
               color: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
               child: Column(
                 children: [
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: Text('Catatan', style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold
                     ),),
                   ),
-                  SizedBox(height: 20,),
+                  const SizedBox(height: 20,),
                  Align(
                    alignment: Alignment.centerLeft,
-                   child:  Text(salesOrder.remarks != null ? salesOrder.remarks.toString() : '',maxLines: 3,softWrap: true,style: TextStyle(
+                   child:  Text(salesOrder.remarks != null ? salesOrder.remarks.toString() : '',maxLines: 3,softWrap: true,style: const TextStyle(
                        fontSize: 18
                    ),),
                  )
                 ],
               ),
             ),
-            SizedBox(height: 10,),
+            const SizedBox(height: 10,),
             Container(
               color: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
               child: Column(
                 children: [
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: Text('Detail Pesanan Barang', style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold
                     ),),
                   ),
-                  SizedBox(height: 20,),
+                  const SizedBox(height: 20,),
                   ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: salesOrder.salesOrderDetail.length,
                       itemBuilder: (context, index) {
                         var item = salesOrder.salesOrderDetail[index];
                         var total = int.parse(item.price.toString()) * int.parse(item.quantity.toString())-int.parse(item.discount.toString()) + int.parse(item.service_charge.toString()) + int.parse(item.tax.toString());
                         return Container(
-                          padding: EdgeInsets.only(top: 20, bottom: 20),
+                          padding: const EdgeInsets.only(top: 20, bottom: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -504,27 +504,27 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                       child: Text(
                                         item.name,
                                         maxLines: 2,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
-                                    SizedBox(height: 5,),
+                                    const SizedBox(height: 5,),
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         item.quantity.toString()+' x '+currencyFormat(int.parse(item.price.toString())),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 14,),
                                       ),
                                     ),
-                                    SizedBox(height: 20,),
+                                    const SizedBox(height: 20,),
                                     Row(
                                       children: [
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Align(
+                                            const Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text('Diskon', style: TextStyle(
                                                   fontSize: 12,
@@ -534,7 +534,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                             ),
                                             Align(
                                               alignment: Alignment.centerLeft,
-                                              child: Text('${currencyFormat(int.parse(item.discount.toString()))}', style: TextStyle(
+                                              child: Text('${currencyFormat(int.parse(item.discount.toString()))}', style: const TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.black
@@ -542,11 +542,11 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                             ),
                                           ],
                                         ),
-                                        SizedBox(width: 50,),
+                                        const SizedBox(width: 50,),
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Align(
+                                            const Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text('Tax', style: TextStyle(
                                                   fontSize: 12,
@@ -556,7 +556,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                             ),
                                             Align(
                                               alignment: Alignment.centerLeft,
-                                              child: Text('${currencyFormat(int.parse(item.tax.toString()))}', style: TextStyle(
+                                              child: Text('${currencyFormat(int.parse(item.tax.toString()))}', style: const TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.black
@@ -567,10 +567,10 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
 
                                       ],
                                     ),
-                                    SizedBox(height: 20,),
+                                    const SizedBox(height: 20,),
                                     Column(
                                       children: [
-                                        Align(
+                                        const Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text('Total', style: TextStyle(
                                               fontSize: 12,
@@ -580,7 +580,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                         ),
                                         Align(
                                           alignment: Alignment.centerLeft,
-                                          child: Text('${currencyFormat(total)}', style: TextStyle(
+                                          child: Text('${currencyFormat(total)}', style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black
@@ -592,7 +592,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                 ),
                                 width: 250,
                               ),
-                              Divider(color: Colors.grey,)
+                              const Divider(color: Colors.grey,)
                             ],
                           ),
                         );
@@ -600,24 +600,24 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 10,),
+            const SizedBox(height: 10,),
             Container(
              color: Colors.white,
-             padding: EdgeInsets.only(left: 20,top: 20, right: 20, bottom: 20),
+             padding: const EdgeInsets.only(left: 20,top: 20, right: 20, bottom: 20),
              child: Column(
                children: [
-                 Align(
+                 const Align(
                    alignment: Alignment.centerLeft,
                    child: Text('Rincian Total Harga', style: TextStyle(
                        fontSize: 14,
                        fontWeight: FontWeight.bold
                    ),),
                  ),
-                 SizedBox(height: 20,),
+                 const SizedBox(height: 20,),
                  Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
-                     Align(
+                     const Align(
                        alignment: Alignment.centerLeft,
                        child: Text('Total Diskon',
                            style: TextStyle(
@@ -626,17 +626,17 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                color: Colors.black)),
                      ),
                      Text('${currencyFormat(total_diskon)}',
-                         style: TextStyle(
+                         style: const TextStyle(
                              fontSize: 14.0,
                              fontWeight: FontWeight.w600,
                              color: Colors.black))
                    ],
                  ),
-                 SizedBox(height: 10,),
+                 const SizedBox(height: 10,),
                  Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
-                     Align(
+                     const Align(
                        alignment: Alignment.centerLeft,
                        child: Text('Total Harga',
                            style: TextStyle(
@@ -645,17 +645,17 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                color: Colors.black)),
                      ),
                      Text('${currencyFormat(total_price)}',
-                         style: TextStyle(
+                         style: const TextStyle(
                              fontSize: 14.0,
                              fontWeight: FontWeight.w600,
                              color: Colors.black))
                    ],
                  ),
-                 SizedBox(height: 10,),
+                 const SizedBox(height: 10,),
                  Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
-                     Align(
+                     const Align(
                        alignment: Alignment.centerLeft,
                        child: Text('Total Pajak',
                            style: TextStyle(
@@ -664,17 +664,17 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                                color: Colors.black)),
                      ),
                      Text('${currencyFormat(total_tax)}',
-                         style: TextStyle(
+                         style: const TextStyle(
                              fontSize: 14.0,
                              fontWeight: FontWeight.w600,
                              color: Colors.black))
                    ],
                  ),
-                 SizedBox(height: 10,),
+                 const SizedBox(height: 10,),
                  Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
-                     Align(
+                     const Align(
                        alignment: Alignment.centerLeft,
                        child: Text('Total Keseluruhan',
                            style: TextStyle(
@@ -684,7 +684,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
                      ),
 
                      Text('${currencyFormat(grand_total)}',
-                         style: TextStyle(
+                         style: const TextStyle(
                              fontSize: 14.0,
                              fontWeight: FontWeight.w600,
                              color: Colors.black))
@@ -698,7 +698,7 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
         ),
 
       bottomNavigationBar: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           :
           Container(
           height: salesOrder.status != 'posted' && salesOrder.status != 'cancel' && access_group['is_update'] == 1 ? 100 : 0,
@@ -706,11 +706,11 @@ class SalesOrderDetailState extends State<SalesOrderDetailScreen> {
           children: [
             if(salesOrder.status != 'posted' && salesOrder.status != 'cancel' && access_group['is_update'] == 1 )
             Container(
-              margin: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+              margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
               height: 50,
               width: size.width,
               decoration: BoxDecoration(
-                  color: Color(0xFFE50404),
+                  color: const Color(0xFFE50404),
                   borderRadius: BorderRadius.circular(18)),
               child: TextButton(
                 onPressed: () {
