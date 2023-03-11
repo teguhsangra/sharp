@@ -221,12 +221,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            item.title.toString(),
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: item.is_read == 0 ? FontWeight.bold : FontWeight.w700,
-              color: item.is_read == 0 ? Colors.black : Colors.grey,
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.only(right: 5.0),
+              child: Text(
+                item.title.toString(),
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: item.is_read == 0 ? FontWeight.bold : FontWeight.w700,
+                  color: item.is_read == 0 ? Colors.black : Colors.grey,
+                ),
+              ),
             ),
           ),
           Text(
