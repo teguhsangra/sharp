@@ -34,7 +34,7 @@ class AssetState extends State<AssetScreen> {
   var selectedLocation ={};
   var selectedProduct={};
 
-  late List assets = <Asset>[];
+  late List<Asset> assets = [];
   late List listProduct = <Product>[];
   List products = <Product>[];
 
@@ -120,12 +120,12 @@ class AssetState extends State<AssetScreen> {
       setState(() {
         perPage = resultData['data']['per_page'];
         totalPage = resultData['data']['total'];
-
-        assets.clear();
         resultData['data']['data'].forEach((v) {
           assets.add(Asset.fromJson(v));
         });
       });
+      getLocation();
+      getProduct();
     }
   }
 

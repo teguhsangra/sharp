@@ -9,8 +9,6 @@ import 'package:telkom/components/card.dart';
 import 'package:telkom/components/dialog_pop_up_success_check_in.dart';
 import 'package:telkom/components/dialog_pop_up_success_check_out.dart';
 
-
-
 import 'package:telkom/network/api.dart';
 import 'package:telkom/constants.dart';
 import 'package:telkom/components/CustomPageRoute.dart';
@@ -32,8 +30,6 @@ import 'package:telkom/ui/checklist/checklist_screen.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/checklist/checklist_is_checked_screen.dart';
 import 'package:telkom/ui/sales_order/sales_order_screen.dart';
-
-
 
 class HomeScreen extends StatefulWidget {
   bool checkin;
@@ -65,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var locationName = '';
   int counter = 0;
   int point_fee = 0;
+
   _HomeScreenState(this.checkin);
 
   @override
@@ -129,19 +126,18 @@ class _HomeScreenState extends State<HomeScreen> {
       _latitude = position.latitude;
       _longitude = position.longitude;
     });
-    if(user != null){
+    if (user != null) {
       var date = formatDate("yyyy-MM-dd HH:mm:ss", DateTime.now());
 
       var data = {
         "last_latitude": position.latitude,
         "last_longitude": position.longitude,
-        "last_position_at":date
+        "last_position_at": date
       };
 
-      var res = await Network().postLastPosition('employees-last-position/${user['person']['employee']['id']}', data);
+      var res = await Network().postLastPosition(
+          'employees-last-position/${user['person']['employee']['id']}', data);
       var body = json.decode(res.body);
-
-
     }
     getAddressFromLongLat(position);
   }
@@ -169,7 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-
     checkUnsignout();
 
     checkerTodayResume();
@@ -186,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       var body = json.decode(res.body);
       var data_body = body['data'];
-    
+
       if (data_body != null) {
         setState(() {
           if (data_body?['sign_out_at'] == null) {
@@ -223,19 +218,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  getNotifUnread() async{
+  getNotifUnread() async {
     var res = await Network().getData('notifications/get_total_unread');
     var body = json.decode(res.body);
     var data_body = body['data'];
-    if(res.statusCode == 200 || res.statusCode == 201)
-    {
+    if (res.statusCode == 200 || res.statusCode == 201) {
       setState(() {
         counter = data_body;
       });
     }
   }
-
-
 
   void _onItemTapped(int selectedIndex) {
     setState(() {
@@ -244,10 +236,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future checkInDialog() async {
-    var res = await Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) {
-          return new PresensiScreen();
-        }));
+    var res = await Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return new PresensiScreen();
+    }));
 
     if (res == 'success') {
       setState(() {
@@ -263,12 +255,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future checkOutDialog() async {
-    var res = await Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) {
-          return new PresensiScreen(
-              unSignout: unSignout
-          );
-        }));
+    var res = await Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return new PresensiScreen(unSignout: unSignout);
+    }));
     if (res == 'success') {
       setState(() {
         checkin = false;
@@ -375,40 +365,50 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     Stack(
                                       children: <Widget>[
-                                        new IconButton(icon: Icon(Icons.notifications_outlined, color: Colors.white,), onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                const NotificationScreen()),
-                                          );
-                                        }),
-                                        counter != 0 ? new Positioned(
-                                          right: 11,
-                                          top: 11,
-                                          child: new Container(
-                                            padding: EdgeInsets.all(2),
-                                            decoration: new BoxDecoration(
-                                              color: Colors.red,
-                                              borderRadius: BorderRadius.circular(30),
+                                        new IconButton(
+                                            icon: Icon(
+                                              Icons.notifications_outlined,
+                                              color: Colors.white,
                                             ),
-                                            constraints: BoxConstraints(
-                                              minWidth: 14,
-                                              minHeight: 14,
-                                            ),
-                                            child: Text(
-                                              counter >= 9 ? '9 +' : '$counter',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 8,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        ) : new Container()
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const NotificationScreen()),
+                                              );
+                                            }),
+                                        counter != 0
+                                            ? new Positioned(
+                                                right: 11,
+                                                top: 11,
+                                                child: new Container(
+                                                  padding: EdgeInsets.all(2),
+                                                  decoration: new BoxDecoration(
+                                                    color: Colors.red,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                  ),
+                                                  constraints: BoxConstraints(
+                                                    minWidth: 14,
+                                                    minHeight: 14,
+                                                  ),
+                                                  child: Text(
+                                                    counter >= 9
+                                                        ? '9 +'
+                                                        : '$counter',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 8,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              )
+                                            : new Container()
                                       ],
-                                    )
-                                   ,
+                                    ),
                                     GestureDetector(
                                       onTap: () {
                                         _onItemTapped(3);
@@ -444,18 +444,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Color(0xFF2109B4),
                                   size: 20,
                                 ),
-                                SizedBox(width: 10,),
+                                SizedBox(
+                                  width: 10,
+                                ),
                                 SizedBox(
                                   width: size.width / 2,
-                                  child: Text(
-                                      locationName,
+                                  child: Text(locationName,
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2,
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 12)
-                                  )
-                                  ,
+                                          color: Colors.black, fontSize: 12)),
                                 ),
                               ],
                             ),
@@ -491,17 +489,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Card Absensi
                         Column(
                           children: [
-                            (checkin
-                                ?
-                            CardCheckOut()
-                                :
-                            CardCheckin()
-                            )
+                            (checkin ? CardCheckOut() : CardCheckin())
                           ],
                         ),
                         // End Card Absensi
                         CardTarget(),
-                        SizedBox(height: 10,),
+                        SizedBox(
+                          height: 10,
+                        ),
                         CardMenu()
                       ],
                     ),
@@ -510,16 +505,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-  Widget CardCheckin(){
+  Widget CardCheckin() {
     Size size = MediaQuery.of(context).size;
-    return  Container(
+    return Container(
       width: size.width,
       height: 150,
-      margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
-          color:  Color(0xFFE50404),
+          color: Color(0xFFE50404),
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
@@ -532,12 +526,18 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
-            child:  Row(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text("Masuk untuk absen", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),
+                Text(
+                  "Masuk untuk absen",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                ),
                 Icon(
                   UniconsLine.clock,
                   color: Colors.white,
@@ -546,15 +546,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  formatDate('dd MMMM yyyy',
-                      DateTime.now()),
+                  formatDate('dd MMMM yyyy', DateTime.now()),
                   style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -566,28 +567,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.circular(
-                          30.0),
+                      borderRadius: BorderRadius.circular(30.0),
                     ),
                     elevation: 0,
-                    color:
-                    const Color(0xFFE6ECF6),
+                    color: const Color(0xFFE6ECF6),
                     child: SizedBox(
                       width: size.width / 4,
                       height: 40,
                       child: Center(
                         child: Text.rich(
                           TextSpan(
-                            children: <
-                                InlineSpan>[
+                            children: <InlineSpan>[
                               WidgetSpan(
-                                alignment:
-                                PlaceholderAlignment
-                                    .middle,
+                                alignment: PlaceholderAlignment.middle,
                                 child: Icon(
-                                  UniconsLine
-                                      .capture,
+                                  UniconsLine.capture,
                                   color: Colors.blue,
                                   size: 14,
                                 ),
@@ -595,9 +589,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               TextSpan(
                                 text: ' Check-in',
                                 style: TextStyle(
-                                    color: Colors
-                                        .black,
-                                    fontSize: 12),
+                                    color: Colors.black, fontSize: 12),
                               ),
                             ],
                           ),
@@ -614,15 +606,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget CardCheckOut(){
+  Widget CardCheckOut() {
     Size size = MediaQuery.of(context).size;
     return Container(
       width: size.width,
       height: 190,
-      margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
-          color:  Color(0xFFE50404),
+          color: Color(0xFFE50404),
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
@@ -635,15 +627,20 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
-            child:  Row(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text("Presensi", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),
                 Text(
-                  formatDate('dd MMMM yyyy',
-                      DateTime.now()),
+                  "Presensi",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                ),
+                Text(
+                  formatDate('dd MMMM yyyy', DateTime.now()),
                   style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -652,10 +649,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          SizedBox(height: 10,),
+          SizedBox(
+            height: 10,
+          ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
-            child:  Row(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -668,10 +667,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Container(
                       child: Text(
-                        maxLines:4,
+                        maxLines: 4,
                         softWrap: true,
                         ' $locationName',
-                        style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     )
                   ],
@@ -679,7 +681,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
             child: Row(
@@ -687,55 +691,38 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(
-                        30.0),
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
                   elevation: 0,
-                  color:
-                  const Color(0xFFE6ECF6),
+                  color: const Color(0xFFE6ECF6),
                   child: SizedBox(
                     width: size.width / 3.5,
                     height: 40,
                     child: Center(
                       child: Text.rich(
                         TextSpan(
-                          children: <
-                              InlineSpan>[
+                          children: <InlineSpan>[
                             WidgetSpan(
-                              alignment:
-                              PlaceholderAlignment
-                                  .middle,
+                              alignment: PlaceholderAlignment.middle,
                               child: Icon(
-                                UniconsLine
-                                    .location_pin_alt,
-                                color: Color(
-                                    0XFFFA4A0C),
+                                UniconsLine.location_pin_alt,
+                                color: Color(0XFFFA4A0C),
                                 size: 12,
                               ),
                             ),
                             TextSpan(
-                                text:
-                                ' Check-in: ',
+                                text: ' Check-in: ',
                                 style: TextStyle(
-                                    color: Colors
-                                        .black,
-                                    fontSize:
-                                    10)),
+                                    color: Colors.black, fontSize: 10)),
                             TextSpan(
                                 text: formatDate(
                                     'HH:mm:ss',
-                                    unSignout.length >
-                                        0
-                                        ? DateTime.tryParse(unSignout[
-                                    'sign_in_at'])
-                                        : DateTime
-                                        .now()),
+                                    unSignout.length > 0
+                                        ? DateTime.tryParse(
+                                            unSignout['sign_in_at'])
+                                        : DateTime.now()),
                                 style: TextStyle(
-                                    color: Colors
-                                        .black,
-                                    fontSize:
-                                    10)),
+                                    color: Colors.black, fontSize: 10)),
                           ],
                         ),
                       ),
@@ -748,41 +735,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.circular(
-                          30.0),
+                      borderRadius: BorderRadius.circular(30.0),
                     ),
                     elevation: 0,
-                    color:
-                    const Color(0xFFE6ECF6),
+                    color: const Color(0xFFE6ECF6),
                     child: SizedBox(
                       width: size.width / 4,
                       height: 40,
                       child: Center(
                         child: Text.rich(
                           TextSpan(
-                            children: <
-                                InlineSpan>[
+                            children: <InlineSpan>[
                               WidgetSpan(
-                                alignment:
-                                PlaceholderAlignment
-                                    .middle,
+                                alignment: PlaceholderAlignment.middle,
                                 child: Icon(
-                                  Icons
-                                      .exit_to_app,
-                                  color: Color(
-                                      0XFFFA4A0C),
+                                  Icons.exit_to_app,
+                                  color: Color(0XFFFA4A0C),
                                   size: 13,
                                 ),
                               ),
                               TextSpan(
-                                  text:
-                                  ' Check out',
+                                  text: ' Check out',
                                   style: TextStyle(
-                                      color: Colors
-                                          .black,
-                                      fontSize:
-                                      10)),
+                                      color: Colors.black, fontSize: 10)),
                             ],
                           ),
                         ),
@@ -798,15 +773,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget CardTarget(){
+  Widget CardTarget() {
     Size size = MediaQuery.of(context).size;
     return Container(
       height: 100,
       width: size.width,
-      margin: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
+      margin: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
-          color:  Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -820,12 +795,14 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: Text('Pencapaian',style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14
-            ),),
+            child: Text(
+              'Pencapaian',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
           ),
-          SizedBox(height: 15,),
+          SizedBox(
+            height: 15,
+          ),
           IntrinsicHeight(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -838,22 +815,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           '55',
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.red
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.red),
                         ),
                       ),
-                      SizedBox(height: 5,),
+                      SizedBox(
+                        height: 5,
+                      ),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
-                            'Unit Terjual',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.black54
-                            )
-                        ),
+                        child: Text('Unit Terjual',
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.black54)),
                       ),
                     ],
                   ),
@@ -870,22 +842,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           point_fee.toString(),
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.red
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.red),
                         ),
                       ),
-                      SizedBox(height: 5,),
+                      SizedBox(
+                        height: 5,
+                      ),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
-                            'Point',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.black54
-                            )
-                        ),
+                        child: Text('Point',
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.black54)),
                       ),
                     ],
                   ),
@@ -898,12 +865,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget CardMenu(){
+  Widget CardMenu() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
-          color:  Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -919,7 +886,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   setState(() {
                     index = 1;
                   });
@@ -934,7 +901,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.green,
                         size: 30,
                       ),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
                       Text(
                         'Penjualan',
                         maxLines: 2,
@@ -947,31 +916,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              Container(
-                height: 60,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      UniconsLine.archive,
-                      color: Colors.indigo,
-                      size: 30,
-                    ),
-                    SizedBox(height: 10,),
-                    Text(
-                      'Stok Barang',
-
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    index = 2;
+                  });
+                },
+                child: Container(
+                  height: 60,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        UniconsLine.archive,
+                        color: Colors.indigo,
+                        size: 30,
                       ),
-                    )
-                  ],
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Stok Barang',
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -988,7 +965,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.deepOrange,
                         size: 30,
                       ),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
                       Text(
                         'Data Barang',
                         maxLines: 2,
@@ -1011,7 +990,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.blueAccent,
                       size: 30,
                     ),
-                    SizedBox(height: 5,),
+                    SizedBox(
+                      height: 5,
+                    ),
                     Text(
                       'Report',
                       maxLines: 2,
@@ -1025,7 +1006,9 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             ],
           ),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -1039,7 +1022,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.red,
                       size: 30,
                     ),
-                    SizedBox(height: 5,),
+                    SizedBox(
+                      height: 5,
+                    ),
                     Text(
                       'Competitor Info',
                       maxLines: 2,
@@ -1061,7 +1046,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.orangeAccent,
                       size: 30,
                     ),
-                    SizedBox(height:5,),
+                    SizedBox(
+                      height: 5,
+                    ),
                     Text(
                       'Competitor \n Activity',
                       style: TextStyle(
@@ -1082,7 +1069,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.blueGrey,
                       size: 30,
                     ),
-                    SizedBox(height: 5,),
+                    SizedBox(
+                      height: 5,
+                    ),
                     Text(
                       'Feedback',
                       style: TextStyle(
@@ -1099,5 +1088,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }
