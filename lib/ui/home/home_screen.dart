@@ -16,6 +16,7 @@ import 'package:telkom/ui/asset/asset_screen.dart';
 import 'package:telkom/ui/competitor/compotior_activity_screen.dart';
 import 'package:telkom/ui/competitor/compotior_info_screen.dart';
 import 'package:telkom/ui/feedback/feedback_screen.dart';
+import 'package:telkom/ui/point/point_screen.dart';
 import 'package:telkom/ui/report/report_screen.dart';
 import 'package:telkom/ui/stock/stock_screen.dart';
 
@@ -65,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var locationName = '';
   int counter = 0;
   int point_fee = 0;
+  int sell_unit = 0;
 
   _HomeScreenState(this.checkin);
 
@@ -165,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       setState(() {
         point_fee = body['data']['user']['person']['employee']['point_fee'];
+        sell_unit = body['data']['user']['person']['employee']['money_fee'];
         user = userSession;
       });
     }
@@ -251,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) {
-            return new DialogPopUpSuccessCheckIn();
+            return const DialogPopUpSuccessCheckIn();
           },
           fullscreenDialog: true));
       checkUnsignout();
@@ -269,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) {
-            return new DialogPopUpSuccessCheckOut();
+            return const DialogPopUpSuccessCheckOut();
           },
           fullscreenDialog: true));
       checkUnsignout();
@@ -812,55 +815,65 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '55',
-                          style: TextStyle(fontSize: 16, color: Colors.red),
+                GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        index = 1;
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            sell_unit.toString(),
+                            style: TextStyle(fontSize: 16, color: Colors.red),
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text('Unit Terjual',
-                            style:
-                                TextStyle(fontSize: 10, color: Colors.black54)),
-                      ),
-                    ],
-                  ),
-                ),
-                VerticalDivider(
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Unit Terjual',
+                              style: TextStyle(
+                                  fontSize: 10, color: Colors.black54)),
+                        ),
+                      ],
+                    )),
+                const VerticalDivider(
                   width: 20,
                   thickness: 1,
                   color: Colors.grey,
                 ),
-                Container(
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          point_fee.toString(),
-                          style: TextStyle(fontSize: 16, color: Colors.red),
+                GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PointScreen()),
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            point_fee.toString(),
+                            style: TextStyle(fontSize: 16, color: Colors.red),
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text('Point',
-                            style:
-                                TextStyle(fontSize: 10, color: Colors.black54)),
-                      ),
-                    ],
-                  ),
-                ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Point',
+                              style: TextStyle(
+                                  fontSize: 10, color: Colors.black54)),
+                        ),
+                      ],
+                    )),
               ],
             ),
           )
