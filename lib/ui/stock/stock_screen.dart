@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:unicons/unicons.dart';
 
 class StockScreen extends StatefulWidget {
   const StockScreen({super.key});
@@ -825,6 +826,14 @@ class StockScreenState extends State<StockScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.red,
+          onPressed: () {  },
+          child: const Icon(
+            UniconsLine.plus,
+            color: Colors.white,
+          )
+    ),
     );
   }
 }
