@@ -1,7 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:telkom/model/product.dart';
+import 'package:telkom/network/api.dart';
 import 'package:unicons/unicons.dart';
+import 'package:telkom/components/helper.dart';
 
 class StockScreen extends StatefulWidget {
   const StockScreen({super.key});
@@ -11,15 +15,51 @@ class StockScreen extends StatefulWidget {
 }
 
 class StockScreenState extends State<StockScreen> {
-
+  final scrollController = ScrollController();
+  bool isLoading = true;
+  var user = {};
+  List<Product> _listProduct = [];
 
   @override
   void initState() {
     super.initState();
+    //scrollController.addListener(_scrollListener);
+    setState(() {
+      isLoading = true;
+    });
+    loadUserData();
+
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
   }
 
+  loadUserData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var userSession = jsonDecode(localStorage.getString('user').toString());
+    setState(() {
+      user = userSession;
+    });
+    getProducts();
+  }
 
-  void sheetFilter() async{
+  void getProducts() async {
+    var res =
+        await Network().getData('products?tenant_id=${user['tenant_id']}');
+    if (res.statusCode == 200) {
+      var resultData = jsonDecode(res.body);
+      setState(() {
+        _listProduct.clear();
+        resultData['data'].forEach((v) {
+          _listProduct.add(Product.fromJson(v));
+        });
+      });
+    }
+  }
+
+  void sheetFilter() async {
     Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
         isScrollControlled: true,
@@ -61,10 +101,11 @@ class StockScreenState extends State<StockScreen> {
                                       fontSize: 17.0,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.black)),
-
                             ],
                           ),
-                          SizedBox(height: 20,),
+                          SizedBox(
+                            height: 20,
+                          ),
                           Container(
                             child: Column(
                               children: [
@@ -76,7 +117,9 @@ class StockScreenState extends State<StockScreen> {
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black)),
                                 ),
-                                SizedBox(height: 10,),
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -89,15 +132,19 @@ class StockScreenState extends State<StockScreen> {
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         width: size.height / 4,
-                                        padding: new EdgeInsets.symmetric(horizontal: 10),
-                                        child: Text('Pilih Provinsi',
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: const Text(
+                                          'Pilih Provinsi',
                                           overflow: TextOverflow.ellipsis,
-                                          style: new TextStyle(
+                                          style: TextStyle(
                                             fontSize: 13.0,
                                             fontFamily: 'Roboto',
                                             color: Colors.black,
@@ -105,7 +152,7 @@ class StockScreenState extends State<StockScreen> {
                                           ),
                                         ),
                                       ),
-                                      Icon(Icons.arrow_drop_down_circle,
+                                      const Icon(Icons.arrow_drop_down_circle,
                                           color: Colors.black)
                                     ],
                                   ),
@@ -113,7 +160,9 @@ class StockScreenState extends State<StockScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 20,),
+                          SizedBox(
+                            height: 20,
+                          ),
                           Container(
                             child: Column(
                               children: [
@@ -125,7 +174,9 @@ class StockScreenState extends State<StockScreen> {
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black)),
                                 ),
-                                SizedBox(height: 10,),
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -138,13 +189,17 @@ class StockScreenState extends State<StockScreen> {
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         width: size.height / 4,
-                                        padding: new EdgeInsets.symmetric(horizontal: 10),
-                                        child: Text('Pilih Kota/Kabupaten',
+                                        padding: new EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: Text(
+                                          'Pilih Kota/Kabupaten',
                                           overflow: TextOverflow.ellipsis,
                                           style: new TextStyle(
                                             fontSize: 13.0,
@@ -162,11 +217,13 @@ class StockScreenState extends State<StockScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 20,),
+                          SizedBox(
+                            height: 20,
+                          ),
                           Container(
                             child: Column(
                               children: [
-                                Align(
+                                const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text('Kategori Produk',
                                       style: TextStyle(
@@ -174,7 +231,9 @@ class StockScreenState extends State<StockScreen> {
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black)),
                                 ),
-                                SizedBox(height: 10,),
+                                const SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -187,13 +246,17 @@ class StockScreenState extends State<StockScreen> {
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         width: size.height / 4,
-                                        padding: new EdgeInsets.symmetric(horizontal: 10),
-                                        child: Text('Pilih Kategori Produk',
+                                        padding: new EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: Text(
+                                          'Pilih Kategori Produk',
                                           overflow: TextOverflow.ellipsis,
                                           style: new TextStyle(
                                             fontSize: 13.0,
@@ -211,7 +274,9 @@ class StockScreenState extends State<StockScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 20,),
+                          SizedBox(
+                            height: 20,
+                          ),
                           Container(
                             child: Column(
                               children: [
@@ -223,7 +288,9 @@ class StockScreenState extends State<StockScreen> {
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black)),
                                 ),
-                                SizedBox(height: 10,),
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -236,13 +303,17 @@ class StockScreenState extends State<StockScreen> {
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         width: size.height / 4,
-                                        padding: new EdgeInsets.symmetric(horizontal: 10),
-                                        child: Text('Pilih Tipe Produk',
+                                        padding: new EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: Text(
+                                          'Pilih Tipe Produk',
                                           overflow: TextOverflow.ellipsis,
                                           style: new TextStyle(
                                             fontSize: 13.0,
@@ -260,7 +331,9 @@ class StockScreenState extends State<StockScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 20,),
+                          SizedBox(
+                            height: 20,
+                          ),
                           Container(
                             child: Column(
                               children: [
@@ -272,7 +345,9 @@ class StockScreenState extends State<StockScreen> {
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black)),
                                 ),
-                                SizedBox(height: 10,),
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -285,13 +360,17 @@ class StockScreenState extends State<StockScreen> {
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         width: size.height / 4,
-                                        padding: new EdgeInsets.symmetric(horizontal: 10),
-                                        child: Text('Pilih Lokasi',
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: Text(
+                                          'Pilih Lokasi',
                                           overflow: TextOverflow.ellipsis,
                                           style: new TextStyle(
                                             fontSize: 13.0,
@@ -320,12 +399,10 @@ class StockScreenState extends State<StockScreen> {
                           color: Color(0xFFD60303),
                           borderRadius: BorderRadius.circular(20)),
                       child: TextButton(
-                        onPressed: () {
-                        },
+                        onPressed: () {},
                         child: const Text(
                           'Tampilkan',
-                          style: TextStyle(
-                              color: Colors.white, fontSize: 20),
+                          style: TextStyle(color: Colors.white, fontSize: 20),
                         ),
                       ),
                     )
@@ -348,7 +425,15 @@ class StockScreenState extends State<StockScreen> {
         ),
         elevation: 0,
       ),
-      body: SingleChildScrollView(
+      body: isLoading ?
+      Container(
+        margin:
+        const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Center(child: CircularProgressIndicator()),
+      ) : RefreshIndicator(
+        onRefresh: () async {
+          loadUserData();
+        },
         child: Column(
           children: [
             Row(
@@ -379,461 +464,145 @@ class StockScreenState extends State<StockScreen> {
                 )
               ],
             ),
-            GridView.count(
-              physics: NeverScrollableScrollPhysics(),
-              childAspectRatio: 0.58,
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  decoration: BoxDecoration(
-                      color:  Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            blurRadius: 1,
-                            // Shadow position
-                            spreadRadius: 1,
-                            offset: const Offset(0, 2)),
-                      ]),
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.all(10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: Image.network(
-                            'https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80',
-                            fit: BoxFit.fill,
-                            width: 120,
-                            height: 120,
-
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20,),
-                      Container(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Mesin Cuci Sharp-001',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10,),
-                            Row(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Harga',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10,),
-                                Text('Rp.5.000.000', style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold
-                                ),)
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                                'Stok Tersedia',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(
-                                  14.0),
-                            ),
-                            elevation: 0,
-                            color:
-                            const Color(0xFFD60303),
-                            child: SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Center(
-                                child: Text(
-                                  '5',
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  decoration: BoxDecoration(
-                      color:  Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            blurRadius: 1,
-                            // Shadow position
-                            spreadRadius: 1,
-                            offset: const Offset(0, 2)),
-                      ]),
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.all(10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: Image.network(
-                            'https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80',
-                            fit: BoxFit.fill,
-                            width: 120,
-                            height: 120,
-
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20,),
-                      Container(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Mesin Cuci Sharp-002',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10,),
-                            Row(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Harga',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10,),
-                                Text('Rp.5.000.000', style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold
-                                ),)
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Stok Tersedia',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(
-                                  14.0),
-                            ),
-                            elevation: 0,
-                            color:
-                            const Color(0xFFD60303),
-                            child: SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Center(
-                                child: Text(
-                                  '5',
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  decoration: BoxDecoration(
-                      color:  Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            blurRadius: 1,
-                            // Shadow position
-                            spreadRadius: 1,
-                            offset: const Offset(0, 2)),
-                      ]),
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.all(10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: Image.network(
-                            'https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80',
-                            fit: BoxFit.fill,
-                            width: 120,
-                            height: 120,
-
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20,),
-                      Container(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Mesin Cuci Sharp-003',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10,),
-                            Row(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Harga',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10,),
-                                Text('Rp.5.000.000', style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold
-                                ),)
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Stok Tersedia',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(
-                                  14.0),
-                            ),
-                            elevation: 0,
-                            color:
-                            const Color(0xFFD60303),
-                            child: SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Center(
-                                child: Text(
-                                  '5',
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  decoration: BoxDecoration(
-                      color:  Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            blurRadius: 1,
-                            // Shadow position
-                            spreadRadius: 1,
-                            offset: const Offset(0, 2)),
-                      ]),
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.all(10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: Image.network(
-                            'https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80',
-                            fit: BoxFit.fill,
-                            width: 120,
-                            height: 120,
-
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20,),
-                      Container(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Mesin Cuci Sharp-004',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10,),
-                            Row(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Harga',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10,),
-                                Text('Rp.5.000.000', style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold
-                                ),)
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Stok Tersedia',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(
-                                  14.0),
-                            ),
-                            elevation: 0,
-                            color:
-                            const Color(0xFFD60303),
-                            child: SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Center(
-                                child: Text(
-                                  '5',
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
-            )
+            Expanded(child: GridList(listProduct: _listProduct))
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.red,
-          onPressed: () {  },
+          onPressed: () {},
           child: const Icon(
             UniconsLine.plus,
             color: Colors.white,
-          )
-    ),
+          )),
+    );
+  }
+}
+
+class GridList extends StatelessWidget {
+  const GridList({
+    Key? key,
+    required List<Product> listProduct,
+  })  : _listProduct = listProduct,
+        super(key: key);
+
+  final List<Product> _listProduct;
+
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
+    /*24 is for notification bar on Android*/
+    final double itemHeight = (size.height - kToolbarHeight - 20) / 2;
+    final double itemWidth = size.width / 2;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 23 / 30,
+        mainAxisSpacing: 5,
+        crossAxisSpacing: 3,
+      ),
+      physics: const AlwaysScrollableScrollPhysics(),
+      itemBuilder: (_, index) {
+        var item = _listProduct[index];
+        return Card(
+          child: Column(
+            children: [
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: const Image(
+                    image: NetworkImage(
+                        "https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80"),
+                    fit: BoxFit.cover,
+                  )),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        item.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Harga',
+                            style: TextStyle(
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          currencyFormat(item!.price),
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Stok Tersedia',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(
+                                14.0),
+                          ),
+                          elevation: 0,
+                          color:
+                          const Color(0xFFD60303),
+                          child: SizedBox(
+                            width: 50,
+                            height: 40,
+                            child: Center(
+                              child: Text(
+                                item.has_stock.toString(),
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+      itemCount: _listProduct.length,
     );
   }
 }
