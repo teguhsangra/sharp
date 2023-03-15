@@ -436,34 +436,34 @@ class StockScreenState extends State<StockScreen> {
         },
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    sheetFilter();
-                  },
-                  child: Container(
-                    margin: EdgeInsets.all(15),
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.filter_alt,
-                          color: Colors.red,
-                          size: 20,
-                        ),
-                        Text(' Filter '),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     GestureDetector(
+            //       onTap: () {
+            //         sheetFilter();
+            //       },
+            //       child: Container(
+            //         margin: EdgeInsets.all(15),
+            //         padding: EdgeInsets.all(5),
+            //         decoration: BoxDecoration(
+            //           border: Border.all(color: Colors.red),
+            //           borderRadius: BorderRadius.circular(20),
+            //         ),
+            //         child: Row(
+            //           children: [
+            //             Icon(
+            //               Icons.filter_alt,
+            //               color: Colors.red,
+            //               size: 20,
+            //             ),
+            //             Text(' Filter '),
+            //           ],
+            //         ),
+            //       ),
+            //     )
+            //   ],
+            // ),
             Expanded(child: GridList(listProduct: _listProduct))
           ],
         ),
