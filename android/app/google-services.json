@@ -1,41 +1,34 @@
-{
+                                                                                                                                                                                                                                                                                                                                              {
   "project_info": {
-    "project_number": "639048545067",
-    "project_id": "checklist-atm",
-    "storage_bucket": "checklist-atm.appspot.com"
+    "project_number": "1074552129385",
+    "project_id": "sharp-92110",
+    "storage_bucket": "sharp-92110.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:639048545067:android:7c0cbb70df9dae3cc80b6e",
+        "mobilesdk_app_id": "1:1074552129385:android:d0af3fdd5d40273f005ff8",
         "android_client_info": {
-          "package_name": "com.example.telkom"
+          "package_name": "com.telkom.sharp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "639048545067-a47bbptj5b44m73ih30oq7mqig2mvrs0.apps.googleusercontent.com",
+          "client_id": "1074552129385-sh8rh6j3augt7tgb9cd00bt4sf6k03ut.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAph-uR6rivKtHRxYgvhxTXthDPvdQf3FI"
+          "current_key": "AIzaSyCoLNHTZVyG3AM7BoFS6oLmFz79U0OuMBM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "639048545067-a47bbptj5b44m73ih30oq7mqig2mvrs0.apps.googleusercontent.com",
+              "client_id": "1074552129385-sh8rh6j3augt7tgb9cd00bt4sf6k03ut.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "639048545067-hsiiinheoeguirl6tmvlritj4koe1ktu.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.telkom"
-              }
             }
           ]
         }

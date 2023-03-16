@@ -292,7 +292,7 @@ class AssetState extends State<AssetScreen> {
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            'Kode',
+                                            'Serial Number',
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.grey
@@ -440,7 +440,7 @@ class AssetState extends State<AssetScreen> {
           var res =
           await Navigator.of(context).push(new MaterialPageRoute(
               builder: (BuildContext context) {
-                return new FormAssetScreen();
+                return new FormAssetScreen.add(0, null);
               },
               fullscreenDialog: true));
 
