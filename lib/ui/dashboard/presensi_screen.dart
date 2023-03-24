@@ -16,8 +16,8 @@ import 'package:telkom/components/CustomPageRoute.dart';
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:telkom/network/api.dart';
-import 'package:telkom/constants.dart';
-import 'package:telkom/ui/home/home_screen.dart';
+import 'package:telkom/config/constants.dart';
+import 'package:telkom/ui/dashboard/dashboard_screen.dart';
 import '../../components/helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';

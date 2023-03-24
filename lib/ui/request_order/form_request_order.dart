@@ -14,7 +14,7 @@ import 'package:telkom/model/location.dart';
 import 'package:telkom/model/room.dart';
 import 'package:telkom/network/api.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
-import 'package:telkom/ui/home/home_screen.dart';
+import 'package:telkom/ui/dashboard/dashboard_screen.dart';
 import 'package:telkom/ui/request_order/detail_request_order.dart';
 
 class FormRequestOrderScreen extends StatefulWidget {

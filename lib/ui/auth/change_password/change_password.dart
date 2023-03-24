@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:telkom/constants.dart';
+import 'package:telkom/config/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:telkom/model/password.dart';
 import 'package:telkom/network/api.dart';

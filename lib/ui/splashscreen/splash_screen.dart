@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom/network/api.dart';
 import 'package:telkom/ui/auth/login/login_screen.dart';
-import 'package:telkom/ui/home/home_screen.dart';
+import 'package:telkom/ui/dashboard/dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
