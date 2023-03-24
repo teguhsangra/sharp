@@ -4,9 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:telkom/components/dialog_pop_up_success_check_in.dart';
 import 'package:telkom/components/helper.dart';
+import 'package:telkom/ui/asset/asset_screen.dart';
+import 'package:telkom/ui/auth/login/login_screen.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/auth/profile/profile_screen.dart';
+import 'package:telkom/ui/competitor/compotior_activity_screen.dart';
+import 'package:telkom/ui/competitor/compotior_info_screen.dart';
+import 'package:telkom/ui/dashboard/dashboard_screen.dart';
+import 'package:telkom/ui/dashboard/presensi_screen.dart';
+import 'package:telkom/ui/feedback/feedback_screen.dart';
+import 'package:telkom/ui/report/report_screen.dart';
 import 'package:unicons/unicons.dart';
 
 import '../../network/api.dart';
@@ -27,6 +36,9 @@ class HomeStateTwo extends State<HomeScreenTwo> {
   double _longitude = 0;
   int point_fee = 0;
   int sell_unit = 0;
+  bool checkin = false;
+  var unSignout = {};
+  int index = 0;
 
   @override
   void initState() {
@@ -147,7 +159,9 @@ class HomeStateTwo extends State<HomeScreenTwo> {
           child: Column(
             children: [
               cardAddressLocation(),
-              cardCheckInCheckOut()
+              cardCheckInCheckOut(),
+              cardTarget(),
+              cardMenu(),
             ],
           ),
         ),
@@ -185,12 +199,13 @@ class HomeStateTwo extends State<HomeScreenTwo> {
   }
 
   Widget cardCheckInCheckOut() {
+    Size size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.symmetric(
           horizontal: 20, vertical: 10),
       child: Container(
         padding: const EdgeInsets.symmetric(
-            horizontal: 20, vertical: 20),
+            horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
@@ -203,15 +218,57 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                   offset: const Offset(0, 1)),
             ]),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   "Masuk untuk absen",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 18),
+                      fontSize: 14),
+                ),
+                Text(
+                  formatDate('dd MMMM yyyy', DateTime.now()),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    checkInDialog();
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    elevation: 0,
+                    color: const Color(0xFFE50404),
+                    child: SizedBox(
+                      width: size.width / 4,
+                      height: 40,
+                      child: Center(
+                        child: Text.rich(
+                          TextSpan(
+                            children: <InlineSpan>[
+                              TextSpan(
+                                text: ' Check-in',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 )
               ],
             )
@@ -226,6 +283,8 @@ class HomeStateTwo extends State<HomeScreenTwo> {
     getLocationLatLong();
   }
 
+  
+  
   loadUserData() async {
     var res = await Network().getData('me');
     var body = json.decode(res.body);
@@ -305,5 +364,385 @@ class HomeStateTwo extends State<HomeScreenTwo> {
     setState(() {
       locationName = '${place.street},${place.locality}';
     });
+  }
+
+  Future checkInDialog() async {
+    var res = await Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return new PresensiScreen();
+    }));
+
+    if (res == 'success') {
+      setState(() {
+        checkin = true;
+      });
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) {
+            return const DialogPopUpSuccessCheckIn();
+          },
+          fullscreenDialog: true));
+      checkUnsignout();
+    }
+  }
+
+  checkUnsignout() async {
+    var res = await Network().getData(
+        'check_unsignout?employee_id=${user['person']['employee']['id']}');
+    if (res.statusCode == 401) {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.clear();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (BuildContext context) => const LoginScreen()));
+    } else {
+      var body = json.decode(res.body);
+      var data_body = body['data'];
+
+      if (data_body != null) {
+        setState(() {
+          if (data_body?['sign_out_at'] == null) {
+            checkin = false;
+          }
+          unSignout = data_body;
+          checkin = true;
+        });
+      }
+    }
+  }
+
+  Widget cardTarget() {
+    Size size = MediaQuery.of(context).size;
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: 20, vertical: 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  blurRadius: 1,
+                  // Shadow position
+                  spreadRadius: 1,
+                  offset: const Offset(0, 1)),
+            ]),
+        child:
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Target",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Pencapaian",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14),
+                    ),
+                    Text(
+                      point_fee.toString(),
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black),
+                    ),
+                    const Text(
+                      "Point",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14),
+                    ),
+                  ],
+                ),
+                SizedBox(width: 100),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Target",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14),
+                    ),
+                    Text(
+                      sell_unit.toString(),
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black),
+                    ),
+                    const Text(
+                      "Unit Terjual",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ],
+        )
+      ),
+    );
+  }
+
+  Widget cardMenu() {
+    Size size = MediaQuery.of(context).size;
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: 20, vertical: 10),
+      child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    blurRadius: 1,
+                    // Shadow position
+                    spreadRadius: 1,
+                    offset: const Offset(0, 1)),
+              ]),
+          child:
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Tools",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AssetScreen()),
+                      );
+                    },
+                    child: SizedBox(
+                      height: 60,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            UniconsLine.archive,
+                            color: Colors.cyan,
+                            size: 30,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            'Data Barang',
+                            maxLines: 2,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        HomeScreen();
+                      });
+                    },
+                    child: SizedBox(
+                      height: 60,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            UniconsLine.clipboard,
+                            color: Colors.deepPurple,
+                            size: 30,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            'Stok Barang',
+                            maxLines: 2,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ReportScreen()),
+                        );
+                      },
+                      child: SizedBox(
+                        height: 60,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              UniconsLine.chart,
+                              color: Colors.blueAccent,
+                              size: 30,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Report',
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            )
+                          ],
+                        ),
+                      ))
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CompetitorInfoScreen()),
+                        );
+                      },
+                      child: SizedBox(
+                        height: 70,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              UniconsLine.user_exclamation,
+                              color: Colors.red,
+                              size: 30,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Competitor Info',
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            )
+                          ],
+                        ),
+                      )),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                              const CompetitorActivityScreen()),
+                        );
+                      },
+                      child: SizedBox(
+                        height: 70,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              UniconsLine.sync_icon,
+                              color: Colors.orangeAccent,
+                              size: 30,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Competitor \n Activity',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            )
+                          ],
+                        ),
+                      )),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const FeedbackScreen()),
+                        );
+                      },
+                      child: SizedBox(
+                        height: 70,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              UniconsLine.comment_alt,
+                              color: Colors.blueGrey,
+                              size: 30,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Feedback',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            )
+                          ],
+                        ),
+                      ))
+                ],
+              )
+            ],
+          )
+      ),
+    );
   }
 }

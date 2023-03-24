@@ -288,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: index,
         children: [
           HomeScreenTwo(context),
-          HomeIndex(context),
+          const SalesOrderScreen(),
           const StockScreen()
         ],
       ),
@@ -296,9 +296,9 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
         child: GNav(
             color: const Color(0xFFE50404),
-            activeColor: const Color(0xFFE50404),
+            activeColor: const Color(0xFFffffff),
             gap: 8,
-            tabBackgroundColor: const Color(0XFFFDF0D2),
+            tabBackgroundColor: const Color(0xFFE50404),
             padding: const EdgeInsets.all(15),
             iconSize: 20,
             selectedIndex: index,
@@ -309,8 +309,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             tabs: const [
               GButton(icon: UniconsLine.estate, text: 'Home'),
-              GButton(icon: UniconsLine.transaction, text: 'Sales Order'),
-              GButton(icon: UniconsLine.check_circle, text: 'Stock'),
+              GButton(icon: UniconsLine.tag, text: 'Sales Order'),
+              GButton(icon: UniconsLine.clipboard, text: 'Stock'),
             ]),
       ),
     );
