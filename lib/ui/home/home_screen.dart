@@ -368,7 +368,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
 
   Future checkInDialog() async {
     var res = await Navigator.of(context)
-        .push(new MaterialPageRoute(builder: (BuildContext context) {
+        .push(MaterialPageRoute(builder: (BuildContext context) {
       return new PresensiScreen();
     }));
 
