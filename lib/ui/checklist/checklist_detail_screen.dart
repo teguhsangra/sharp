@@ -379,7 +379,7 @@ class CheckLisDetailState extends State<ChecklistResultDetailScreen> {
               context,
             ).pushAndRemoveUntil(
                 MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
+                  builder: (context) => HomeScreen(selectedTab: 1),
                 ),
                     (route) => false);
           } else {

@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom/components/dialog_pop_up_success_check_in.dart';
+import 'package:telkom/components/dialog_pop_up_success_check_out.dart';
 import 'package:telkom/components/helper.dart';
 import 'package:telkom/ui/asset/asset_screen.dart';
 import 'package:telkom/ui/auth/login/login_screen.dart';
@@ -70,8 +71,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                 },
                 child: CircleAvatar(
                   radius: 20,
-                  backgroundColor:
-                  const Color(0xffD9D9D9),
+                  backgroundColor: const Color(0xffD9D9D9),
                   child: Padding(
                     padding: const EdgeInsets.all(5),
                     child: Image.asset(
@@ -85,20 +85,17 @@ class HomeStateTwo extends State<HomeScreenTwo> {
               const SizedBox(
                 width: 10,
               ),
-              RichText(
-                text: TextSpan(children: [
-                  TextSpan(
-                    text: greeting(1),
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                  TextSpan(
-                    text: ' ${user['name']}',
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 18),
-                  ),
-                ]),
-              )
+              Row(children: [
+                // Text(greeting(1),
+                //   style: TextStyle(fontSize: 18, color: Colors.black),
+                // ),
+                Text(
+                  ' ${user['name']}',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: const TextStyle(color: Colors.black, fontSize: 18),
+                ),
+              ]),
             ],
           ),
         ),
@@ -114,38 +111,33 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                          const NotificationScreen()),
+                          builder: (context) => const NotificationScreen()),
                     );
                   }),
               counter != 0
                   ? new Positioned(
-                right: 11,
-                top: 11,
-                child: new Container(
-                  padding: EdgeInsets.all(2),
-                  decoration: new BoxDecoration(
-                    color: Colors.red,
-                    borderRadius:
-                    BorderRadius.circular(
-                        30),
-                  ),
-                  constraints: BoxConstraints(
-                    minWidth: 14,
-                    minHeight: 14,
-                  ),
-                  child: Text(
-                    counter >= 9
-                        ? '9 +'
-                        : '$counter',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
+                      right: 11,
+                      top: 11,
+                      child: new Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: new BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 14,
+                          minHeight: 14,
+                        ),
+                        child: Text(
+                          counter >= 9 ? '9 +' : '$counter',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
                   : new Container()
             ],
           )
@@ -159,7 +151,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
           child: Column(
             children: [
               cardAddressLocation(),
-              cardCheckInCheckOut(),
+              cardCheckInCheckout(),
               cardTarget(),
               cardMenu(),
             ],
@@ -171,11 +163,9 @@ class HomeStateTwo extends State<HomeScreenTwo> {
 
   Widget cardAddressLocation() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 10, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -190,22 +180,19 @@ class HomeStateTwo extends State<HomeScreenTwo> {
             Text(locationName,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
-                style: const TextStyle(
-                    color: Colors.black, fontSize: 14)),
+                style: const TextStyle(color: Colors.black, fontSize: 14)),
           ],
         ),
       ),
     );
   }
 
-  Widget cardCheckInCheckOut() {
+  Widget cardCheckInCheckout() {
     Size size = MediaQuery.of(context).size;
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
@@ -223,11 +210,9 @@ class HomeStateTwo extends State<HomeScreenTwo> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Masuk untuk absen",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14),
+                Text(
+                  checkin ? "Berhasil Absen pada" : "Masuk untuk absen ",
+                  style: TextStyle(color: Colors.black, fontSize: 14),
                 ),
                 Text(
                   formatDate('dd MMMM yyyy', DateTime.now()),
@@ -236,6 +221,15 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                       fontWeight: FontWeight.w400,
                       color: Colors.black),
                 ),
+                checkin
+                    ? Text(
+                        formatDate(
+                            'HH:mm:ss',
+                            unSignout.length > 0
+                                ? DateTime.tryParse(unSignout['sign_in_at'])
+                                : DateTime.now()),
+                        style: TextStyle(color: Colors.black, fontSize: 10))
+                    : Text('')
               ],
             ),
             Column(
@@ -243,7 +237,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
               children: [
                 GestureDetector(
                   onTap: () async {
-                    checkInDialog();
+                    checkin ? checkOutDialog() : checkInDialog();
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
@@ -259,7 +253,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                           TextSpan(
                             children: <InlineSpan>[
                               TextSpan(
-                                text: ' Check-in',
+                                text: checkin ? 'Check-Out' : ' Check-in',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 12),
                               ),
@@ -283,8 +277,6 @@ class HomeStateTwo extends State<HomeScreenTwo> {
     getLocationLatLong();
   }
 
-  
-  
   loadUserData() async {
     var res = await Network().getData('me');
     var body = json.decode(res.body);
@@ -358,7 +350,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
 
   Future<void> getAddressFromLongLat(Position position) async {
     List<Placemark> placemarks =
-    await placemarkFromCoordinates(position.latitude, position.longitude);
+        await placemarkFromCoordinates(position.latitude, position.longitude);
 
     Placemark place = placemarks[0];
     setState(() {
@@ -379,6 +371,24 @@ class HomeStateTwo extends State<HomeScreenTwo> {
       Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) {
             return const DialogPopUpSuccessCheckIn();
+          },
+          fullscreenDialog: true));
+      checkUnsignout();
+    }
+  }
+
+  Future checkOutDialog() async {
+    var res = await Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return new PresensiScreen(unSignout: unSignout);
+    }));
+    if (res == 'success') {
+      setState(() {
+        checkin = false;
+      });
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) {
+            return const DialogPopUpSuccessCheckOut();
           },
           fullscreenDialog: true));
       checkUnsignout();
@@ -412,104 +422,9 @@ class HomeStateTwo extends State<HomeScreenTwo> {
   Widget cardTarget() {
     Size size = MediaQuery.of(context).size;
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  blurRadius: 1,
-                  // Shadow position
-                  spreadRadius: 1,
-                  offset: const Offset(0, 1)),
-            ]),
-        child:
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Target",
-              style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Pencapaian",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14),
-                    ),
-                    Text(
-                      point_fee.toString(),
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black),
-                    ),
-                    const Text(
-                      "Point",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14),
-                    ),
-                  ],
-                ),
-                SizedBox(width: 100),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Target",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14),
-                    ),
-                    Text(
-                      sell_unit.toString(),
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black),
-                    ),
-                    const Text(
-                      "Unit Terjual",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ],
-        )
-      ),
-    );
-  }
-
-  Widget cardMenu() {
-    Size size = MediaQuery.of(context).size;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 20, vertical: 10),
-      child: Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
@@ -521,8 +436,88 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                     spreadRadius: 1,
                     offset: const Offset(0, 1)),
               ]),
-          child:
-          Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Target",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Pencapaian",
+                        style: TextStyle(color: Colors.black, fontSize: 14),
+                      ),
+                      Text(
+                        point_fee.toString(),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black),
+                      ),
+                      const Text(
+                        "Point",
+                        style: TextStyle(color: Colors.black, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 100),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Target",
+                        style: TextStyle(color: Colors.black, fontSize: 14),
+                      ),
+                      Text(
+                        sell_unit.toString(),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black),
+                      ),
+                      const Text(
+                        "Unit Terjual",
+                        style: TextStyle(color: Colors.black, fontSize: 14),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ],
+          )),
+    );
+  }
+
+  Widget cardMenu() {
+    Size size = MediaQuery.of(context).size;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    blurRadius: 1,
+                    // Shadow position
+                    spreadRadius: 1,
+                    offset: const Offset(0, 1)),
+              ]),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
@@ -573,9 +568,10 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        HomeScreen();
-                      });
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen(selectedTab: 2,)),
+                      );
                     },
                     child: SizedBox(
                       height: 60,
@@ -602,7 +598,6 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                       ),
                     ),
                   ),
-
                   GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -648,7 +643,8 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const CompetitorInfoScreen()),
+                              builder: (context) =>
+                                  const CompetitorInfoScreen()),
                         );
                       },
                       child: SizedBox(
@@ -681,7 +677,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                              const CompetitorActivityScreen()),
+                                  const CompetitorActivityScreen()),
                         );
                       },
                       child: SizedBox(
@@ -741,8 +737,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                 ],
               )
             ],
-          )
-      ),
+          )),
     );
   }
 }

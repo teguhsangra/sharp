@@ -99,7 +99,7 @@ class LoginState extends State<LoginForm> {
         localStorage.setString('user', json.encode(body['data']['user']));
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen(selectedTab: 0,)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

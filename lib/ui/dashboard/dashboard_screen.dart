@@ -39,14 +39,16 @@ import 'package:telkom/ui/sales_order/sales_order_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   bool checkin;
+  int selectedTab;
 
   HomeScreen({
     Key? key,
+    this.selectedTab = 0,
     this.checkin = false,
   }) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState(checkin);
+  _HomeScreenState createState() => _HomeScreenState(checkin, selectedTab);
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -69,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int point_fee = 0;
   int sell_unit = 0;
 
-  _HomeScreenState(this.checkin);
+  _HomeScreenState(this.checkin, this.index);
 
   @override
   void initState() {
