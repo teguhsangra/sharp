@@ -93,11 +93,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _getLocationLatLong();
   }
 
-  Future<void> loadResources() async {
-    loadUserData();
-    _getLocationLatLong();
-    getNotifUnread();
-  }
+    Future<void> loadResources() async {
+      loadUserData();
+      _getLocationLatLong();
+      getNotifUnread();
+    }
 
   Future<Position> _getGeoLocationPosition() async {
     bool serviceEnabled;

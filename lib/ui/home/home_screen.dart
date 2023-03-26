@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:loader_skeleton/loader_skeleton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom/components/dialog_pop_up_success_check_in.dart';
 import 'package:telkom/components/dialog_pop_up_success_check_out.dart';
@@ -32,6 +33,10 @@ class HomeScreenTwo extends StatefulWidget {
 class HomeStateTwo extends State<HomeScreenTwo> {
   int counter = 0;
   var user = {};
+  int totalIsChecked = 0;
+  int totalIsNotChecked = 0;
+  int totalRequestOrder = 0;
+  int totalApprovedRequestOrder = 0;
   bool isLoading = true;
   var locationName = '';
   double _latitude = 0;
@@ -49,6 +54,17 @@ class HomeStateTwo extends State<HomeScreenTwo> {
       isLoading = true;
     });
     loadAllData();
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
+
+  Future<void> loadResources() async {
+    loadUserData();
+    getLocationLatLong();
+    getNotificationUnread();
   }
 
   @override
@@ -146,17 +162,39 @@ class HomeStateTwo extends State<HomeScreenTwo> {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        onRefresh: () async {},
+        onRefresh: () async {
+          loadResources();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              cardAddressLocation(),
-              cardCheckInCheckout(),
-              cardTarget(),
-              cardMenu(),
-            ],
-          ),
+          child: isLoading
+              ? Column(
+                  children: [
+                    CardSkeleton(
+                      isCircularImage: true,
+                      isBottomLinesActive: true,
+                    ),
+                    CardSkeleton(
+                      isCircularImage: true,
+                      isBottomLinesActive: true,
+                    ),
+                    CardSkeleton(
+                      isCircularImage: true,
+                      isBottomLinesActive: true,
+                    ),
+                    CardPageSkeleton(
+                      totalLines: 1,
+                    )
+                  ],
+                )
+              : Column(
+                  children: [
+                    cardAddressLocation(),
+                    cardCheckInCheckout(),
+                    cardTarget(),
+                    cardMenu(),
+                  ],
+                ),
         ),
       ),
     );
@@ -275,6 +313,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
 
   loadAllData() async {
     loadUserData();
+    getNotificationUnread();
     getLocationLatLong();
   }
 
@@ -292,9 +331,69 @@ class HomeStateTwo extends State<HomeScreenTwo> {
       });
     }
 
-    // checkUnsignout();
-    //
-    // checkerTodayResume();
+    checkUnSignOut();
+
+    checkerTodayResume();
+  }
+
+  checkUnSignOut() async {
+    var res = await Network().getData(
+        'check_unsignout?employee_id=${user['person']['employee']['id']}');
+    if (res.statusCode == 401) {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.clear();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (BuildContext context) => const LoginScreen()));
+    } else {
+      var body = json.decode(res.body);
+      var data_body = body['data'];
+
+      if (data_body != null) {
+        setState(() {
+          if (data_body?['sign_out_at'] == null) {
+            checkin = false;
+          }
+          unSignout = data_body;
+          checkin = true;
+        });
+      }
+    }
+  }
+
+  checkerTodayResume() async {
+    var res = await Network().getData(
+        'checker-today_resume?date_range_filter_by=started_at&started_at=' +
+            formatDate('yyyy-MM-dd', DateTime.now()) +
+            '&ended_at=' +
+            formatDate('yyyy-MM-dd', DateTime.now()));
+    if (res.statusCode == 401) {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.clear();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (BuildContext context) => const LoginScreen()));
+    } else {
+      var result = jsonDecode(res.body);
+
+      setState(() {
+        totalIsChecked = result['data']['total_is_checked'];
+        totalIsNotChecked = result['data']['total_is_not_checked'];
+        totalRequestOrder = result['data']['total_request_order'];
+        totalApprovedRequestOrder =
+        result['data']['total_approved_request_order'];
+      });
+    }
+  }
+
+
+  getNotificationUnread() async {
+    var res = await Network().getData('notifications/get_total_unread');
+    var body = json.decode(res.body);
+    var data_body = body['data'];
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      setState(() {
+        counter = data_body;
+      });
+    }
   }
 
   Future<void> getLocationLatLong() async {
@@ -553,8 +652,8 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => HomeScreen(
-                              selectedTab: 2,
-                            )),
+                                  selectedTab: 2,
+                                )),
                       );
                     },
                   ),
@@ -595,7 +694,8 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CompetitorActivityScreen()),
+                            builder: (context) =>
+                                const CompetitorActivityScreen()),
                       );
                     },
                   ),

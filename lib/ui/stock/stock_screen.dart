@@ -493,7 +493,7 @@ class GridList extends StatelessWidget {
       shrinkWrap: true,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 23 / 30,
+        childAspectRatio: 18 / 30,
         mainAxisSpacing: 5,
         crossAxisSpacing: 3,
       ),
@@ -505,10 +505,9 @@ class GridList extends StatelessWidget {
             children: [
               ClipRRect(
                   borderRadius: BorderRadius.circular(5),
-                  child: const Image(
-                    image: NetworkImage(
-                        "https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80"),
-                    fit: BoxFit.cover,
+                  child: Image.asset(
+                      "assets/images/ic_product.png",
+                      fit: BoxFit.cover,
                   )),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -529,18 +528,6 @@ class GridList extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Harga',
-                            style: TextStyle(
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
                         Text(
                           currencyFormat(item!.price),
                           style: const TextStyle(
@@ -569,8 +556,6 @@ class GridList extends StatelessWidget {
                                 14.0),
                           ),
                           elevation: 0,
-                          color:
-                          const Color(0xFFD60303),
                           child: SizedBox(
                             width: 50,
                             height: 40,
@@ -580,7 +565,7 @@ class GridList extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white
+                                    color: Colors.black
                                 ),
                               ),
                             ),
