@@ -274,7 +274,7 @@ class CheckLisDetailState extends State<ChecklistResultDetailIsCheckedScreen> {
             context,
           ).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: (context) => HomeScreen(checkin: true),
+                builder: (context) => DashboardScreen(checkin: true),
               ),
               (route) => false);
         }

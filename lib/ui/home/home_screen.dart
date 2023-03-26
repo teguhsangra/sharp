@@ -19,18 +19,17 @@ import 'package:telkom/ui/dashboard/dashboard_screen.dart';
 import 'package:telkom/ui/dashboard/presensi_screen.dart';
 import 'package:telkom/ui/feedback/feedback_screen.dart';
 import 'package:telkom/ui/report/report_screen.dart';
-import 'package:unicons/unicons.dart';
 
 import '../../network/api.dart';
 
-class HomeScreenTwo extends StatefulWidget {
-  const HomeScreenTwo(BuildContext context, {super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen(BuildContext context, {super.key});
 
   @override
-  State<StatefulWidget> createState() => HomeStateTwo();
+  State<StatefulWidget> createState() => HomeState();
 }
 
-class HomeStateTwo extends State<HomeScreenTwo> {
+class HomeState extends State<HomeScreen> {
   int counter = 0;
   var user = {};
   int totalIsChecked = 0;
@@ -41,8 +40,8 @@ class HomeStateTwo extends State<HomeScreenTwo> {
   var locationName = '';
   double _latitude = 0;
   double _longitude = 0;
-  int point_fee = 0;
-  int sell_unit = 0;
+  int pointFee = 0;
+  int sellUnit = 0;
   bool checkin = false;
   var unSignout = {};
   int index = 0;
@@ -75,52 +74,50 @@ class HomeStateTwo extends State<HomeScreenTwo> {
         iconTheme: const IconThemeData(
           color: Colors.black, //change your color here
         ),
-        title: Container(
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProfileScreen()),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundColor: const Color(0xffD9D9D9),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Image.asset(
-                      "assets/images/hero_profile.png",
-                      height: 24.0,
-                      width: 24.0,
-                    ),
+        title: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ProfileScreen()),
+                );
+              },
+              child: CircleAvatar(
+                radius: 20,
+                backgroundColor: const Color(0xffD9D9D9),
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Image.asset(
+                    "assets/images/hero_profile.png",
+                    height: 24.0,
+                    width: 24.0,
                   ),
                 ),
               ),
-              const SizedBox(
-                width: 10,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Row(children: [
+              // Text(greeting(1),
+              //   style: TextStyle(fontSize: 18, color: Colors.black),
+              // ),
+              Text(
+                ' ${user['name']}',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(color: Colors.black, fontSize: 18),
               ),
-              Row(children: [
-                // Text(greeting(1),
-                //   style: TextStyle(fontSize: 18, color: Colors.black),
-                // ),
-                Text(
-                  ' ${user['name']}',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(color: Colors.black, fontSize: 18),
-                ),
-              ]),
-            ],
-          ),
+            ]),
+          ],
         ),
         actions: [
           Stack(
             children: <Widget>[
-              new IconButton(
-                  icon: Icon(
+              IconButton(
+                  icon: const Icon(
                     Icons.notifications_outlined,
                     color: Colors.black,
                   ),
@@ -132,22 +129,22 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                     );
                   }),
               counter != 0
-                  ? new Positioned(
+                  ? Positioned(
                       right: 11,
                       top: 11,
-                      child: new Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: new BoxDecoration(
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        constraints: BoxConstraints(
+                        constraints: const BoxConstraints(
                           minWidth: 14,
                           minHeight: 14,
                         ),
                         child: Text(
                           counter >= 9 ? '9 +' : '$counter',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 8,
                           ),
@@ -155,7 +152,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                         ),
                       ),
                     )
-                  : new Container()
+                  : Container()
             ],
           )
         ],
@@ -251,7 +248,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
               children: [
                 Text(
                   checkin ? "Berhasil Absen pada" : "Masuk untuk absen ",
-                  style: TextStyle(color: Colors.black, fontSize: 14),
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
                 ),
                 Text(
                   formatDate('dd MMMM yyyy', DateTime.now()),
@@ -264,11 +261,11 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                     ? Text(
                         formatDate(
                             'HH:mm:ss',
-                            unSignout.length > 0
+                            unSignout.isNotEmpty
                                 ? DateTime.tryParse(unSignout['sign_in_at'])
                                 : DateTime.now()),
-                        style: TextStyle(color: Colors.black, fontSize: 10))
-                    : Text('')
+                        style: const TextStyle(color: Colors.black, fontSize: 10))
+                    : const Text('')
               ],
             ),
             Column(
@@ -293,7 +290,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                             children: <InlineSpan>[
                               TextSpan(
                                 text: checkin ? 'Check-Out' : ' Check-in',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: Colors.white, fontSize: 12),
                               ),
                             ],
@@ -325,8 +322,8 @@ class HomeStateTwo extends State<HomeScreenTwo> {
       var userSession = jsonDecode(localStorage.getString('user').toString());
 
       setState(() {
-        point_fee = body['data']['user']['person']['employee']['point_fee'];
-        sell_unit = body['data']['user']['person']['employee']['money_fee'];
+        pointFee = body['data']['user']['person']['employee']['point_fee'];
+        sellUnit = body['data']['user']['person']['employee']['money_fee'];
         user = userSession;
       });
     }
@@ -346,14 +343,14 @@ class HomeStateTwo extends State<HomeScreenTwo> {
           builder: (BuildContext context) => const LoginScreen()));
     } else {
       var body = json.decode(res.body);
-      var data_body = body['data'];
+      var dataBody = body['data'];
 
-      if (data_body != null) {
+      if (dataBody != null) {
         setState(() {
-          if (data_body?['sign_out_at'] == null) {
+          if (dataBody?['sign_out_at'] == null) {
             checkin = false;
           }
-          unSignout = data_body;
+          unSignout = dataBody;
           checkin = true;
         });
       }
@@ -388,10 +385,10 @@ class HomeStateTwo extends State<HomeScreenTwo> {
   getNotificationUnread() async {
     var res = await Network().getData('notifications/get_total_unread');
     var body = json.decode(res.body);
-    var data_body = body['data'];
+    var dataBody = body['data'];
     if (res.statusCode == 200 || res.statusCode == 201) {
       setState(() {
-        counter = data_body;
+        counter = dataBody;
       });
     }
   }
@@ -461,14 +458,14 @@ class HomeStateTwo extends State<HomeScreenTwo> {
   Future checkInDialog() async {
     var res = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (BuildContext context) {
-      return new PresensiScreen();
+      return PresensiScreen();
     }));
 
     if (res == 'success') {
       setState(() {
         checkin = true;
       });
-      Navigator.of(context).push(new MaterialPageRoute(
+      Navigator.of(context).push(MaterialPageRoute(
           builder: (BuildContext context) {
             return const DialogPopUpSuccessCheckIn();
           },
@@ -479,14 +476,14 @@ class HomeStateTwo extends State<HomeScreenTwo> {
 
   Future checkOutDialog() async {
     var res = await Navigator.of(context)
-        .push(new MaterialPageRoute(builder: (BuildContext context) {
-      return new PresensiScreen(unSignout: unSignout);
+        .push(MaterialPageRoute(builder: (BuildContext context) {
+      return PresensiScreen(unSignout: unSignout);
     }));
     if (res == 'success') {
       setState(() {
         checkin = false;
       });
-      Navigator.of(context).push(new MaterialPageRoute(
+      Navigator.of(context).push(MaterialPageRoute(
           builder: (BuildContext context) {
             return const DialogPopUpSuccessCheckOut();
           },
@@ -505,14 +502,14 @@ class HomeStateTwo extends State<HomeScreenTwo> {
           builder: (BuildContext context) => const LoginScreen()));
     } else {
       var body = json.decode(res.body);
-      var data_body = body['data'];
+      var dataBody = body['data'];
 
-      if (data_body != null) {
+      if (dataBody != null) {
         setState(() {
-          if (data_body?['sign_out_at'] == null) {
+          if (dataBody?['sign_out_at'] == null) {
             checkin = false;
           }
-          unSignout = data_body;
+          unSignout = dataBody;
           checkin = true;
         });
       }
@@ -560,7 +557,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                         style: TextStyle(color: Colors.black, fontSize: 14),
                       ),
                       Text(
-                        point_fee.toString(),
+                        pointFee.toString(),
                         style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w400,
@@ -572,7 +569,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                       ),
                     ],
                   ),
-                  SizedBox(width: 100),
+                  const SizedBox(width: 100),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -581,7 +578,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                         style: TextStyle(color: Colors.black, fontSize: 14),
                       ),
                       Text(
-                        sell_unit.toString(),
+                        sellUnit.toString(),
                         style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w400,
@@ -651,7 +648,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => HomeScreen(
+                            builder: (context) => DashboardScreen(
                                   selectedTab: 2,
                                 )),
                       );
@@ -667,7 +664,7 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                             builder: (context) => const ReportScreen()),
                       );
                     },
-                  ),
+                  )
                 ],
               ),
               const SizedBox(

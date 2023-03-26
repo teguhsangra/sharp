@@ -54,7 +54,7 @@ class SplashScreenState extends State<SplashScreen> {
       });
 
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+          MaterialPageRoute(builder: (BuildContext context) => DashboardScreen()));
 
     }else{
       SharedPreferences localStorage = await SharedPreferences.getInstance();
