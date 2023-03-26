@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom/components/rounded_input_field.dart';
 import 'package:telkom/components/rounded_password_field.dart';
 import 'package:telkom/ui/auth/forgot_password/forgot_password_screen.dart';
-import 'package:telkom/ui/home/home_screen.dart';
+import 'package:telkom/ui/dashboard/dashboard_screen.dart';
 import 'package:telkom/network/api.dart';
-import '../../../../constants.dart';
+import '../../../../config/constants.dart';
 import 'dart:io' show Platform;
 
 class LoginForm extends StatefulWidget {
@@ -99,7 +99,7 @@ class LoginState extends State<LoginForm> {
         localStorage.setString('user', json.encode(body['data']['user']));
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => DashboardScreen(selectedTab: 0,)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -20,7 +20,7 @@ import 'package:telkom/network/api.dart';
 import 'package:telkom/services/sales_order.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
 import 'package:telkom/ui/request_order/detail_request_order.dart';
-import 'package:telkom/ui/home/home_screen.dart';
+import 'package:telkom/ui/dashboard/dashboard_screen.dart';
 
 class FormSalesOrderScreen extends StatefulWidget {
   const FormSalesOrderScreen({super.key});
