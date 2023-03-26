@@ -467,14 +467,7 @@ class StockScreenState extends State<StockScreen> {
             Expanded(child: GridList(listProduct: _listProduct))
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.red,
-          onPressed: () {},
-          child: const Icon(
-            UniconsLine.plus,
-            color: Colors.white,
-          )),
+      )
     );
   }
 }

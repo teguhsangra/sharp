@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telkom/components/dialog_pop_up_success_check_in.dart';
 import 'package:telkom/components/dialog_pop_up_success_check_out.dart';
 import 'package:telkom/components/helper.dart';
+import 'package:telkom/components/menu_widget.dart';
 import 'package:telkom/ui/asset/asset_screen.dart';
 import 'package:telkom/ui/auth/login/login_screen.dart';
 import 'package:telkom/ui/auth/notification/NotificationScreen.dart';
@@ -531,9 +532,11 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                 height: 20,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
+                  MenuWidget(
+                    icon: "assets/images/ic_inventory.png",
+                    text: "Data Barang",
                     onTap: () {
                       Navigator.push(
                         context,
@@ -541,201 +544,77 @@ class HomeStateTwo extends State<HomeScreenTwo> {
                             builder: (context) => const AssetScreen()),
                       );
                     },
-                    child: SizedBox(
-                      height: 60,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
-                            UniconsLine.archive,
-                            color: Colors.cyan,
-                            size: 30,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            'Data Barang',
-                            maxLines: 2,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
                   ),
-                  GestureDetector(
+                  MenuWidget(
+                    icon: "assets/images/ic_stock.png",
+                    text: "Stok Barang",
                     onTap: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => HomeScreen(selectedTab: 2,)),
+                        MaterialPageRoute(
+                            builder: (context) => HomeScreen(
+                              selectedTab: 2,
+                            )),
                       );
                     },
-                    child: SizedBox(
-                      height: 60,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
-                            UniconsLine.clipboard,
-                            color: Colors.deepPurple,
-                            size: 30,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            'Stok Barang',
-                            maxLines: 2,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
                   ),
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ReportScreen()),
-                        );
-                      },
-                      child: SizedBox(
-                        height: 60,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
-                              UniconsLine.chart,
-                              color: Colors.blueAccent,
-                              size: 30,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'Report',
-                              maxLines: 2,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            )
-                          ],
-                        ),
-                      ))
+                  MenuWidget(
+                    icon: "assets/images/ic_analytics.png",
+                    text: "Report",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ReportScreen()),
+                      );
+                    },
+                  ),
                 ],
               ),
               const SizedBox(
                 height: 20,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const CompetitorInfoScreen()),
-                        );
-                      },
-                      child: SizedBox(
-                        height: 70,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
-                              UniconsLine.user_exclamation,
-                              color: Colors.red,
-                              size: 30,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'Competitor Info',
-                              maxLines: 2,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            )
-                          ],
-                        ),
-                      )),
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const CompetitorActivityScreen()),
-                        );
-                      },
-                      child: SizedBox(
-                        height: 70,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
-                              UniconsLine.sync_icon,
-                              color: Colors.orangeAccent,
-                              size: 30,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'Competitor \n Activity',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            )
-                          ],
-                        ),
-                      )),
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const FeedbackScreen()),
-                        );
-                      },
-                      child: SizedBox(
-                        height: 70,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
-                              UniconsLine.comment_alt,
-                              color: Colors.blueGrey,
-                              size: 30,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'Feedback',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            )
-                          ],
-                        ),
-                      ))
+                  MenuWidget(
+                    icon: "assets/images/ic_competitor_info.png",
+                    text: "Competitor info",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CompetitorInfoScreen()),
+                      );
+                    },
+                  ),
+                  MenuWidget(
+                    icon: "assets/images/ic_competitor_act.png",
+                    text: "Competitor \n Activity",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CompetitorActivityScreen()),
+                      );
+                    },
+                  ),
+                  MenuWidget(
+                    icon: "assets/images/ic_feedback.png",
+                    text: "Feedback",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FeedbackScreen()),
+                      );
+                    },
+                  )
                 ],
-              )
+              ),
+              const SizedBox(
+                height: 20,
+              ),
             ],
           )),
     );

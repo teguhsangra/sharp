@@ -294,26 +294,38 @@ class _HomeScreenState extends State<HomeScreen> {
           const StockScreen()
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-        child: GNav(
-            color: const Color(0xFFE50404),
-            activeColor: const Color(0xFFffffff),
-            gap: 8,
-            tabBackgroundColor: const Color(0xFFE50404),
-            padding: const EdgeInsets.all(15),
-            iconSize: 20,
-            selectedIndex: index,
-            onTabChange: (int selectedIndex) {
-              setState(() {
-                index = selectedIndex;
-              });
-            },
-            tabs: const [
-              GButton(icon: UniconsLine.estate, text: 'Home'),
-              GButton(icon: UniconsLine.tag, text: 'Sales Order'),
-              GButton(icon: UniconsLine.clipboard, text: 'Stock'),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+            color: const Color(0xFFFFFFFF),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  blurRadius: 2,
+                  // Shadow position
+                  spreadRadius: 3,
+                  offset: const Offset(0, 3)),
             ]),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+          child: GNav(
+              color: const Color(0xFFE50404),
+              activeColor: const Color(0xFFffffff),
+              gap: 8,
+              tabBackgroundColor: const Color(0xFFE50404),
+              padding: const EdgeInsets.all(15),
+              iconSize: 20,
+              selectedIndex: index,
+              onTabChange: (int selectedIndex) {
+                setState(() {
+                  index = selectedIndex;
+                });
+              },
+              tabs: const [
+                GButton(icon: UniconsLine.estate, text: 'Home'),
+                GButton(icon: UniconsLine.tag, text: 'Sales Order'),
+                GButton(icon: UniconsLine.clipboard, text: 'Stock'),
+              ]),
+        ),
       ),
     );
   }
