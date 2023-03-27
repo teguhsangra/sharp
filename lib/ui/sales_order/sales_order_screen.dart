@@ -713,26 +713,9 @@ class SalesOrderState extends State<SalesOrderScreen> {
                       builder: (context) => const NotificationScreen()),
                 );
               },
-              icon: Icon(Icons.notifications, color: Color(0xFFE50404)),
+              icon: Icon(Icons.notifications_outlined, color: Colors.black),
             ),
           ),
-          CircleAvatar(
-            radius: 15,
-            backgroundColor: Color(0xffD9D9D9),
-            child: Padding(
-              padding: EdgeInsets.all(5),
-              child: ClipOval(
-                child: Image.asset(
-                  "assets/images/hero_profile.png",
-                  height: 40.0,
-                  width: 40.0,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 20,
-          )
         ],
         elevation: 0,
       ),
